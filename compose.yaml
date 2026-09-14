@@ -1,0 +1,24 @@
+services:
+  thesis:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: kltn-logistics
+
+    working_dir: /app/python
+
+    volumes:
+      - ./python:/app/python
+      - ./dataset:/app/dataset
+      - ./results:/app/results
+
+    environment:
+      PYTHONPATH: /app/python
+
+    command:
+      - python
+      - -m
+      - pytest
+      - tests
+      - -v
