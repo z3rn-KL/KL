@@ -1,0 +1,2 @@
+algorithm,priority_weights,number_of_deliveries,start_time,end_time,total_distance_km,total_travel_time_minutes,runtime_seconds,returned_to_depot,depot_node
+priority_nearest_neighbor,D55_S20_W15_T10,15,2024-07-13 03:51:50.891000+00:00,2024-07-13 05:35:17.947374+00:00,94.66660090823257,103.45093954814493,9.660361168000236,True,1769277472

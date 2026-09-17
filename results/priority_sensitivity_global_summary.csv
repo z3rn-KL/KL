@@ -1,0 +1,2 @@
+total_waves,waves_with_rank_changes,waves_without_rank_changes,wave_change_ratio,mean_changed_order_ratio,global_max_rank_change,mean_spearman,minimum_spearman
+1274,20,1254,0.015698587127158554,0.011196145124716552,3.0,0.9793952854940757,-0.9999999999999999

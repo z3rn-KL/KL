@@ -1,19 +1,11 @@
-from __future__ import annotations
-
-import argparse
 from pathlib import Path
 from time import sleep
 
-import networkx as nx
 import osmnx as ox
 
 from data import DataLoader, DataPreprocessor
-from routing import RoadNetworkService
+from routing.road_network import RoadNetworkService
 
-
-# ============================================================
-# PATHS
-# ============================================================
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
@@ -24,7 +16,10 @@ XEDU_PATH = (
     / "xedu_cleaned.csv"
 )
 
-MAPS_DIR = PROJECT_ROOT / "maps"
+MAPS_DIR = (
+    PROJECT_ROOT
+    / "maps"
+)
 
 GRAPH_PATH = (
     MAPS_DIR
@@ -32,14 +27,6 @@ GRAPH_PATH = (
 )
 
 
-# ============================================================
-# DOWNLOAD SETTINGS
-# ============================================================
-
-# ~3 km vùng đệm quanh phạm vi delivery.
-# Mục đích:
-# - tránh cắt road network quá sát delivery;
-# - cho phép shortest path vòng qua cầu / đường lớn / vật cản.
 BUFFER_DEGREES = 0.03
 
 REQUEST_TIMEOUT_SECONDS = 300
@@ -49,18 +36,12 @@ RETRIES_PER_SERVER = 2
 RETRY_WAIT_SECONDS = 10
 
 
-# Nếu một Overpass server gặp SSL/timeout,
-# chương trình sẽ tự thử server tiếp theo.
 OVERPASS_SERVERS = [
     "https://overpass-api.de/api",
     "https://overpass.kumi.systems/api",
     "https://overpass.private.coffee/api",
 ]
 
-
-# ============================================================
-# DATASET BOUNDING BOX
-# ============================================================
 
 def load_delivery_bbox() -> tuple[
     float,
@@ -69,68 +50,61 @@ def load_delivery_bbox() -> tuple[
     float,
 ]:
     """
-    Đọc dataset XeDu và xác định vùng bao quanh
-    tất cả điểm giao hàng.
+    Load XeDu receiver coordinates and build
+    a buffered bounding box.
 
-    OSMnx 2.x yêu cầu bbox:
-
-        (
-            west,
-            south,
-            east,
-            north,
-        )
-
-    tương đương:
-
-        (
-            left,
-            bottom,
-            right,
-            top,
-        )
+    Returns:
+        west,
+        south,
+        east,
+        north
     """
-
-    print("Đang đọc dataset XeDu...")
 
     dataframe = DataLoader.load_csv(
         XEDU_PATH
     )
 
     dataframe = (
-        DataPreprocessor
-        .prepare_deliveries(
+        DataPreprocessor.prepare_deliveries(
             dataframe
         )
     )
 
-    if dataframe.empty:
-        raise ValueError(
-            "Không có delivery hợp lệ "
-            "sau preprocessing."
+    latitudes = dataframe[
+        "receiverLat"
+    ]
+
+    longitudes = dataframe[
+        "receiverLng"
+    ]
+
+    south = (
+        float(
+            latitudes.min()
         )
-
-    west = float(
-        dataframe["receiverLng"].min()
+        - BUFFER_DEGREES
     )
 
-    east = float(
-        dataframe["receiverLng"].max()
+    north = (
+        float(
+            latitudes.max()
+        )
+        + BUFFER_DEGREES
     )
 
-    south = float(
-        dataframe["receiverLat"].min()
+    west = (
+        float(
+            longitudes.min()
+        )
+        - BUFFER_DEGREES
     )
 
-    north = float(
-        dataframe["receiverLat"].max()
+    east = (
+        float(
+            longitudes.max()
+        )
+        + BUFFER_DEGREES
     )
-
-    # Thêm vùng đệm.
-    west -= BUFFER_DEGREES
-    east += BUFFER_DEGREES
-    south -= BUFFER_DEGREES
-    north += BUFFER_DEGREES
 
     return (
         west,
@@ -140,15 +114,11 @@ def load_delivery_bbox() -> tuple[
     )
 
 
-# ============================================================
-# OSMNX CONFIGURATION
-# ============================================================
-
 def configure_osmnx(
     overpass_url: str,
 ) -> None:
     """
-    Cấu hình OSMnx trước khi gọi Overpass API.
+    Configure OSMnx for reliable downloading.
     """
 
     ox.settings.use_cache = True
@@ -164,10 +134,6 @@ def configure_osmnx(
     )
 
 
-# ============================================================
-# GRAPH DOWNLOAD
-# ============================================================
-
 def download_from_server(
     bbox: tuple[
         float,
@@ -175,98 +141,60 @@ def download_from_server(
         float,
         float,
     ],
-    server_url: str,
-) -> nx.MultiDiGraph:
+    overpass_url: str,
+):
     """
-    Thử tải graph từ một Overpass server.
+    Try downloading a drive graph
+    from one Overpass server.
     """
 
     configure_osmnx(
-        server_url
+        overpass_url
     )
 
-    for attempt in range(
-        1,
-        RETRIES_PER_SERVER + 1,
-    ):
-        print()
-        print(
-            "----------------------------------------"
-        )
+    west, south, east, north = bbox
 
-        print(
-            f"Overpass server: {server_url}"
-        )
-
-        print(
-            "Attempt:",
-            f"{attempt}/{RETRIES_PER_SERVER}",
-        )
-
-        print(
-            "----------------------------------------"
-        )
-
-        try:
-            graph = (
-                ox.graph.graph_from_bbox(
-                    bbox=bbox,
-                    network_type="drive",
-                    simplify=True,
-                    retain_all=False,
-                    truncate_by_edge=True,
-                )
-            )
-
-            if graph.number_of_nodes() == 0:
-                raise ValueError(
-                    "Graph tải về không có node."
-                )
-
-            if graph.number_of_edges() == 0:
-                raise ValueError(
-                    "Graph tải về không có edge."
-                )
-
-            return graph
-
-        except Exception as error:
-            print()
-            print(
-                "Download thất bại:"
-            )
-
-            print(
-                type(error).__name__,
-            )
-
-            print(
-                error
-            )
-
-            if (
-                attempt
-                < RETRIES_PER_SERVER
-            ):
-                wait_seconds = (
-                    RETRY_WAIT_SECONDS
-                    * attempt
-                )
-
-                print()
-                print(
-                    f"Chờ {wait_seconds} giây "
-                    "rồi thử lại..."
-                )
-
-                sleep(
-                    wait_seconds
-                )
-
-    raise RuntimeError(
-        f"Không thể tải graph từ "
-        f"{server_url}"
+    print()
+    print(
+        "========================================"
     )
+
+    print(
+        f"Trying Overpass server:"
+    )
+
+    print(
+        overpass_url
+    )
+
+    print(
+        "========================================"
+    )
+
+    graph = ox.graph.graph_from_bbox(
+        bbox=(
+            west,
+            south,
+            east,
+            north,
+        ),
+        network_type="drive",
+        simplify=True,
+        retain_all=False,
+        truncate_by_edge=True,
+    )
+
+    if graph.number_of_nodes() == 0:
+        raise ValueError(
+            "Downloaded graph has no nodes."
+        )
+
+    if graph.number_of_edges() == 0:
+        raise ValueError(
+            "Downloaded graph has no edges."
+        )
+
+    return graph
 
 
 def download_graph(
@@ -276,71 +204,125 @@ def download_graph(
         float,
         float,
     ],
-) -> tuple[
-    nx.MultiDiGraph,
-    str,
-]:
+):
     """
-    Thử lần lượt nhiều Overpass server.
-
-    Returns
-    -------
-    graph
-        Road graph tải được.
-
-    server_url
-        Server đã download thành công.
+    Try multiple Overpass servers
+    with retries.
     """
 
-    last_error: Exception | None = None
+    last_error = None
 
-    for server_url in OVERPASS_SERVERS:
-        try:
-            graph = download_from_server(
-                bbox=bbox,
-                server_url=server_url,
-            )
+    for server in OVERPASS_SERVERS:
 
-            return (
-                graph,
-                server_url,
-            )
+        for attempt in range(
+            1,
+            RETRIES_PER_SERVER + 1,
+        ):
+            try:
+                print()
+                print(
+                    f"Server: {server}"
+                )
 
-        except Exception as error:
-            last_error = error
+                print(
+                    f"Attempt: "
+                    f"{attempt}/"
+                    f"{RETRIES_PER_SERVER}"
+                )
 
-            print()
-            print(
-                "Server không sử dụng được:"
-            )
+                graph = (
+                    download_from_server(
+                        bbox=bbox,
+                        overpass_url=server,
+                    )
+                )
 
-            print(
-                server_url
-            )
+                return graph
 
-            print()
-            print(
-                "Chuyển sang Overpass "
-                "server tiếp theo..."
-            )
+            except Exception as error:
+                last_error = error
+
+                print()
+                print(
+                    "Download attempt failed:"
+                )
+
+                print(
+                    repr(
+                        error
+                    )
+                )
+
+                if (
+                    attempt
+                    < RETRIES_PER_SERVER
+                ):
+                    print(
+                        f"Waiting "
+                        f"{RETRY_WAIT_SECONDS} "
+                        f"seconds..."
+                    )
+
+                    sleep(
+                        RETRY_WAIT_SECONDS
+                    )
+
+        print()
+        print(
+            "Moving to next "
+            "Overpass server..."
+        )
 
     raise RuntimeError(
-        "Không thể tải road graph từ "
-        "bất kỳ Overpass server nào."
+        "Unable to download road graph "
+        "from all configured "
+        "Overpass servers."
     ) from last_error
 
 
-# ============================================================
-# GRAPH VALIDATION
-# ============================================================
+def print_bbox(
+    bbox: tuple[
+        float,
+        float,
+        float,
+        float,
+    ],
+) -> None:
+    west, south, east, north = bbox
+
+    print()
+    print(
+        "========================================"
+    )
+
+    print(
+        "XeDu Road-Network Bounding Box"
+    )
+
+    print(
+        "========================================"
+    )
+
+    print(
+        f"West:  {west:.6f}"
+    )
+
+    print(
+        f"South: {south:.6f}"
+    )
+
+    print(
+        f"East:  {east:.6f}"
+    )
+
+    print(
+        f"North: {north:.6f}"
+    )
+
 
 def print_graph_summary(
     service: RoadNetworkService,
 ) -> None:
-    """
-    In thông tin cơ bản của road graph.
-    """
-
     graph = service.graph
 
     print()
@@ -349,7 +331,7 @@ def print_graph_summary(
     )
 
     print(
-        "           ROAD GRAPH SUMMARY"
+        "Road Graph Summary"
     )
 
     print(
@@ -357,47 +339,32 @@ def print_graph_summary(
     )
 
     print(
-        "Nodes:",
-        graph.number_of_nodes(),
+        f"Nodes: "
+        f"{graph.number_of_nodes()}"
     )
 
     print(
-        "Edges:",
-        graph.number_of_edges(),
+        f"Edges: "
+        f"{graph.number_of_edges()}"
     )
 
     print(
-        "CRS:",
-        graph.graph.get(
-            "crs",
-            "UNKNOWN",
-        ),
+        f"Saved graph:"
     )
 
+    print(
+        GRAPH_PATH
+    )
 
-# ============================================================
-# MAIN DOWNLOAD PIPELINE
-# ============================================================
 
 def build_and_save_graph(
     force: bool = False,
 ) -> None:
     """
-    Pipeline:
+    Download and cache the XeDu road graph.
 
-    XeDu
-      ↓
-    delivery bbox
-      ↓
-    OpenStreetMap / Overpass
-      ↓
-    drive graph
-      ↓
-    speed_kph
-      ↓
-    travel_time
-      ↓
-    GraphML
+    If the graph already exists,
+    skip downloading unless force=True.
     """
 
     MAPS_DIR.mkdir(
@@ -405,16 +372,21 @@ def build_and_save_graph(
         exist_ok=True,
     )
 
-    # --------------------------------------------------------
-    # Nếu graph đã tồn tại thì không tải lại
-    # --------------------------------------------------------
-
     if (
         GRAPH_PATH.exists()
         and not force
     ):
+        print()
         print(
-            "Road graph đã tồn tại:"
+            "========================================"
+        )
+
+        print(
+            "Cached road graph already exists."
+        )
+
+        print(
+            "========================================"
         )
 
         print(
@@ -423,189 +395,60 @@ def build_and_save_graph(
 
         print()
         print(
-            "Không tải lại."
+            "Skipping download."
         )
 
         print(
-            "Nếu muốn tải mới, chạy:"
-        )
-
-        print(
-            "python -m "
-            "routing.download_road_graph "
-            "--force"
+            "Use --force to download again."
         )
 
         return
 
-    # --------------------------------------------------------
-    # Bounding box
-    # --------------------------------------------------------
-
     bbox = load_delivery_bbox()
 
-    west, south, east, north = (
+    print_bbox(
         bbox
     )
 
-    print()
-    print(
-        "========================================"
+    graph = download_graph(
+        bbox
     )
-
-    print(
-        "             XEDU BOUNDING BOX"
-    )
-
-    print(
-        "========================================"
-    )
-
-    print(
-        f"West : {west:.6f}"
-    )
-
-    print(
-        f"South: {south:.6f}"
-    )
-
-    print(
-        f"East : {east:.6f}"
-    )
-
-    print(
-        f"North: {north:.6f}"
-    )
-
-    # --------------------------------------------------------
-    # Download
-    # --------------------------------------------------------
-
-    print()
-    print(
-        "Đang tải road network..."
-    )
-
-    graph, server_url = (
-        download_graph(
-            bbox
-        )
-    )
-
-    print()
-    print(
-        "Download thành công từ:"
-    )
-
-    print(
-        server_url
-    )
-
-    # --------------------------------------------------------
-    # Service
-    # --------------------------------------------------------
 
     service = RoadNetworkService(
         graph
     )
 
-    print_graph_summary(
-        service
-    )
-
-    # --------------------------------------------------------
-    # Estimated travel time
-    # --------------------------------------------------------
-
     print()
     print(
-        "Đang thêm estimated "
-        "road speed..."
-    )
-
-    print(
-        "Fallback speed: 30 km/h"
+        "Adding estimated speeds "
+        "and travel times..."
     )
 
     service.add_estimated_travel_times(
-        fallback_kph=30.0
+        fallback_kph=30
     )
-
-    # --------------------------------------------------------
-    # Save GraphML
-    # --------------------------------------------------------
 
     print()
     print(
-        "Đang lưu GraphML..."
+        "Saving GraphML..."
     )
 
     service.save_graphml(
         GRAPH_PATH
     )
 
-    # --------------------------------------------------------
-    # Verify
-    # --------------------------------------------------------
-
-    if not GRAPH_PATH.exists():
-        raise RuntimeError(
-            "GraphML không được tạo."
-        )
-
-    file_size_mb = (
-        GRAPH_PATH.stat().st_size
-        / 1024
-        / 1024
-    )
-
-    print()
-    print(
-        "========================================"
-    )
-
-    print(
-        "              HOÀN TẤT"
-    )
-
-    print(
-        "========================================"
-    )
-
-    print(
-        "Graph path:"
-    )
-
-    print(
-        GRAPH_PATH
-    )
-
-    print(
-        "File size:",
-        f"{file_size_mb:.2f} MB",
-    )
-
-    print()
-    print(
-        "Từ bước này app có thể "
-        "load graph local."
-    )
-
-    print(
-        "Không cần gọi OpenStreetMap "
-        "mỗi lần chạy."
+    print_graph_summary(
+        service
     )
 
 
-# ============================================================
-# CLI
-# ============================================================
+def main() -> None:
+    import argparse
 
-def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description=(
-            "Download road network cho "
-            "dataset XeDu."
+            "Download and cache "
+            "XeDu road network."
         )
     )
 
@@ -613,19 +456,15 @@ def parse_arguments() -> argparse.Namespace:
         "--force",
         action="store_true",
         help=(
-            "Tải lại graph ngay cả khi "
-            "GraphML đã tồn tại."
+            "Download again even if "
+            "cached graph already exists."
         ),
     )
 
-    return parser.parse_args()
-
-
-def main() -> None:
-    arguments = parse_arguments()
+    args = parser.parse_args()
 
     build_and_save_graph(
-        force=arguments.force
+        force=args.force
     )
 
 

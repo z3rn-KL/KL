@@ -172,4 +172,4 @@ def test_clustering_metrics():
     assert (
         metrics.total_weight_kg
         == 20.0
-    )s
+    )
