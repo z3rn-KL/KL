@@ -1,0 +1,4 @@
+algorithm,number_of_deliveries,deliveries_with_deadline,deliveries_without_deadline,on_time_deliveries,late_deliveries,on_time_rate,total_lateness_minutes,mean_lateness_minutes,max_lateness_minutes,total_distance_km,total_travel_time_minutes,routing_runtime_seconds,matrix_preparation_seconds,returned_to_depot
+nearest_neighbor,15,15,0,15,0,1.0,0.0,0.0,0.0,93.59905556115534,102.76332377048523,0.055760429000656586,9.077876896999442,True
+priority_nearest_neighbor,15,15,0,15,0,1.0,0.0,0.0,0.0,94.66660090823257,103.45093954814493,0.05773428900010913,9.077876896999442,True
+clarke_wright,15,15,0,15,0,1.0,0.0,0.0,0.0,86.26619403037363,94.81447070035419,0.05340736800008017,9.077876896999442,True

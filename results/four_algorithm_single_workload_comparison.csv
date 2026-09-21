@@ -1,0 +1,5 @@
+algorithm,number_of_deliveries,on_time_deliveries,late_deliveries,on_time_rate,total_lateness_minutes,max_lateness_minutes,total_distance_km,total_travel_time_minutes,runtime_seconds
+nearest_neighbor,5,5,0,1.0,0.0,0.0,57.32448403424207,61.6449552881404,0.05216637300054572
+priority_nearest_neighbor,5,5,0,1.0,0.0,0.0,73.31787469794497,78.54994237284268,0.0521555539999099
+clarke_wright,5,5,0,1.0,0.0,0.0,57.32448403424207,61.6449552881404,0.053413218000059715
+q_learning,5,5,0,1.0,0.0,0.0,57.32448403424207,61.6449552881404,0.00036933800038241316

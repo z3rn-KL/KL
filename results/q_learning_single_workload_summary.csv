@@ -1,0 +1,2 @@
+wave_start,wave_end,number_of_deliveries,training_episodes,learning_rate,discount_factor,epsilon_start,epsilon_min,epsilon_decay,final_epsilon,q_table_size,training_runtime_seconds,matrix_preparation_seconds,greedy_reward,greedy_distance_km,greedy_travel_time_minutes,mean_last_100_reward,max_last_100_reward
+2023-10-02 04:00:00+00:00,2023-10-02 06:00:00+00:00,5,5000,0.2,0.95,1.0,0.05,0.998,0.05,211,1.818276932000117,3.5386326429998007,2.310818510333462,57.32448403424207,61.6449552881404,2.101407831137398,2.310818510333462
