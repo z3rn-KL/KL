@@ -1,0 +1,182 @@
+section,experiment_group,algorithm,configuration,metric,value_numeric,value_text,unit,note,source_file
+clustering,kmeans_grid,K-Means,K=10,Cluster imbalance ratio,8.957142857142857,,,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=10,Cluster-size standard deviation,161.71283189654432,,deliveries,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=10,Inertia / WCSS,13654.280995010324,,,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=10,Maximum cluster size,627.0,,deliveries,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=10,Mean cluster size,239.4,,deliveries,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=10,Minimum cluster size,70.0,,deliveries,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=10,Silhouette rank,1.0,,,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=10,Silhouette score,0.4285231187020061,,,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=12,Cluster imbalance ratio,7.484848484848484,,,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=12,Cluster-size standard deviation,123.08093543139272,,deliveries,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=12,Inertia / WCSS,11399.739011475942,,,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=12,Maximum cluster size,494.0,,deliveries,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=12,Mean cluster size,199.5,,deliveries,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=12,Minimum cluster size,66.0,,deliveries,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=12,Silhouette rank,4.0,,,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=12,Silhouette score,0.4099804418529998,,,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=15,Cluster imbalance ratio,17.0,,,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=15,Cluster-size standard deviation,91.64336673576908,,deliveries,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=15,Inertia / WCSS,9245.879394291323,,,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=15,Maximum cluster size,340.0,,deliveries,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=15,Mean cluster size,159.6,,deliveries,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=15,Minimum cluster size,20.0,,deliveries,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=15,Silhouette rank,7.0,,,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=15,Silhouette score,0.3935077411072005,,,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=20,Cluster imbalance ratio,7.176470588235294,,,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=20,Cluster-size standard deviation,63.155443154173184,,deliveries,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=20,Inertia / WCSS,6903.138042945373,,,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=20,Maximum cluster size,244.0,,deliveries,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=20,Mean cluster size,119.7,,deliveries,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=20,Minimum cluster size,34.0,,deliveries,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=20,Silhouette rank,6.0,,,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=20,Silhouette score,0.4046878829364282,,,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=25,Cluster imbalance ratio,80.33333333333333,,,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=25,Cluster-size standard deviation,62.14710290914614,,deliveries,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=25,Inertia / WCSS,5540.237957756545,,,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=25,Maximum cluster size,241.0,,deliveries,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=25,Mean cluster size,95.76,,deliveries,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=25,Minimum cluster size,3.0,,deliveries,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=25,Silhouette rank,3.0,,,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=25,Silhouette score,0.410782648591567,,,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=30,Cluster imbalance ratio,72.33333333333333,,,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=30,Cluster-size standard deviation,53.08006531018338,,deliveries,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=30,Inertia / WCSS,4466.337036597027,,,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=30,Maximum cluster size,217.0,,deliveries,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=30,Mean cluster size,79.8,,deliveries,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=30,Minimum cluster size,3.0,,deliveries,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=30,Silhouette rank,2.0,,,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=30,Silhouette score,0.4199121498599353,,,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=5,Cluster imbalance ratio,3.219931271477664,,,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=5,Cluster-size standard deviation,233.03252991803527,,deliveries,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=5,Inertia / WCSS,29228.293838416328,,,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=5,Maximum cluster size,937.0,,deliveries,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=5,Mean cluster size,478.8,,deliveries,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=5,Minimum cluster size,291.0,,deliveries,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=5,Silhouette rank,8.0,,,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=5,Silhouette score,0.3876443843160699,,,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=8,Cluster imbalance ratio,8.1125,,,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=8,Cluster-size standard deviation,163.10406953843918,,deliveries,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=8,Inertia / WCSS,17238.56390049678,,,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=8,Maximum cluster size,649.0,,deliveries,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=8,Mean cluster size,299.25,,deliveries,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=8,Minimum cluster size,80.0,,deliveries,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=8,Silhouette rank,5.0,,,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_grid,K-Means,K=8,Silhouette score,0.4088175756091283,,,,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_key_findings,K-Means,selected,Best silhouette K,10.0,,clusters,K with the highest Silhouette Score.,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_key_findings,K-Means,selected,Best silhouette score,0.4285231187020061,,,Highest observed Silhouette Score.,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_key_findings,K-Means,selected,Elbow reference K,12.0,,clusters,Elbow region used in the thesis interpretation.,thesis_kmeans_elbow_summary.csv
+clustering,kmeans_key_findings,K-Means,selected,Operational K range,,10-12,,"Range retained as a practical balance between separation, inertia reduction and cluster fragmentation.",thesis_kmeans_elbow_summary.csv
+routing,core_algorithm_benchmark,Clarke-Wright,31 exact-5-delivery waves,Benchmark deliveries,155.0,,deliveries,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Clarke-Wright,31 exact-5-delivery waves,Benchmark workloads,31.0,,workloads,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Clarke-Wright,31 exact-5-delivery waves,Distance reduction vs NN,5.865721309517783,,percent,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Clarke-Wright,31 exact-5-delivery waves,Maximum lateness,0.0,,minutes,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Clarke-Wright,31 exact-5-delivery waves,Mean on-time rate,1.0,,ratio,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Clarke-Wright,31 exact-5-delivery waves,Mean route distance,44.77095955579194,,km,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Clarke-Wright,31 exact-5-delivery waves,Mean route runtime,2.152946735967963,,seconds,Runtime scope differs between heuristics and RL; do not compare directly without considering road matrix preparation and training.,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Clarke-Wright,31 exact-5-delivery waves,Mean travel time,49.16440785966053,,minutes,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Clarke-Wright,31 exact-5-delivery waves,Median route distance,42.90734830299646,,km,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Clarke-Wright,31 exact-5-delivery waves,Minimum on-time rate,1.0,,ratio,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Clarke-Wright,31 exact-5-delivery waves,Route distance standard deviation,11.60658630038972,,km,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Clarke-Wright,31 exact-5-delivery waves,Total late deliveries,0.0,,deliveries,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Clarke-Wright,31 exact-5-delivery waves,Total lateness,0.0,,minutes,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Clarke-Wright,31 exact-5-delivery waves,Total training runtime,0.0,,seconds,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Clarke-Wright,31 exact-5-delivery waves,Travel-time reduction vs NN,5.565007193555198,,percent,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Clarke-Wright,31 exact-5-delivery waves,Travel-time standard deviation,12.3000337070108,,minutes,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,DQN,31 exact-5-delivery waves,Benchmark deliveries,155.0,,deliveries,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,DQN,31 exact-5-delivery waves,Benchmark workloads,31.0,,workloads,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,DQN,31 exact-5-delivery waves,Distance reduction vs NN,1.2611233797479593,,percent,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,DQN,31 exact-5-delivery waves,Greedy reward standard deviation,1.0926565593478788,,,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,DQN,31 exact-5-delivery waves,Maximum lateness,0.0,,minutes,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,DQN,31 exact-5-delivery waves,Mean greedy reward,2.863738295385452,,,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,DQN,31 exact-5-delivery waves,Mean model size,18821.0,,entries_or_parameters,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,DQN,31 exact-5-delivery waves,Mean on-time rate,1.0,,ratio,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,DQN,31 exact-5-delivery waves,Mean road-matrix preparation time,2.154434274999843,,seconds,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,DQN,31 exact-5-delivery waves,Mean route distance,46.96094040604359,,km,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,DQN,31 exact-5-delivery waves,Mean route runtime,0.001372189645178,,seconds,Runtime scope differs between heuristics and RL; do not compare directly without considering road matrix preparation and training.,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,DQN,31 exact-5-delivery waves,Mean training runtime,112.6830567227098,,seconds,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,DQN,31 exact-5-delivery waves,Mean travel time,51.29514673534393,,minutes,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,DQN,31 exact-5-delivery waves,Median route distance,46.26640599892636,,km,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,DQN,31 exact-5-delivery waves,Minimum on-time rate,1.0,,ratio,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,DQN,31 exact-5-delivery waves,Route distance standard deviation,12.531349090862175,,km,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,DQN,31 exact-5-delivery waves,Total late deliveries,0.0,,deliveries,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,DQN,31 exact-5-delivery waves,Total lateness,0.0,,minutes,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,DQN,31 exact-5-delivery waves,Total training runtime,3493.174758404004,,seconds,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,DQN,31 exact-5-delivery waves,Travel-time reduction vs NN,1.4722840396031638,,percent,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,DQN,31 exact-5-delivery waves,Travel-time standard deviation,13.034443982118358,,minutes,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Nearest Neighbor,31 exact-5-delivery waves,Benchmark deliveries,155.0,,deliveries,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Nearest Neighbor,31 exact-5-delivery waves,Benchmark workloads,31.0,,workloads,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Nearest Neighbor,31 exact-5-delivery waves,Distance reduction vs NN,-0.0,,percent,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Nearest Neighbor,31 exact-5-delivery waves,Maximum lateness,0.0,,minutes,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Nearest Neighbor,31 exact-5-delivery waves,Mean on-time rate,1.0,,ratio,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Nearest Neighbor,31 exact-5-delivery waves,Mean route distance,47.56074001799163,,km,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Nearest Neighbor,31 exact-5-delivery waves,Mean route runtime,2.144991541935357,,seconds,Runtime scope differs between heuristics and RL; do not compare directly without considering road matrix preparation and training.,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Nearest Neighbor,31 exact-5-delivery waves,Mean travel time,52.061641980985314,,minutes,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Nearest Neighbor,31 exact-5-delivery waves,Median route distance,46.26640599892636,,km,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Nearest Neighbor,31 exact-5-delivery waves,Minimum on-time rate,1.0,,ratio,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Nearest Neighbor,31 exact-5-delivery waves,Route distance standard deviation,13.863837047378809,,km,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Nearest Neighbor,31 exact-5-delivery waves,Total late deliveries,0.0,,deliveries,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Nearest Neighbor,31 exact-5-delivery waves,Total lateness,0.0,,minutes,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Nearest Neighbor,31 exact-5-delivery waves,Total training runtime,0.0,,seconds,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Nearest Neighbor,31 exact-5-delivery waves,Travel-time reduction vs NN,-0.0,,percent,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Nearest Neighbor,31 exact-5-delivery waves,Travel-time standard deviation,14.611681811251414,,minutes,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Q-Learning,31 exact-5-delivery waves,Benchmark deliveries,155.0,,deliveries,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Q-Learning,31 exact-5-delivery waves,Benchmark workloads,31.0,,workloads,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Q-Learning,31 exact-5-delivery waves,Distance reduction vs NN,1.2605699999607287,,percent,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Q-Learning,31 exact-5-delivery waves,Greedy reward standard deviation,1.0926560300786488,,,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Q-Learning,31 exact-5-delivery waves,Maximum lateness,0.0,,minutes,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Q-Learning,31 exact-5-delivery waves,Mean greedy reward,2.8637518020500448,,,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Q-Learning,31 exact-5-delivery waves,Mean model size,199.16129032258064,,entries_or_parameters,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Q-Learning,31 exact-5-delivery waves,Mean on-time rate,1.0,,ratio,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Q-Learning,31 exact-5-delivery waves,Mean road-matrix preparation time,2.154434274999843,,seconds,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Q-Learning,31 exact-5-delivery waves,Mean route distance,46.96120359756551,,km,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Q-Learning,31 exact-5-delivery waves,Mean route runtime,0.0003788502578367,,seconds,Runtime scope differs between heuristics and RL; do not compare directly without considering road matrix preparation and training.,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Q-Learning,31 exact-5-delivery waves,Mean training runtime,1.7692578028388286,,seconds,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Q-Learning,31 exact-5-delivery waves,Mean travel time,51.29230204547094,,minutes,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Q-Learning,31 exact-5-delivery waves,Median route distance,46.26640599892636,,km,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Q-Learning,31 exact-5-delivery waves,Minimum on-time rate,1.0,,ratio,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Q-Learning,31 exact-5-delivery waves,Route distance standard deviation,12.531664668335656,,km,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Q-Learning,31 exact-5-delivery waves,Total late deliveries,0.0,,deliveries,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Q-Learning,31 exact-5-delivery waves,Total lateness,0.0,,minutes,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Q-Learning,31 exact-5-delivery waves,Total training runtime,54.846991888003686,,seconds,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Q-Learning,31 exact-5-delivery waves,Travel-time reduction vs NN,1.4777481198064462,,percent,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,Q-Learning,31 exact-5-delivery waves,Travel-time standard deviation,13.032034104459024,,minutes,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,SARSA,31 exact-5-delivery waves,Benchmark deliveries,155.0,,deliveries,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,SARSA,31 exact-5-delivery waves,Benchmark workloads,31.0,,workloads,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,SARSA,31 exact-5-delivery waves,Distance reduction vs NN,1.5418804745678285,,percent,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,SARSA,31 exact-5-delivery waves,Greedy reward standard deviation,1.093058512776864,,,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,SARSA,31 exact-5-delivery waves,Maximum lateness,0.0,,minutes,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,SARSA,31 exact-5-delivery waves,Mean greedy reward,2.8505250476359723,,,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,SARSA,31 exact-5-delivery waves,Mean model size,200.4193548387097,,entries_or_parameters,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,SARSA,31 exact-5-delivery waves,Mean on-time rate,1.0,,ratio,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,SARSA,31 exact-5-delivery waves,Mean road-matrix preparation time,2.154434274999843,,seconds,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,SARSA,31 exact-5-delivery waves,Mean route distance,46.82741025409425,,km,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,SARSA,31 exact-5-delivery waves,Mean route runtime,0.0003770763226296,,seconds,Runtime scope differs between heuristics and RL; do not compare directly without considering road matrix preparation and training.,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,SARSA,31 exact-5-delivery waves,Mean training runtime,1.729745729903199,,seconds,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,SARSA,31 exact-5-delivery waves,Mean travel time,51.20452747890924,,minutes,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,SARSA,31 exact-5-delivery waves,Median route distance,46.26640599892636,,km,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,SARSA,31 exact-5-delivery waves,Minimum on-time rate,1.0,,ratio,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,SARSA,31 exact-5-delivery waves,Route distance standard deviation,12.328335620519542,,km,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,SARSA,31 exact-5-delivery waves,Total late deliveries,0.0,,deliveries,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,SARSA,31 exact-5-delivery waves,Total lateness,0.0,,minutes,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,SARSA,31 exact-5-delivery waves,Total training runtime,53.62211762699917,,seconds,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,SARSA,31 exact-5-delivery waves,Travel-time reduction vs NN,1.6463455040260158,,percent,,thesis_core_algorithm_summary.csv
+routing,core_algorithm_benchmark,SARSA,31 exact-5-delivery waves,Travel-time standard deviation,12.92882852949902,,minutes,,thesis_core_algorithm_summary.csv
+reinforcement_learning,rl_algorithm_comparison,DQN,"5000 episodes, 31 workloads",Mean greedy reward,2.863738295385452,,,,thesis_rl_algorithm_summary.csv
+reinforcement_learning,rl_algorithm_comparison,DQN,"5000 episodes, 31 workloads",Mean model size,18821.0,,entries_or_parameters,Q-Learning/SARSA model size is Q-table entries; DQN model size is neural-network parameters. Values are not directly equivalent.,thesis_rl_algorithm_summary.csv
+reinforcement_learning,rl_algorithm_comparison,DQN,"5000 episodes, 31 workloads",Mean route distance,46.96094040604359,,km,,thesis_rl_algorithm_summary.csv
+reinforcement_learning,rl_algorithm_comparison,DQN,"5000 episodes, 31 workloads",Mean training runtime,112.6830567227098,,seconds,,thesis_rl_algorithm_summary.csv
+reinforcement_learning,rl_algorithm_comparison,DQN,"5000 episodes, 31 workloads",Mean travel time,51.29514673534393,,minutes,,thesis_rl_algorithm_summary.csv
+reinforcement_learning,rl_algorithm_comparison,DQN,"5000 episodes, 31 workloads",Training runtime relative to Q-Learning,63.68945019878186,,ratio,,thesis_rl_algorithm_summary.csv
+reinforcement_learning,rl_algorithm_comparison,Q-Learning,"5000 episodes, 31 workloads",Mean greedy reward,2.8637518020500448,,,,thesis_rl_algorithm_summary.csv
+reinforcement_learning,rl_algorithm_comparison,Q-Learning,"5000 episodes, 31 workloads",Mean model size,199.16129032258064,,entries_or_parameters,Q-Learning/SARSA model size is Q-table entries; DQN model size is neural-network parameters. Values are not directly equivalent.,thesis_rl_algorithm_summary.csv
+reinforcement_learning,rl_algorithm_comparison,Q-Learning,"5000 episodes, 31 workloads",Mean route distance,46.96120359756551,,km,,thesis_rl_algorithm_summary.csv
+reinforcement_learning,rl_algorithm_comparison,Q-Learning,"5000 episodes, 31 workloads",Mean training runtime,1.7692578028388286,,seconds,,thesis_rl_algorithm_summary.csv
+reinforcement_learning,rl_algorithm_comparison,Q-Learning,"5000 episodes, 31 workloads",Mean travel time,51.29230204547094,,minutes,,thesis_rl_algorithm_summary.csv
+reinforcement_learning,rl_algorithm_comparison,Q-Learning,"5000 episodes, 31 workloads",Training runtime relative to Q-Learning,1.0,,ratio,,thesis_rl_algorithm_summary.csv
+reinforcement_learning,rl_algorithm_comparison,SARSA,"5000 episodes, 31 workloads",Mean greedy reward,2.8505250476359723,,,,thesis_rl_algorithm_summary.csv
+reinforcement_learning,rl_algorithm_comparison,SARSA,"5000 episodes, 31 workloads",Mean model size,200.4193548387097,,entries_or_parameters,Q-Learning/SARSA model size is Q-table entries; DQN model size is neural-network parameters. Values are not directly equivalent.,thesis_rl_algorithm_summary.csv
+reinforcement_learning,rl_algorithm_comparison,SARSA,"5000 episodes, 31 workloads",Mean route distance,46.82741025409425,,km,,thesis_rl_algorithm_summary.csv
+reinforcement_learning,rl_algorithm_comparison,SARSA,"5000 episodes, 31 workloads",Mean training runtime,1.729745729903199,,seconds,,thesis_rl_algorithm_summary.csv
+reinforcement_learning,rl_algorithm_comparison,SARSA,"5000 episodes, 31 workloads",Mean travel time,51.20452747890924,,minutes,,thesis_rl_algorithm_summary.csv
+reinforcement_learning,rl_algorithm_comparison,SARSA,"5000 episodes, 31 workloads",Training runtime relative to Q-Learning,0.9776674304489535,,ratio,,thesis_rl_algorithm_summary.csv

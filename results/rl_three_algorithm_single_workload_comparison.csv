@@ -1,0 +1,4 @@
+algorithm,number_of_deliveries,on_time_deliveries,late_deliveries,on_time_rate,total_lateness_minutes,max_lateness_minutes,total_distance_km,total_travel_time_minutes,runtime_seconds
+q_learning,5,5,0,1.0,0.0,0.0,57.32448403424207,61.6449552881404,0.0004712800000561401
+sarsa,5,5,0,1.0,0.0,0.0,57.32448403424207,61.6449552881404,0.000459119000879582
+dqn,5,5,0,1.0,0.0,0.0,57.32448403424207,61.6449552881404,0.0013182010006858036
