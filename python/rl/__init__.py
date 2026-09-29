@@ -12,6 +12,23 @@ from .q_learning_agent import (
     TrainingResult,
 )
 
+from .sarsa_agent import (
+    EpisodeResult as SarsaEpisodeResult,
+    SarsaAgent,
+    SarsaConfig,
+    TrainingResult as SarsaTrainingResult,
+)
+
+from .dqn_agent import (
+    DQNAgent,
+    DQNConfig,
+    DQNEpisodeResult,
+    DQNTrainingResult,
+    DQNTransition,
+    QNetwork,
+    ReplayBuffer,
+)
+
 
 __all__ = [
     "RewardConfig",
@@ -22,4 +39,15 @@ __all__ = [
     "QLearningAgent",
     "QLearningConfig",
     "TrainingResult",
+    "SarsaEpisodeResult",
+    "SarsaAgent",
+    "SarsaConfig",
+    "SarsaTrainingResult",
+    "DQNAgent",
+    "DQNConfig",
+    "DQNEpisodeResult",
+    "DQNTrainingResult",
+    "DQNTransition",
+    "QNetwork",
+    "ReplayBuffer",
 ]
