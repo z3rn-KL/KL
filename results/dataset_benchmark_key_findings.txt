@@ -1,0 +1,43 @@
+DATASET-SCALE BENCHMARK KEY FINDINGS
+================================================================
+Workloads: 108
+Algorithm runs: 540
+Workload size range: 5-16
+Total benchmark deliveries: 813
+
+OVERALL RESULTS
+----------------------------------------------------------------
+nearest_neighbor: distance=62.6803 km, time=68.1338 min, on_time=0.9941, late=7
+clarke_wright: distance=58.0539 km, time=63.2741 min, on_time=0.9933, late=7
+q_learning: distance=62.2624 km, time=67.6854 min, on_time=1.0000, late=0, mean_training=2.7525 s
+sarsa: distance=62.8589 km, time=68.3059 min, on_time=0.9986, late=2, mean_training=2.6082 s
+dqn: distance=59.8287 km, time=65.1267 min, on_time=1.0000, late=0, mean_training=191.5223 s
+
+PAIRWISE WORKLOAD-LEVEL COMPARISONS
+----------------------------------------------------------------
+q_learning vs nearest_neighbor: mean distance improvement=0.70%, distance win=37.0%, distance tie=44.4%, mean time improvement=0.73%, time win=37.0%
+q_learning vs clarke_wright: mean distance improvement=-6.46%, distance win=15.7%, distance tie=6.5%, mean time improvement=-6.16%, time win=17.6%
+sarsa vs nearest_neighbor: mean distance improvement=-0.25%, distance win=29.6%, distance tie=40.7%, mean time improvement=-0.19%, time win=31.5%
+sarsa vs clarke_wright: mean distance improvement=-7.45%, distance win=11.1%, distance tie=5.6%, mean time improvement=-7.12%, time win=12.0%
+dqn vs nearest_neighbor: mean distance improvement=3.63%, distance win=44.4%, distance tie=50.9%, mean time improvement=3.58%, time win=43.5%
+dqn vs clarke_wright: mean distance improvement=-3.24%, distance win=20.4%, distance tie=5.6%, mean time improvement=-3.03%, time win=23.1%
+
+WORKLOAD DISTRIBUTION
+----------------------------------------------------------------
+N=5: 31 workloads, 155 deliveries
+N=6: 22 workloads, 132 deliveries
+N=7: 11 workloads, 77 deliveries
+N=8: 14 workloads, 112 deliveries
+N=9: 4 workloads, 36 deliveries
+N=10: 10 workloads, 100 deliveries
+N=11: 4 workloads, 44 deliveries
+N=12: 5 workloads, 60 deliveries
+N=13: 4 workloads, 52 deliveries
+N=14: 1 workloads, 14 deliveries
+N=15: 1 workloads, 15 deliveries
+N=16: 1 workloads, 16 deliveries
+
+INTERPRETATION CAUTION
+----------------------------------------------------------------
+Workload sizes 14, 15 and 16 each contain only one workload. Their values should be treated as individual case evidence rather than statistically stable trends.
+Workload sizes with larger sample counts (especially 5, 6, 8 and 10) are more useful for assessing general trends.

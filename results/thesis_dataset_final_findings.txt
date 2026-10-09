@@ -1,0 +1,40 @@
+FINAL DATASET-SCALE BENCHMARK FINDINGS
+================================================================
+
+Benchmark:
+- 108 workloads
+- 813 deliveries per algorithm
+- workload size 5–16
+- 540 algorithm-workload runs
+
+Overall route quality:
+- Nearest Neighbor: 62.6803 km, 68.1338 min.
+- Clarke-Wright: 58.0539 km, 63.2741 min.
+- Q-Learning: 62.2624 km, 67.6854 min.
+- SARSA: 62.8589 km, 68.3059 min.
+- DQN: 59.8287 km, 65.1267 min.
+
+Relative route improvements:
+- Clarke-Wright vs NN: 7.38% distance reduction, 7.13% travel-time reduction.
+- DQN vs NN: 4.55% distance reduction, 4.41% travel-time reduction.
+
+Delivery-weighted SLA:
+- NN: 99.14% (7 late).
+- Clarke-Wright: 99.14% (7 late).
+- Q-Learning: 100.00% (0 late).
+- SARSA: 99.75% (2 late).
+- DQN: 100.00% (0 late).
+
+RL computational trade-off:
+- Q-Learning mean training: 2.75 s.
+- SARSA mean training: 2.61 s.
+- DQN mean training: 191.52 s.
+- DQN requires approximately 69.6x the mean training time of Q-Learning.
+
+Interpretation:
+- Clarke-Wright remains the strongest method for pure distance/time minimization.
+- DQN is the strongest RL method in route quality and reaches 100% delivery-weighted on-time rate.
+- Q-Learning also reaches 100% on-time rate with much lower training cost.
+- SARSA reduces late deliveries relative to the heuristic baselines but is weaker than DQN overall.
+- Reward per delivery should be used instead of raw episode reward when comparing different workload sizes.
+- Results for N=14, 15 and 16 are case evidence only because each size contains one workload.
