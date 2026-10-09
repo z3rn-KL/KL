@@ -1,0 +1,28 @@
+CONTROLLED REPRODUCIBILITY VALIDATION
+========================================================================
+
+Scope:
+- Workloads: [29, 71, 90]
+- Workload sizes: N=5, N=10, N=13
+- Algorithms: nearest_neighbor, clarke_wright, q_learning, sarsa, dqn
+- Random seed: 42
+- Expected reruns: 15
+
+Overall comparison:
+- Completed comparisons: 15
+- Exact core matches: 15/15
+- Within 1% core metrics: 15/15
+- Within 5% core metrics: 15/15
+
+Per algorithm:
+- nearest_neighbor: exact 3/3; within 1% 3/3; mean |distance delta| 0.0000%; mean |time delta| 0.0000%.
+- clarke_wright: exact 3/3; within 1% 3/3; mean |distance delta| 0.0000%; mean |time delta| 0.0000%.
+- q_learning: exact 3/3; within 1% 3/3; mean |distance delta| 0.0000%; mean |time delta| 0.0000%.
+- sarsa: exact 3/3; within 1% 3/3; mean |distance delta| 0.0000%; mean |time delta| 0.0000%.
+- dqn: exact 3/3; within 1% 3/3; mean |distance delta| 0.0000%; mean |time delta| 0.0000%.
+
+Interpretation note:
+- Exact equality is expected to be strongest for deterministic heuristics.
+- RL reruns use the same benchmark helper functions, seed and hyperparameter configuration.
+- GPU-backed DQN may still exhibit small numerical or training differences depending on CUDA/PyTorch execution.
+- This validation does not replace the canonical 540-run benchmark; it is a controlled reproducibility check on representative workloads.

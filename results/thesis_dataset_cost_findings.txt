@@ -1,0 +1,27 @@
+ESTIMATED OPERATING COST BENCHMARK
+========================================================================
+
+Important:
+- These values are scenario-based operating-cost proxies.
+- They are NOT verified XeDu accounting costs.
+
+Cost configuration:
+- distance_cost_per_km = 4000.0000
+- travel_time_cost_per_minute = 666.6667
+- late_delivery_penalty = 0.0000
+- lateness_cost_per_minute = 0.0000
+- cost_unit = VND_proxy_scenario
+
+Ranking by mean estimated operating cost:
+1. Clarke-Wright: 274398.29 VND_proxy_scenario / workload (+7.34% vs Nearest Neighbor)
+2. DQN: 282732.57 VND_proxy_scenario / workload (+4.53% vs Nearest Neighbor)
+3. Q-Learning: 294173.21 VND_proxy_scenario / workload (+0.67% vs Nearest Neighbor)
+4. Nearest Neighbor: 296143.87 VND_proxy_scenario / workload (+0.00% vs Nearest Neighbor)
+5. SARSA: 296972.81 VND_proxy_scenario / workload (-0.28% vs Nearest Neighbor)
+
+Best estimated-cost algorithm:
+- Clarke-Wright with mean cost 274398.29 VND_proxy_scenario per workload.
+
+Interpretation:
+- Because the current proxy uses only distance and travel-time financial terms, algorithms with shorter routes and lower travel time naturally obtain lower estimated operating cost.
+- No monetary penalty for late deliveries is added because the dataset does not provide an authoritative business penalty value.

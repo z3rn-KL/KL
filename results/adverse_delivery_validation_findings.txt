@@ -1,0 +1,29 @@
+EXPANDED ADVERSE-DELIVERY VALIDATION
+========================================================================
+
+Scope:
+- Workloads: 108
+- Deliveries: 813
+- Isolation multiplier: 3.00
+- Detour validation percentile: 0.95
+- Derived detour threshold: 13.9537 km
+
+Results:
+- Road-isolation candidates: 57 (7.01%)
+- Unreachable-from-all-peers candidates: 0 (0.00%)
+- High-insertion-detour candidates: 41 (5.04%)
+- Unique flagged deliveries: 79 (9.72%)
+
+Distance / isolation statistics:
+- Median nearest-peer distance: 3.8944 km
+- Maximum nearest-peer distance: 19.2561 km
+- Median isolation ratio: 1.0000
+- Maximum isolation ratio: 10.1066
+- Median insertion detour: 0.9454 km
+- Maximum insertion detour: 31.0356 km
+
+Interpretation:
+- This experiment expands road-based adverse-delivery validation from a small audit sample to all benchmark workloads.
+- The 95th-percentile detour threshold is a data-derived exploratory validation threshold, not an authoritative XeDu business rule.
+- DBSCAN spatial-noise labels are not mixed into this experiment because no single canonical DBSCAN labeling artifact is aligned with these 108 routing workloads.
+- A flagged delivery is an investigation candidate, not automatically an invalid or unserviceable order.
