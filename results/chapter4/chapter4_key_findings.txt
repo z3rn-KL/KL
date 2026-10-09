@@ -1,0 +1,47 @@
+CHAPTER 4 - CANONICAL KEY FINDINGS
+================================================================
+
+K-MEANS
+- Deliveries: 2394
+- Clusters: 10
+- Selected K = 10
+- Silhouette ≈ 0.4285
+- Cluster size min/max: 70 / 627
+
+DATASET-SCALE BENCHMARK
+- 108 workloads
+- 813 deliveries
+- 540 algorithm runs
+- Nearest Neighbor: distance=62.6803 km, time=68.1338 min, SLA=99.14%
+- Clarke-Wright: distance=58.0539 km, time=63.2741 min, SLA=99.14%
+- Q-Learning: distance=62.2624 km, time=67.6854 min, SLA=100.00%
+- SARSA: distance=62.8589 km, time=68.3059 min, SLA=99.75%
+- DQN: distance=59.8287 km, time=65.1267 min, SLA=100.00%
+
+K-MEANS GUIDANCE SENSITIVITY
+- Selected λ = 0.50
+- Mean cluster-switch rate at λ=0.50: 0.5778
+
+FINAL VANILLA VS GUIDED DQN VALIDATION
+- Workloads: 12
+- Deliveries: 108
+- Vanilla mean distance: 72.0701 km
+- Guided mean distance: 73.3385 km
+- Distance change: +1.76% (positive means guided route is longer)
+- Vanilla mean travel time: 78.7010 min
+- Guided mean travel time: 80.1715 min
+- Time change: +1.87% (positive means guided route is slower)
+- Vanilla weighted SLA: 100.00%
+- Guided weighted SLA: 100.00%
+- Cluster-switch comparison workloads: 6
+- Vanilla cluster-switch rate: 0.6201
+- Guided cluster-switch rate: 0.5778
+- Relative switch-rate reduction: 6.83%
+
+INTERPRETATION
+- Clarke-Wright remains the strongest pure distance/time heuristic.
+- DQN is the strongest RL method overall in route quality.
+- Q-Learning provides very low training cost with 100% weighted SLA.
+- K-Means guidance improves spatial continuity, not route length.
+- λ=0.50 demonstrates a measurable spatial-continuity / route-efficiency trade-off.
+- Final cluster-switch comparison is based on 6 workloads with complete vanilla route information.
