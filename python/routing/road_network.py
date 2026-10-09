@@ -1,7 +1,18 @@
 from pathlib import Path
 
 import networkx as nx
-import osmnx as ox
+
+
+def _require_osmnx():
+    """Load the optional OSM adapter only for features that actually use it."""
+    try:
+        import osmnx
+    except ImportError as exc:
+        raise ImportError(
+            "OpenStreetMap operations require osmnx==2.1.1; "
+            "install the project requirements first."
+        ) from exc
+    return osmnx
 
 
 class RoadNetworkService:
@@ -48,6 +59,7 @@ class RoadNetworkService:
                 "place_name không được rỗng."
             )
 
+        ox = _require_osmnx()
         graph = ox.graph.graph_from_place(
             place_name,
             network_type=network_type,
@@ -69,6 +81,7 @@ class RoadNetworkService:
                 f"Không tìm thấy road graph: {path}"
             )
 
+        ox = _require_osmnx()
         graph = ox.io.load_graphml(
             filepath=path
         )
@@ -86,6 +99,7 @@ class RoadNetworkService:
             exist_ok=True,
         )
 
+        ox = _require_osmnx()
         ox.io.save_graphml(
             self.graph,
             filepath=path,
@@ -110,6 +124,7 @@ class RoadNetworkService:
                 "fallback_kph phải lớn hơn 0."
             )
 
+        ox = _require_osmnx()
         self.graph = ox.routing.add_edge_speeds(
             self.graph,
             hwy_speeds=highway_speeds,
@@ -133,6 +148,7 @@ class RoadNetworkService:
         Y = latitude
         """
 
+        ox = _require_osmnx()
         node_id = ox.distance.nearest_nodes(
             self.graph,
             X=longitude,

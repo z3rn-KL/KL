@@ -1,0 +1,14 @@
+{
+  "graph_nodes": 130939,
+  "graph_edges": 302803,
+  "delivery_count": 2394,
+  "distinct_snapped_nodes": 1309,
+  "snapped_nodes_in_graph": 1309,
+  "snapped_nodes_missing": 0,
+  "edges_with_length": 302803,
+  "edges_with_travel_time": 302803,
+  "limitations": [
+    "XML parse and cached ID membership only",
+    "OSMnx nearest_node and real shortest paths not executed"
+  ]
+}

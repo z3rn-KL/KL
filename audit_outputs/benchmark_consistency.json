@@ -1,0 +1,11 @@
+{
+  "manifest_workloads": 108,
+  "paired_workloads": 12,
+  "missing_vanilla_route_switch_metrics": 6,
+  "issues": [],
+  "limitations": [
+    "CSV arithmetic only; no DQN retraining",
+    "baseline cluster switching unavailable without original routes",
+    "cannot infer model superiority from these checks"
+  ]
+}

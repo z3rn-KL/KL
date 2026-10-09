@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 
 import numpy as np
+from numbers import Integral
 
 from domain import Delivery
 from prioritization import DeliveryPriorityModel
@@ -77,7 +78,7 @@ class RewardConfig:
             self.cluster_switch_penalty,
         ]
 
-        if any(weight < 0 for weight in weights):
+        if any(not np.isfinite(weight) or weight < 0 for weight in weights):
             raise ValueError(
                 "Reward weights cannot be negative."
             )
@@ -89,7 +90,7 @@ class RewardConfig:
             self.time_bucket_minutes,
         ]
 
-        if any(scale <= 0 for scale in scales):
+        if any(not np.isfinite(scale) or scale <= 0 for scale in scales):
             raise ValueError(
                 "Reward scales must be greater than 0."
             )
@@ -210,10 +211,10 @@ class RoutingEnvironment:
                     "the same length as deliveries."
                 )
 
-            self.delivery_cluster_ids = tuple(
-                int(cluster_id)
-                for cluster_id in delivery_cluster_ids
-            )
+            if any(isinstance(value, bool) or not isinstance(value, Integral)
+                   for value in delivery_cluster_ids):
+                raise ValueError("delivery_cluster_ids must contain integer labels")
+            self.delivery_cluster_ids = tuple(int(v) for v in delivery_cluster_ids)
 
         self.travel_scorer = TravelEfficiencyScorer()
 

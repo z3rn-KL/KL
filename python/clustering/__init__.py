@@ -20,3 +20,12 @@ __all__ = [
     "ClusteringMetrics",
     "evaluate_clustering",
 ]
+from .adverse_deliveries import (
+    AdverseDelivery, AdverseDeliveryReport, screen_adverse_deliveries,
+)
+from .cluster_alignment import align_cluster_ids
+
+__all__ += [
+    "AdverseDelivery", "AdverseDeliveryReport", "screen_adverse_deliveries",
+    "align_cluster_ids",
+]

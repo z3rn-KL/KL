@@ -4,6 +4,7 @@ from time import perf_counter
 import numpy as np
 import pandas as pd
 
+from clustering.cluster_alignment import align_cluster_ids
 from evaluation import RouteEvaluator
 
 from rl import (
@@ -209,14 +210,12 @@ def load_cluster_assignments() -> pd.DataFrame:
         .str.strip()
     )
 
-    result[
-        "cluster_id"
-    ] = pd.to_numeric(
-        result[
-            "cluster_id"
-        ],
-        errors="raise",
-    ).astype(int)
+    labels = pd.to_numeric(result["cluster_id"], errors="raise")
+    if labels.isna().any() or not np.isfinite(labels.to_numpy(dtype=float)).all():
+        raise ValueError("K-Means CSV contains missing or non-finite cluster IDs")
+    if not (labels == np.floor(labels)).all():
+        raise ValueError("K-Means CSV contains non-integer cluster IDs")
+    result["cluster_id"] = labels.astype(int)
 
     if result[
         "delivery_id"
@@ -376,39 +375,16 @@ def get_cluster_ids_for_deliveries(
     deliveries,
     workload_df: pd.DataFrame,
 ) -> list[int]:
-    lookup = dict(
-        zip(
-            workload_df[
-                "delivery_id"
-            ].astype(str),
-            workload_df[
-                "cluster_id"
-            ].astype(int),
-        )
-    )
-
-    cluster_ids = []
-
-    for delivery in deliveries:
-        delivery_id = str(
-            delivery.delivery_id
-        )
-
-        if delivery_id not in lookup:
-            raise ValueError(
-                "Không tìm thấy cluster cho "
-                f"delivery {delivery_id}."
-            )
-
-        cluster_ids.append(
-            int(
-                lookup[
-                    delivery_id
-                ]
-            )
-        )
-
-    return cluster_ids
+    ids = workload_df["delivery_id"].astype(str).str.strip()
+    if ids.duplicated().any():
+        raise ValueError("Duplicate delivery IDs in clustering workload")
+    if workload_df["cluster_id"].isna().any():
+        raise ValueError("Missing cluster ID in clustering workload")
+    labels = pd.to_numeric(workload_df["cluster_id"], errors="raise")
+    if not np.isfinite(labels.to_numpy(dtype=float)).all() or not (labels == np.floor(labels)).all():
+        raise ValueError("Invalid cluster IDs in workload")
+    lookup = dict(zip(ids, labels.astype(int)))
+    return align_cluster_ids(deliveries, lookup)
 
 
 def calculate_cluster_statistics(

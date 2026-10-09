@@ -1,12 +1,8 @@
 from pathlib import Path
-
 from analysis import OperationalAnalyzer
 from data import DataLoader
 
-
-PROJECT_ROOT = Path(
-    "/home/deez/Khóa Luận"
-)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
 XEDU_PATH = (
     PROJECT_ROOT
@@ -14,7 +10,6 @@ XEDU_PATH = (
     / "xedu"
     / "xedu_cleaned.csv"
 )
-
 
 def test_operational_analysis():
     dataframe = DataLoader.load_csv(

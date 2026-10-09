@@ -639,3 +639,20 @@ def test_state_is_hashable_for_q_table():
             42.0
         )
     )
+
+def test_reward_rejects_nonfinite_weights():
+    with pytest.raises(ValueError):
+        RewardConfig(cluster_switch_penalty=float('nan')).validate()
+    with pytest.raises(ValueError):
+        RewardConfig(distance_scale_km=float('inf')).validate()
+
+
+def test_cluster_ids_reject_fractional_values():
+    start = datetime(2026, 9, 21)
+    with pytest.raises(ValueError, match='integer'):
+        RoutingEnvironment(
+            deliveries=[create_delivery('a', start), create_delivery('b', start)],
+            road_matrix=create_two_delivery_matrix(),
+            start_time=start,
+            delivery_cluster_ids=[0, 1.5],
+        )
