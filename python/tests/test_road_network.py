@@ -1,11 +1,16 @@
 import networkx as nx
 import pytest
 
-from routing import RoadNetworkService
+from routing import (
+    RoadNetworkService,
+)
 
 
-def create_test_graph() -> nx.MultiDiGraph:
-    graph = nx.MultiDiGraph()
+def create_test_graph(
+) -> nx.MultiDiGraph:
+    graph = (
+        nx.MultiDiGraph()
+    )
 
     graph.add_node(
         1,
@@ -46,47 +51,71 @@ def create_test_graph() -> nx.MultiDiGraph:
         travel_time=300.0,
     )
 
-    graph.graph["crs"] = "EPSG:4326"
+    graph.graph[
+        "crs"
+    ] = "EPSG:4326"
 
     return graph
 
 
 def test_empty_graph_rejected():
-    graph = nx.MultiDiGraph()
+    graph = (
+        nx.MultiDiGraph()
+    )
 
-    with pytest.raises(ValueError):
-        RoadNetworkService(graph)
+    with pytest.raises(
+        ValueError
+    ):
+        RoadNetworkService(
+            graph
+        )
 
 
 def test_shortest_distance():
-    service = RoadNetworkService(
-        create_test_graph()
+    service = (
+        RoadNetworkService(
+            create_test_graph()
+        )
     )
 
-    distance_m = service.shortest_distance_m(
-        1,
-        3,
+    distance_m = (
+        service.shortest_distance_m(
+            1,
+            3,
+        )
     )
 
-    assert distance_m == 1500.0
+    assert (
+        distance_m
+        == 1500.0
+    )
 
 
 def test_shortest_distance_km():
-    service = RoadNetworkService(
-        create_test_graph()
+    service = (
+        RoadNetworkService(
+            create_test_graph()
+        )
     )
 
-    distance_km = service.shortest_distance_km(
-        1,
-        3,
+    distance_km = (
+        service.shortest_distance_km(
+            1,
+            3,
+        )
     )
 
-    assert distance_km == 1.5
+    assert (
+        distance_km
+        == 1.5
+    )
 
 
 def test_shortest_travel_time():
-    service = RoadNetworkService(
-        create_test_graph()
+    service = (
+        RoadNetworkService(
+            create_test_graph()
+        )
     )
 
     travel_time_minutes = (
@@ -96,18 +125,25 @@ def test_shortest_travel_time():
         )
     )
 
-    assert travel_time_minutes == 3.0
+    assert (
+        travel_time_minutes
+        == 3.0
+    )
 
 
 def test_shortest_path_nodes():
-    service = RoadNetworkService(
-        create_test_graph()
+    service = (
+        RoadNetworkService(
+            create_test_graph()
+        )
     )
 
-    path = service.shortest_path_nodes(
-        1,
-        3,
-        weight="length",
+    path = (
+        service.shortest_path_nodes(
+            1,
+            3,
+            weight="length",
+        )
     )
 
     assert path == [
@@ -115,3 +151,101 @@ def test_shortest_path_nodes():
         2,
         3,
     ]
+
+
+def test_node_coordinate():
+    service = (
+        RoadNetworkService(
+            create_test_graph()
+        )
+    )
+
+    coordinate = (
+        service.node_coordinate(
+            1
+        )
+    )
+
+    assert coordinate == (
+        10.7700,
+        106.7000,
+    )
+
+
+def test_path_coordinates():
+    service = (
+        RoadNetworkService(
+            create_test_graph()
+        )
+    )
+
+    coordinates = (
+        service.path_coordinates(
+            [
+                1,
+                2,
+                3,
+            ]
+        )
+    )
+
+    assert coordinates == [
+        (
+            10.7700,
+            106.7000,
+        ),
+        (
+            10.7710,
+            106.7010,
+        ),
+        (
+            10.7720,
+            106.7020,
+        ),
+    ]
+
+
+def test_shortest_path_coordinates():
+    service = (
+        RoadNetworkService(
+            create_test_graph()
+        )
+    )
+
+    coordinates = (
+        service.shortest_path_coordinates(
+            1,
+            3,
+            weight="length",
+        )
+    )
+
+    assert coordinates == [
+        (
+            10.7700,
+            106.7000,
+        ),
+        (
+            10.7710,
+            106.7010,
+        ),
+        (
+            10.7720,
+            106.7020,
+        ),
+    ]
+
+
+def test_unknown_node_coordinate_rejected():
+    service = (
+        RoadNetworkService(
+            create_test_graph()
+        )
+    )
+
+    with pytest.raises(
+        ValueError
+    ):
+        service.node_coordinate(
+            999
+        )
