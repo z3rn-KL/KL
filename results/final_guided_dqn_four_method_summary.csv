@@ -1,0 +1,5 @@
+method,method_label,workloads,deliveries,mean_distance_km,mean_travel_time_minutes,weighted_on_time_rate,mean_estimated_operating_cost,total_estimated_operating_cost,estimated_cost_per_delivery,cost_unit
+nearest_neighbor,Nearest Neighbor,12,108,77.59560628110339,84.70504280216012,0.9444444444444444,366852.453659187,4402229.443910244,40761.38373990967,VND_proxy_scenario
+clarke_wright,Clarke-Wright,12,108,70.5463240296176,76.63336111940417,0.9629629629629629,333274.2035314065,3999290.442376878,37030.467059045164,VND_proxy_scenario
+vanilla_dqn,Vanilla DQN,12,108,72.07005612237747,78.70097171864047,1.0,340747.53896860353,4088970.467623242,37860.837663178165,VND_proxy_scenario
+guided_dqn,K-Means-guided DQN,12,108,73.33845806182089,80.17154011347981,1.0,346801.5256562701,4161618.307875241,38533.50285069668,VND_proxy_scenario

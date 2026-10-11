@@ -1,0 +1,2 @@
+workloads,deliveries,exact_core_matches,exact_core_match_rate,exact_route_matches,exact_route_match_rate,within_1pct_matches,within_1pct_match_rate,within_5pct_matches,within_5pct_match_rate,mean_abs_distance_difference_pct,max_abs_distance_difference_pct,mean_abs_travel_time_difference_pct,max_abs_travel_time_difference_pct,mean_training_runtime_seconds,cluster_switch_penalty,seed,training_episodes
+3,28,3,1.0,3,1.0,3,1.0,3,1.0,5.151143092988293e-15,1.545342927896488e-14,0.0,0.0,206.1963300243333,0.5,42,5000

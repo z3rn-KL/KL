@@ -1,0 +1,28 @@
+K-MEANS-GUIDED DQN REPRODUCIBILITY VALIDATION
+========================================================================
+
+Scope:
+- Workloads: [101, 106, 97]
+- Workload sizes: N=5, N=10, N=13
+- Cluster-switch penalty: 0.50
+- Random seed: 42
+- Training episodes: 5000
+
+Summary:
+- Exact core matches: 3/3
+- Exact route matches: 3/3
+- Within 1% core metrics: 3/3
+- Within 5% core metrics: 3/3
+- Mean absolute distance difference: 0.000000%
+- Mean absolute travel-time difference: 0.000000%
+
+Per workload:
+- workload 101 (N=5): distance delta=+0.000000%; time delta=+0.000000%; exact core=True; exact route=True.
+- workload 106 (N=10): distance delta=-0.000000%; time delta=+0.000000%; exact core=True; exact route=True.
+- workload 97 (N=13): distance delta=+0.000000%; time delta=+0.000000%; exact core=True; exact route=True.
+
+Interpretation:
+- Guided DQN was independently re-trained on three representative workloads that were newly trained in the original final validation.
+- The same workload definitions, road graph, cluster assignments, reward configuration, lambda, random seed and training episode count were reused.
+- Exact equality is reported separately from practical 1% and 5% metric agreement because GPU-backed neural-network training may exhibit numerical nondeterminism.
+- This controlled validation does not claim that all 12 final-validation workloads were retrained.

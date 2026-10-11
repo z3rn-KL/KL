@@ -1,0 +1,42 @@
+FINAL FOUR-METHOD GUIDED-DQN COMPARISON
+========================================================================
+
+Scope:
+- Final-validation workloads: 12
+- Deliveries: 108
+- Methods: Nearest Neighbor, Clarke-Wright, Vanilla DQN, K-Means-guided DQN
+- Guided validation source: final_kmeans_guided_dqn_validation_paired.csv
+
+Operating-cost scenario:
+- distance_cost_per_km = 4000.00
+- travel_time_cost_per_minute = 666.6667
+- late_delivery_penalty = 0
+- lateness_cost_per_minute = 0
+- cost_unit = VND_proxy_scenario
+
+Method summary:
+- Nearest Neighbor: distance=77.5956 km; time=84.7050 min; SLA=94.44%; estimated cost=366852.45 VND_proxy_scenario/workload.
+- Clarke-Wright: distance=70.5463 km; time=76.6334 min; SLA=96.30%; estimated cost=333274.20 VND_proxy_scenario/workload.
+- Vanilla DQN: distance=72.0701 km; time=78.7010 min; SLA=100.00%; estimated cost=340747.54 VND_proxy_scenario/workload.
+- K-Means-guided DQN: distance=73.3385 km; time=80.1715 min; SLA=100.00%; estimated cost=346801.53 VND_proxy_scenario/workload.
+
+Guided-DQN pairwise results:
+- Guided DQN vs Nearest Neighbor: distance improvement=+5.49%; time improvement=+5.35%; SLA change=+5.56 pp; estimated-cost improvement=+5.47%.
+- Guided DQN vs Clarke-Wright: distance improvement=-3.96%; time improvement=-4.62%; SLA change=+3.70 pp; estimated-cost improvement=-4.06%.
+- Guided DQN vs Vanilla DQN: distance improvement=-1.76%; time improvement=-1.87%; SLA change=+0.00 pp; estimated-cost improvement=-1.78%.
+
+Vanilla-DQN baseline audit:
+- max_baseline_distance_difference_km = 0
+- max_baseline_time_difference_minutes = 0
+- max_baseline_sla_difference = 0
+
+Cluster-switch comparison where baseline data are available:
+- Workloads: 6
+- Vanilla mean switch rate: 0.6201
+- Guided mean switch rate: 0.5778
+- Relative reduction: 6.83%
+
+Interpretation:
+- Guided DQN must be interpreted as a trade-off method: cluster guidance can improve spatial continuity without necessarily minimizing distance or travel time.
+- Comparisons in this report use the exact same 12 final-validation workloads for all four methods.
+- Estimated operating cost is a scenario-based proxy, not verified XeDu accounting data.

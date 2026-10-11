@@ -1,0 +1,4 @@
+comparison,comparator,distance_improvement_pct,travel_time_improvement_pct,sla_change_percentage_points,estimated_cost_improvement_pct
+Guided DQN vs Nearest Neighbor,nearest_neighbor,5.48632638278545,5.352104831903471,5.555555555555558,5.465665502007141
+Guided DQN vs Clarke-Wright,clarke_wright,-3.957873171437064,-4.617021806681191,3.703703703703709,-4.058916646271064
+Guided DQN vs Vanilla DQN,vanilla_dqn,-1.7599569192642655,-1.868551763371717,0.0,-1.77667803735022
