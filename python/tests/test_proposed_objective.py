@@ -217,3 +217,106 @@ def test_cluster_switch_cannot_exceed_n_minus_one():
             cluster_switches=5,
             context=context,
         )
+def test_late_delivery_penalty_can_be_enabled():
+    config = ObjectiveConfig(
+        distance_weight=0.35,
+        travel_time_weight=0.35,
+        late_delivery_weight=0.15,
+        lateness_weight=0.10,
+        cluster_switch_weight=0.05,
+    )
+
+    context = ObjectiveContext(
+        number_of_deliveries=5,
+        number_of_valid_deadlines=5,
+    )
+
+    on_time = compute_step_cost(
+        distance_km=4.0,
+        travel_time_minutes=8.0,
+        lateness_minutes=0.0,
+        cluster_switched=False,
+        context=context,
+        config=config,
+    )
+
+    late = compute_step_cost(
+        distance_km=4.0,
+        travel_time_minutes=8.0,
+        lateness_minutes=1.0,
+        cluster_switched=False,
+        context=context,
+        config=config,
+    )
+
+    assert late.late_delivery_cost > 0.0
+
+    assert (
+        late.total_cost
+        > on_time.total_cost
+    )
+
+
+def test_late_delivery_count_is_normalized():
+    config = ObjectiveConfig(
+        distance_weight=0.35,
+        travel_time_weight=0.35,
+        late_delivery_weight=0.15,
+        lateness_weight=0.10,
+        cluster_switch_weight=0.05,
+    )
+
+    context = ObjectiveContext(
+        number_of_deliveries=5,
+        number_of_valid_deadlines=5,
+    )
+
+    route = compute_route_objective(
+        total_distance_km=0.0,
+        total_travel_time_minutes=0.0,
+        total_lateness_minutes=2.0,
+        late_deliveries=2,
+        cluster_switches=0,
+        context=context,
+        config=config,
+    )
+
+    assert (
+        route.normalized_late_deliveries
+        == pytest.approx(2.0 / 5.0)
+    )
+
+    assert (
+        route.late_delivery_cost
+        == pytest.approx(
+            0.15 * (2.0 / 5.0)
+        )
+    )
+
+
+def test_default_objective_keeps_old_behavior():
+    config = ObjectiveConfig()
+
+    assert (
+        config.late_delivery_weight
+        == 0.0
+    )
+
+    context = ObjectiveContext(
+        number_of_deliveries=5,
+        number_of_valid_deadlines=5,
+    )
+
+    result = compute_step_cost(
+        distance_km=4.0,
+        travel_time_minutes=8.0,
+        lateness_minutes=10.0,
+        cluster_switched=False,
+        context=context,
+        config=config,
+    )
+
+    assert (
+        result.late_delivery_cost
+        == 0.0
+    )

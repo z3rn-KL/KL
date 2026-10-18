@@ -1,0 +1,33 @@
+PROPOSED RL - REAL WORKLOAD SMOKE TEST
+
+This is an integration validation on one real workload. It is not the final thesis benchmark.
+
+workload_id = 106
+number_of_deliveries = 10
+depot_node = 1769277472
+route_start_time = 2024-08-20 06:00:00+00:00
+training_episodes = 3000
+training_runtime_seconds = 170.267488
+
+Untrained agent:
+  route = Depot -> D1 -> D2 -> D4 -> D3 -> D5 -> D6 -> D9 -> D7 -> D10 -> D8 -> Depot
+  objective = 0.952468303
+  distance_km = 143.610668046
+  travel_time_minutes = 156.852173076
+  lateness_minutes = 0.000000000
+  cluster_switches = 9
+  on_time_rate = 1.000000000
+
+Trained agent:
+  route = Depot -> D10 -> D3 -> D2 -> D6 -> D5 -> D4 -> D8 -> D1 -> D9 -> D7 -> Depot
+  delivery_ids = ('66c42dd0b8e7077ed0128560', '66c4192eb8e7077ed0127de5', '66c417efdc29bcc583b5c18e', '66c421dfb8e7077ed0127f92', '66c421a1b8e7077ed0127f50', '66c419bbb8e7077ed0127e21', '66c4231bb8e7077ed0128247', '66c41747dc29bcc583b5c176', '66c42b85b8e7077ed01284d1', '66c42231b8e7077ed012804c')
+  objective = 0.700534817
+  distance_km = 105.600091622
+  travel_time_minutes = 114.528807727
+  lateness_minutes = 0.000000000
+  late_deliveries = 0
+  on_time_rate = 1.000000000
+  cluster_switches = 7
+  objective_improvement_pct = 26.450590
+
+status = PASS

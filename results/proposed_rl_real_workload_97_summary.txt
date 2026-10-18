@@ -1,0 +1,33 @@
+PROPOSED RL - REAL WORKLOAD SMOKE TEST
+
+This is an integration validation on one real workload. It is not the final thesis benchmark.
+
+workload_id = 97
+number_of_deliveries = 13
+depot_node = 1769277472
+route_start_time = 2024-08-13 04:00:00+00:00
+training_episodes = 3000
+training_runtime_seconds = 223.194219
+
+Untrained agent:
+  route = Depot -> D5 -> D13 -> D1 -> D2 -> D8 -> D3 -> D9 -> D6 -> D7 -> D11 -> D10 -> D12 -> D4 -> Depot
+  objective = 0.990085792
+  distance_km = 184.078248074
+  travel_time_minutes = 196.632199622
+  lateness_minutes = 113.820417669
+  cluster_switches = 11
+  on_time_rate = 0.615384615
+
+Trained agent:
+  route = Depot -> D5 -> D7 -> D10 -> D6 -> D12 -> D1 -> D11 -> D9 -> D8 -> D4 -> D13 -> D2 -> D3 -> Depot
+  delivery_ids = ('66baca4e7cb3f11298e42933', '66bacbac7cb3f11298e42d69', '66bacfa37cb3f11298e42db0', '66bacada7cb3f11298e42940', '66bad1820f42ac1ad11cb212', '66bac1527cb3f11298e42891', '66bacfe87cb3f11298e42dc0', '66bacf3c7cb3f11298e42da7', '66bacd9f7cb3f11298e42d90', '66bac9d07cb3f11298e42924', '66bad1d17cb3f11298e431e9', '66bac56a7cb3f11298e428ce', '66bac5c77cb3f11298e428d8')
+  objective = 0.614037645
+  distance_km = 114.253077731
+  travel_time_minutes = 126.202338302
+  lateness_minutes = 46.925338118
+  late_deliveries = 2
+  on_time_rate = 0.846153846
+  cluster_switches = 7
+  objective_improvement_pct = 37.981370
+
+status = PASS

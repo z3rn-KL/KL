@@ -9,32 +9,46 @@ class ObjectiveConfig:
     """
     Cấu hình hàm mục tiêu của Proposed RL.
 
-    Hàm mục tiêu:
-
-        J(pi) =
-            w_d * D_bar(pi)
-            + w_t * T_bar(pi)
-            + w_l * L_bar(pi)
-            + w_c * S_bar(pi)
+    J(pi) =
+        w_d * D_bar(pi)
+        + w_t * T_bar(pi)
+        + w_m * M_bar(pi)
+        + w_l * L_bar(pi)
+        + w_c * S_bar(pi)
 
     Trong đó:
-        D_bar: quãng đường chuẩn hóa
-        T_bar: thời gian di chuyển chuẩn hóa
-        L_bar: tổng lateness chuẩn hóa
-        S_bar: số lần chuyển cluster chuẩn hóa
 
-    Các trọng số mặc định là cấu hình khởi đầu.
-    Sau này sẽ được kiểm chứng bằng sensitivity analysis.
+        D_bar:
+            quãng đường chuẩn hóa
+
+        T_bar:
+            travel time chuẩn hóa
+
+        M_bar:
+            số delivery giao trễ chuẩn hóa
+
+        L_bar:
+            tổng số phút trễ chuẩn hóa
+
+        S_bar:
+            số lần chuyển cluster chuẩn hóa
+
+    Lưu ý:
+        late_delivery_weight mặc định = 0.0
+        để giữ tương thích với objective trước đây.
+
+    Bộ trọng số cuối cùng sẽ được lựa chọn bằng
+    sensitivity analysis, không chốt tùy ý.
     """
 
     distance_weight: float = 0.40
     travel_time_weight: float = 0.40
+
+    late_delivery_weight: float = 0.00
     lateness_weight: float = 0.15
+
     cluster_switch_weight: float = 0.05
 
-    # Các giá trị reference dùng để chuẩn hóa.
-    # Đây mới là cấu hình khởi đầu; sau này có thể
-    # được ước lượng từ training set.
     distance_ref_km: float = 10.0
     travel_time_ref_minutes: float = 15.0
     lateness_ref_minutes: float = 30.0
@@ -43,11 +57,15 @@ class ObjectiveConfig:
         weights = (
             self.distance_weight,
             self.travel_time_weight,
+            self.late_delivery_weight,
             self.lateness_weight,
             self.cluster_switch_weight,
         )
 
-        if any(weight < 0.0 for weight in weights):
+        if any(
+            weight < 0.0
+            for weight in weights
+        ):
             raise ValueError(
                 "Objective weights must be non-negative."
             )
@@ -83,7 +101,7 @@ class ObjectiveConfig:
 @dataclass(frozen=True)
 class ObjectiveContext:
     """
-    Thông tin cố định của một workload/episode.
+    Thông tin cố định của một workload / episode.
     """
 
     number_of_deliveries: int
@@ -112,26 +130,37 @@ class ObjectiveContext:
     @property
     def route_leg_count(self) -> int:
         """
-        Một route đóng gồm:
+        Một closed route gồm N+1 road legs:
 
-        depot -> delivery 1
-        delivery 1 -> delivery 2
-        ...
-        delivery N -> depot
-
-        => tổng N + 1 chặng.
+            depot -> delivery 1
+            delivery 1 -> delivery 2
+            ...
+            delivery N -> depot
         """
+
         return self.number_of_deliveries + 1
+
+    @property
+    def valid_deadline_denominator(self) -> int:
+        """
+        Tránh chia 0 khi workload không có deadline hợp lệ.
+        """
+
+        return max(
+            1,
+            self.number_of_valid_deadlines,
+        )
 
     @property
     def possible_cluster_switches(self) -> int:
         """
-        Chỉ tính cluster switch giữa delivery -> delivery.
+        Chỉ tính delivery -> delivery.
 
         Không tính:
             depot -> delivery
             delivery -> depot
         """
+
         return max(
             1,
             self.number_of_deliveries - 1,
@@ -141,17 +170,23 @@ class ObjectiveContext:
 @dataclass(frozen=True)
 class ObjectiveBreakdown:
     """
-    Kết quả phân rã hàm mục tiêu.
+    Phân rã đầy đủ hàm mục tiêu.
     """
 
     normalized_distance: float
     normalized_travel_time: float
+
+    normalized_late_deliveries: float
     normalized_lateness: float
+
     normalized_cluster_switches: float
 
     distance_cost: float
     travel_time_cost: float
+
+    late_delivery_cost: float
     lateness_cost: float
+
     cluster_switch_cost: float
 
     total_cost: float
@@ -189,18 +224,15 @@ def compute_step_cost(
     config: ObjectiveConfig | None = None,
 ) -> ObjectiveBreakdown:
     """
-    Tính chi phí phát sinh bởi MỘT action của RL.
+    Tính Delta J_t cho một action.
 
-    Proposed RL định nghĩa:
+    Delivery được xem là late khi:
 
-        reward_t = - step_cost_t
+        lateness_minutes > 0
 
-    Vì các step sử dụng cùng denominator của workload nên:
+    Reward của Proposed RL:
 
-        sum(step_cost_t) = J(pi)
-
-    nếu toàn bộ distance, time, lateness và cluster switch
-    của route được cộng đầy đủ.
+        r_t = - Delta J_t
     """
 
     if config is None:
@@ -211,6 +243,10 @@ def compute_step_cost(
         travel_time_minutes=travel_time_minutes,
         lateness_minutes=lateness_minutes,
     )
+
+    # ========================================================
+    # NORMALIZATION
+    # ========================================================
 
     normalized_distance = (
         distance_km
@@ -228,13 +264,19 @@ def compute_step_cost(
         )
     )
 
+    is_late = (
+        lateness_minutes > 0.0
+    )
+
+    normalized_late_deliveries = (
+        float(is_late)
+        / context.valid_deadline_denominator
+    )
+
     normalized_lateness = (
         lateness_minutes
         / (
-            max(
-                1,
-                context.number_of_valid_deadlines,
-            )
+            context.valid_deadline_denominator
             * config.lateness_ref_minutes
         )
     )
@@ -244,6 +286,10 @@ def compute_step_cost(
         / context.possible_cluster_switches
     )
 
+    # ========================================================
+    # WEIGHTED COST COMPONENTS
+    # ========================================================
+
     distance_cost = (
         config.distance_weight
         * normalized_distance
@@ -252,6 +298,11 @@ def compute_step_cost(
     travel_time_cost = (
         config.travel_time_weight
         * normalized_travel_time
+    )
+
+    late_delivery_cost = (
+        config.late_delivery_weight
+        * normalized_late_deliveries
     )
 
     lateness_cost = (
@@ -267,22 +318,45 @@ def compute_step_cost(
     total_cost = (
         distance_cost
         + travel_time_cost
+        + late_delivery_cost
         + lateness_cost
         + cluster_switch_cost
     )
 
     return ObjectiveBreakdown(
-        normalized_distance=normalized_distance,
-        normalized_travel_time=normalized_travel_time,
-        normalized_lateness=normalized_lateness,
+        normalized_distance=(
+            normalized_distance
+        ),
+        normalized_travel_time=(
+            normalized_travel_time
+        ),
+        normalized_late_deliveries=(
+            normalized_late_deliveries
+        ),
+        normalized_lateness=(
+            normalized_lateness
+        ),
         normalized_cluster_switches=(
             normalized_cluster_switches
         ),
-        distance_cost=distance_cost,
-        travel_time_cost=travel_time_cost,
-        lateness_cost=lateness_cost,
-        cluster_switch_cost=cluster_switch_cost,
-        total_cost=total_cost,
+        distance_cost=(
+            distance_cost
+        ),
+        travel_time_cost=(
+            travel_time_cost
+        ),
+        late_delivery_cost=(
+            late_delivery_cost
+        ),
+        lateness_cost=(
+            lateness_cost
+        ),
+        cluster_switch_cost=(
+            cluster_switch_cost
+        ),
+        total_cost=(
+            total_cost
+        ),
     )
 
 
@@ -293,16 +367,18 @@ def compute_route_objective(
     total_lateness_minutes: float,
     cluster_switches: int,
     context: ObjectiveContext,
+    late_deliveries: int = 0,
     config: ObjectiveConfig | None = None,
 ) -> ObjectiveBreakdown:
     """
-    Tính hàm mục tiêu của toàn bộ route:
+    Tính J(pi) cho toàn bộ route.
 
-        J(pi) =
-            w_d * D_bar
-            + w_t * T_bar
-            + w_l * L_bar
-            + w_c * S_bar
+    J(pi) =
+        w_d * D_bar
+        + w_t * T_bar
+        + w_m * M_bar
+        + w_l * L_bar
+        + w_c * S_bar
     """
 
     if config is None:
@@ -313,8 +389,24 @@ def compute_route_objective(
         travel_time_minutes=(
             total_travel_time_minutes
         ),
-        lateness_minutes=total_lateness_minutes,
+        lateness_minutes=(
+            total_lateness_minutes
+        ),
     )
+
+    if late_deliveries < 0:
+        raise ValueError(
+            "late_deliveries must be >= 0."
+        )
+
+    if (
+        late_deliveries
+        > context.number_of_valid_deadlines
+    ):
+        raise ValueError(
+            "late_deliveries cannot exceed "
+            "number_of_valid_deadlines."
+        )
 
     if cluster_switches < 0:
         raise ValueError(
@@ -326,10 +418,17 @@ def compute_route_objective(
         context.number_of_deliveries - 1,
     )
 
-    if cluster_switches > max_cluster_switches:
+    if (
+        cluster_switches
+        > max_cluster_switches
+    ):
         raise ValueError(
             "cluster_switches cannot exceed N - 1."
         )
+
+    # ========================================================
+    # NORMALIZATION
+    # ========================================================
 
     normalized_distance = (
         total_distance_km
@@ -347,13 +446,15 @@ def compute_route_objective(
         )
     )
 
+    normalized_late_deliveries = (
+        late_deliveries
+        / context.valid_deadline_denominator
+    )
+
     normalized_lateness = (
         total_lateness_minutes
         / (
-            max(
-                1,
-                context.number_of_valid_deadlines,
-            )
+            context.valid_deadline_denominator
             * config.lateness_ref_minutes
         )
     )
@@ -363,6 +464,10 @@ def compute_route_objective(
         / context.possible_cluster_switches
     )
 
+    # ========================================================
+    # WEIGHTED COST COMPONENTS
+    # ========================================================
+
     distance_cost = (
         config.distance_weight
         * normalized_distance
@@ -371,6 +476,11 @@ def compute_route_objective(
     travel_time_cost = (
         config.travel_time_weight
         * normalized_travel_time
+    )
+
+    late_delivery_cost = (
+        config.late_delivery_weight
+        * normalized_late_deliveries
     )
 
     lateness_cost = (
@@ -386,22 +496,45 @@ def compute_route_objective(
     total_cost = (
         distance_cost
         + travel_time_cost
+        + late_delivery_cost
         + lateness_cost
         + cluster_switch_cost
     )
 
     return ObjectiveBreakdown(
-        normalized_distance=normalized_distance,
-        normalized_travel_time=normalized_travel_time,
-        normalized_lateness=normalized_lateness,
+        normalized_distance=(
+            normalized_distance
+        ),
+        normalized_travel_time=(
+            normalized_travel_time
+        ),
+        normalized_late_deliveries=(
+            normalized_late_deliveries
+        ),
+        normalized_lateness=(
+            normalized_lateness
+        ),
         normalized_cluster_switches=(
             normalized_cluster_switches
         ),
-        distance_cost=distance_cost,
-        travel_time_cost=travel_time_cost,
-        lateness_cost=lateness_cost,
-        cluster_switch_cost=cluster_switch_cost,
-        total_cost=total_cost,
+        distance_cost=(
+            distance_cost
+        ),
+        travel_time_cost=(
+            travel_time_cost
+        ),
+        late_delivery_cost=(
+            late_delivery_cost
+        ),
+        lateness_cost=(
+            lateness_cost
+        ),
+        cluster_switch_cost=(
+            cluster_switch_cost
+        ),
+        total_cost=(
+            total_cost
+        ),
     )
 
 
@@ -409,7 +542,7 @@ def reward_from_step_cost(
     breakdown: ObjectiveBreakdown,
 ) -> float:
     """
-    Quan hệ trung tâm giữa objective và RL:
+    Quan hệ trung tâm:
 
         r_t = -Delta J_t
     """

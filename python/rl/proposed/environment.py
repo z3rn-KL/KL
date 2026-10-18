@@ -41,7 +41,8 @@ class ProposedRoutingState:
 @dataclass(frozen=True)
 class CandidateInfo:
     """
-    Thông tin của một delivery ứng viên trước khi agent chọn.
+    Thông tin của một delivery ứng viên
+    trước khi agent chọn.
     """
 
     action: int
@@ -68,7 +69,10 @@ class EpisodeTotals:
 
     total_distance_km: float
     total_travel_time_minutes: float
+
+    late_deliveries: int
     total_lateness_minutes: float
+
     cluster_switches: int
 
 
@@ -98,7 +102,7 @@ class ProposedRoutingEnvironment:
     """
     Environment riêng của Proposed RL.
 
-    Agent chỉ có một nhiệm vụ:
+    Agent chỉ thực hiện một quyết định:
 
         chọn delivery tiếp theo.
 
@@ -112,18 +116,20 @@ class ProposedRoutingEnvironment:
             ↓
         deadline / lateness
             ↓
+        late-delivery count
+            ↓
         cluster switch
             ↓
-        step objective cost
+        objective increment
             ↓
-        reward = - step cost
+        reward = - Delta J
             ↓
         state mới
 
     Quy ước road matrix:
 
-        node 0     = depot
-        node 1..N  = delivery
+        node 0    = depot
+        node 1..N = delivery
 
     Quy ước action:
 
@@ -151,8 +157,13 @@ class ProposedRoutingEnvironment:
             for row in travel_time_matrix_minutes
         ]
 
-        self.deadlines_minutes = list(deadlines_minutes)
-        self.cluster_ids = list(cluster_ids)
+        self.deadlines_minutes = list(
+            deadlines_minutes
+        )
+
+        self.cluster_ids = list(
+            cluster_ids
+        )
 
         self.objective_config = (
             objective_config
@@ -183,6 +194,11 @@ class ProposedRoutingEnvironment:
         self.reset()
 
     def _validate_inputs(self) -> None:
+        """
+        Kiểm tra tính hợp lệ của road matrices,
+        deadline và cluster labels.
+        """
+
         node_count = len(
             self.distance_matrix_km
         )
@@ -214,15 +230,23 @@ class ProposedRoutingEnvironment:
                     "Travel-time matrix must be square."
                 )
 
-        delivery_count = node_count - 1
+        delivery_count = (
+            node_count - 1
+        )
 
-        if len(self.deadlines_minutes) != delivery_count:
+        if (
+            len(self.deadlines_minutes)
+            != delivery_count
+        ):
             raise ValueError(
                 "deadlines_minutes must contain exactly "
                 "one value per delivery."
             )
 
-        if len(self.cluster_ids) != delivery_count:
+        if (
+            len(self.cluster_ids)
+            != delivery_count
+        ):
             raise ValueError(
                 "cluster_ids must contain exactly "
                 "one value per delivery."
@@ -263,26 +287,50 @@ class ProposedRoutingEnvironment:
                     "or None."
                 )
 
-    def reset(self) -> ProposedRoutingState:
+    def reset(
+        self,
+    ) -> ProposedRoutingState:
+        """
+        Đưa environment về trạng thái đầu episode.
+        """
+
         self.current_node = 0
+
         self.visited_mask = 0
+
         self.elapsed_time_minutes = 0.0
+
         self.done = False
 
         self.route_actions: list[int] = []
 
         self.total_distance_km = 0.0
+
         self.total_travel_time_minutes = 0.0
+
+        self.late_deliveries = 0
+
         self.total_lateness_minutes = 0.0
+
         self.cluster_switches = 0
 
         return self.state
 
     @property
-    def state(self) -> ProposedRoutingState:
+    def state(
+        self,
+    ) -> ProposedRoutingState:
+        """
+        Trạng thái hiện tại của environment.
+        """
+
         return ProposedRoutingState(
-            current_node=self.current_node,
-            visited_mask=self.visited_mask,
+            current_node=(
+                self.current_node
+            ),
+            visited_mask=(
+                self.visited_mask
+            ),
             elapsed_time_minutes=(
                 self.elapsed_time_minutes
             ),
@@ -293,17 +341,30 @@ class ProposedRoutingEnvironment:
         )
 
     @property
-    def totals(self) -> EpisodeTotals:
+    def totals(
+        self,
+    ) -> EpisodeTotals:
+        """
+        Tổng metric đã phát sinh đến hiện tại.
+        """
+
         return EpisodeTotals(
             total_distance_km=(
                 self.total_distance_km
             ),
+
             total_travel_time_minutes=(
                 self.total_travel_time_minutes
             ),
+
+            late_deliveries=(
+                self.late_deliveries
+            ),
+
             total_lateness_minutes=(
                 self.total_lateness_minutes
             ),
+
             cluster_switches=(
                 self.cluster_switches
             ),
@@ -313,19 +374,36 @@ class ProposedRoutingEnvironment:
         self,
         action: int,
     ) -> bool:
+        """
+        Kiểm tra action còn hợp lệ hay không.
+        """
+
         if self.done:
             return False
 
         if not (
-            0 <= action < self.number_of_deliveries
+            0
+            <= action
+            < self.number_of_deliveries
         ):
             return False
 
-        bit = 1 << action
+        bit = (
+            1 << action
+        )
 
-        return (self.visited_mask & bit) == 0
+        return (
+            self.visited_mask
+            & bit
+        ) == 0
 
-    def available_actions(self) -> tuple[int, ...]:
+    def available_actions(
+        self,
+    ) -> tuple[int, ...]:
+        """
+        Trả về toàn bộ delivery chưa được phục vụ.
+        """
+
         if self.done:
             return ()
 
@@ -334,32 +412,45 @@ class ProposedRoutingEnvironment:
             for action in range(
                 self.number_of_deliveries
             )
-            if self.is_action_available(action)
+            if self.is_action_available(
+                action
+            )
         )
 
     def _validate_action(
         self,
         action: int,
     ) -> None:
+        """
+        Kiểm tra action trước khi thực hiện.
+        """
+
         if self.done:
             raise RuntimeError(
                 "Episode is already finished."
             )
 
-        if not isinstance(action, int):
+        if not isinstance(
+            action,
+            int,
+        ):
             raise TypeError(
                 "Action must be an integer."
             )
 
         if not (
-            0 <= action < self.number_of_deliveries
+            0
+            <= action
+            < self.number_of_deliveries
         ):
             raise ValueError(
                 f"Action must be in range "
                 f"0..{self.number_of_deliveries - 1}."
             )
 
-        if not self.is_action_available(action):
+        if not self.is_action_available(
+            action
+        ):
             raise ValueError(
                 f"Delivery action {action} "
                 "has already been visited."
@@ -370,13 +461,19 @@ class ProposedRoutingEnvironment:
         action: int,
     ) -> CandidateInfo:
         """
-        Tính thông tin mà agent có thể biết
-        TRƯỚC KHI chọn candidate.
+        Tính thông tin candidate trước khi action xảy ra.
+
+        Đây là thông tin mà CandidateEncoder
+        có thể sử dụng làm state/action features.
         """
 
-        self._validate_action(action)
+        self._validate_action(
+            action
+        )
 
-        node_index = action + 1
+        node_index = (
+            action + 1
+        )
 
         distance_km = (
             self.distance_matrix_km[
@@ -395,12 +492,19 @@ class ProposedRoutingEnvironment:
             + travel_time_minutes
         )
 
-        deadline = self.deadlines_minutes[action]
+        deadline = (
+            self.deadlines_minutes[
+                action
+            ]
+        )
 
-        deadline_valid = deadline is not None
+        deadline_valid = (
+            deadline is not None
+        )
 
         if deadline is None:
             slack_minutes = None
+
             lateness_minutes = 0.0
 
         else:
@@ -415,9 +519,11 @@ class ProposedRoutingEnvironment:
                 - deadline,
             )
 
-        # Depot không thuộc cluster nào,
-        # nên depot -> delivery đầu tiên
-        # không tính là cluster switch.
+        # Depot không thuộc cluster.
+        #
+        # Do đó:
+        # depot -> delivery đầu tiên
+        # không tính cluster switch.
         if self.current_node == 0:
             cluster_switched = False
 
@@ -426,33 +532,63 @@ class ProposedRoutingEnvironment:
                 self.current_node - 1
             )
 
-            current_cluster = self.cluster_ids[
-                current_delivery_action
-            ]
+            current_cluster = (
+                self.cluster_ids[
+                    current_delivery_action
+                ]
+            )
 
-            candidate_cluster = self.cluster_ids[
-                action
-            ]
+            candidate_cluster = (
+                self.cluster_ids[
+                    action
+                ]
+            )
 
             cluster_switched = (
-                current_cluster != candidate_cluster
+                current_cluster
+                != candidate_cluster
             )
 
         return CandidateInfo(
-            action=action,
-            node_index=node_index,
-            distance_km=distance_km,
+            action=(
+                action
+            ),
+
+            node_index=(
+                node_index
+            ),
+
+            distance_km=(
+                distance_km
+            ),
+
             travel_time_minutes=(
                 travel_time_minutes
             ),
+
             estimated_arrival_minutes=(
                 estimated_arrival_minutes
             ),
-            deadline_valid=deadline_valid,
-            deadline_minutes=deadline,
-            slack_minutes=slack_minutes,
-            lateness_minutes=lateness_minutes,
-            cluster_switched=cluster_switched,
+
+            deadline_valid=(
+                deadline_valid
+            ),
+
+            deadline_minutes=(
+                deadline
+            ),
+
+            slack_minutes=(
+                slack_minutes
+            ),
+
+            lateness_minutes=(
+                lateness_minutes
+            ),
+
+            cluster_switched=(
+                cluster_switched
+            ),
         )
 
     def step(
@@ -467,25 +603,50 @@ class ProposedRoutingEnvironment:
             r_t = - Delta J_t
 
         Nếu đây là delivery cuối cùng,
-        environment tự động thêm chặng quay về depot.
+        environment tự động thêm chặng:
+
+            last delivery -> depot
         """
 
-        candidate = self.candidate_info(action)
-
-        delivery_step_cost = compute_step_cost(
-            distance_km=candidate.distance_km,
-            travel_time_minutes=(
-                candidate.travel_time_minutes
-            ),
-            lateness_minutes=(
-                candidate.lateness_minutes
-            ),
-            cluster_switched=(
-                candidate.cluster_switched
-            ),
-            context=self.objective_context,
-            config=self.objective_config,
+        candidate = self.candidate_info(
+            action
         )
+
+        # ====================================================
+        # OBJECTIVE COST CỦA DELIVERY ACTION
+        # ====================================================
+
+        delivery_step_cost = (
+            compute_step_cost(
+                distance_km=(
+                    candidate.distance_km
+                ),
+
+                travel_time_minutes=(
+                    candidate.travel_time_minutes
+                ),
+
+                lateness_minutes=(
+                    candidate.lateness_minutes
+                ),
+
+                cluster_switched=(
+                    candidate.cluster_switched
+                ),
+
+                context=(
+                    self.objective_context
+                ),
+
+                config=(
+                    self.objective_config
+                ),
+            )
+        )
+
+        # ====================================================
+        # UPDATE EPISODE TOTALS
+        # ====================================================
 
         self.total_distance_km += (
             candidate.distance_km
@@ -499,20 +660,34 @@ class ProposedRoutingEnvironment:
             candidate.lateness_minutes
         )
 
+        if (
+            candidate.deadline_valid
+            and candidate.lateness_minutes > 0.0
+        ):
+            self.late_deliveries += 1
+
         if candidate.cluster_switched:
             self.cluster_switches += 1
+
+        # ====================================================
+        # UPDATE STATE
+        # ====================================================
 
         self.elapsed_time_minutes = (
             candidate.estimated_arrival_minutes
         )
 
-        self.current_node = candidate.node_index
+        self.current_node = (
+            candidate.node_index
+        )
 
         self.visited_mask |= (
             1 << action
         )
 
-        self.route_actions.append(action)
+        self.route_actions.append(
+            action
+        )
 
         transition_cost = (
             delivery_step_cost.total_cost
@@ -524,6 +699,10 @@ class ProposedRoutingEnvironment:
             self.visited_mask
             == self._all_visited_mask
         )
+
+        # ====================================================
+        # AUTO RETURN TO DEPOT
+        # ====================================================
 
         if all_visited:
             return_distance_km = (
@@ -538,15 +717,28 @@ class ProposedRoutingEnvironment:
                 ][0]
             )
 
-            return_to_depot_cost = compute_step_cost(
-                distance_km=return_distance_km,
-                travel_time_minutes=(
-                    return_time_minutes
-                ),
-                lateness_minutes=0.0,
-                cluster_switched=False,
-                context=self.objective_context,
-                config=self.objective_config,
+            return_to_depot_cost = (
+                compute_step_cost(
+                    distance_km=(
+                        return_distance_km
+                    ),
+
+                    travel_time_minutes=(
+                        return_time_minutes
+                    ),
+
+                    lateness_minutes=0.0,
+
+                    cluster_switched=False,
+
+                    context=(
+                        self.objective_context
+                    ),
+
+                    config=(
+                        self.objective_config
+                    ),
+                )
             )
 
             transition_cost += (
@@ -566,31 +758,62 @@ class ProposedRoutingEnvironment:
             )
 
             self.current_node = 0
+
             self.done = True
 
-        reward = -transition_cost
+        # ====================================================
+        # RL REWARD
+        # ====================================================
+
+        reward = (
+            -transition_cost
+        )
 
         return StepResult(
-            state=self.state,
-            action=action,
-            reward=reward,
-            done=self.done,
-            candidate=candidate,
+            state=(
+                self.state
+            ),
+
+            action=(
+                action
+            ),
+
+            reward=(
+                reward
+            ),
+
+            done=(
+                self.done
+            ),
+
+            candidate=(
+                candidate
+            ),
+
             delivery_step_cost=(
                 delivery_step_cost
             ),
+
             return_to_depot_cost=(
                 return_to_depot_cost
             ),
-            transition_cost=transition_cost,
-            totals=self.totals,
+
+            transition_cost=(
+                transition_cost
+            ),
+
+            totals=(
+                self.totals
+            ),
         )
 
     def final_objective(
         self,
     ) -> ObjectiveBreakdown:
         """
-        Trả về J(pi) của route hoàn chỉnh.
+        Tính J(pi) của route hoàn chỉnh.
+
+        Chỉ được gọi sau khi episode kết thúc.
         """
 
         if not self.done:
@@ -603,15 +826,28 @@ class ProposedRoutingEnvironment:
             total_distance_km=(
                 self.total_distance_km
             ),
+
             total_travel_time_minutes=(
                 self.total_travel_time_minutes
             ),
+
+            late_deliveries=(
+                self.late_deliveries
+            ),
+
             total_lateness_minutes=(
                 self.total_lateness_minutes
             ),
+
             cluster_switches=(
                 self.cluster_switches
             ),
-            context=self.objective_context,
-            config=self.objective_config,
+
+            context=(
+                self.objective_context
+            ),
+
+            config=(
+                self.objective_config
+            ),
         )

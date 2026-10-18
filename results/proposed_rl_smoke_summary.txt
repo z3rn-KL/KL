@@ -1,0 +1,23 @@
+PROPOSED RL CONTROLLED SMOKE EXPERIMENT
+
+This experiment is a controlled mechanism validation, not a thesis benchmark result.
+
+Training episodes: 1500
+Training runtime seconds: 24.879548
+
+Brute-force optimum:
+  route = Depot -> D1 -> D2 -> D3 -> D4 -> Depot
+  objective = 0.203333333
+
+Untrained agent:
+  route = Depot -> D2 -> D1 -> D3 -> D4 -> Depot
+  objective = 0.489750000
+  gap_pct = 140.860656
+
+Trained agent:
+  route = Depot -> D1 -> D2 -> D3 -> D4 -> Depot
+  objective = 0.203333333
+  gap_pct = 0.000000
+  improvement_vs_untrained_pct = 58.482219
+
+Smoke status = PASS
