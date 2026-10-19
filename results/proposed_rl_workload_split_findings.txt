@@ -1,0 +1,15 @@
+PROPOSED RL DATASET SPLIT
+
+seed = 42
+
+train = 76
+validation = 16
+test = 16
+
+Validation and test both contain representatives for N=5 through N=13.
+
+N=14,15,16 contain one workload each and are retained in training.
+
+Pilot workloads 101, 106 and 97 are fixed in validation.
+
+The test set remains untouched during objective and hyperparameter selection.

@@ -1,0 +1,4 @@
+split,workloads,deliveries,valid_deadlines,missing_deadlines,negative_relative_deadlines,workloads_with_negative_deadlines,missing_road_nodes,missing_cluster_ids,duplicate_delivery_ids,structurally_valid_workloads,environment_compatible_workloads
+train,76,544,544,0,0,0,0,0,0,76,76
+validation,16,138,138,0,0,0,0,0,0,16,16
+test,16,131,131,0,0,0,0,0,0,16,16

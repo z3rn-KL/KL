@@ -1,0 +1,96 @@
+PROPOSED RL - FINAL HELD-OUT BASELINE COMPARISON
+
+All algorithms are compared on exactly the same 16 held-out Test workloads containing 131 deliveries.
+
+Proposed RL objective/model configuration was locked before Test evaluation.
+
+No Proposed RL training or tuning was performed on Test.
+
+Important interpretation:
+ratio-of-means improvements and mean paired per-workload improvements are reported separately and must not be treated as the same statistic.
+
+SUMMARY
+
+[NN]
+mean_distance_km = 59.576855319
+mean_travel_time_minutes = 64.945264387
+late_deliveries = 1
+weighted_sla = 0.992366412
+total_lateness_minutes = 10.464877433
+
+[CW]
+mean_distance_km = 55.583550256
+mean_travel_time_minutes = 60.739702992
+late_deliveries = 0
+weighted_sla = 1.000000000
+total_lateness_minutes = 0.000000000
+
+[Q-Learning]
+mean_distance_km = 60.039044188
+mean_travel_time_minutes = 65.432095304
+late_deliveries = 0
+weighted_sla = 1.000000000
+total_lateness_minutes = 0.000000000
+
+[SARSA]
+mean_distance_km = 60.805232460
+mean_travel_time_minutes = 66.212969924
+late_deliveries = 0
+weighted_sla = 1.000000000
+total_lateness_minutes = 0.000000000
+
+[DQN]
+mean_distance_km = 57.113480796
+mean_travel_time_minutes = 62.326586554
+late_deliveries = 0
+weighted_sla = 1.000000000
+total_lateness_minutes = 0.000000000
+
+[Proposed RL]
+mean_distance_km = 61.897692868
+mean_travel_time_minutes = 67.520761465
+late_deliveries = 1
+weighted_sla = 0.992366412
+total_lateness_minutes = 12.720152098
+
+PROPOSED RL VS BASELINES
+
+[vs NN]
+distance improvement (ratio of means) = -3.895536%
+travel time improvement (ratio of means) = -3.965643%
+mean paired distance improvement = -3.416440%
+mean paired travel-time improvement = -3.489723%
+SLA change = 0.000000 percentage points
+late-delivery change = 0
+
+[vs CW]
+distance improvement (ratio of means) = -11.359732%
+travel time improvement (ratio of means) = -11.164128%
+mean paired distance improvement = -10.803191%
+mean paired travel-time improvement = -10.443825%
+SLA change = -0.763359 percentage points
+late-delivery change = 1
+
+[vs Q-Learning]
+distance improvement (ratio of means) = -3.095733%
+travel time improvement (ratio of means) = -3.192113%
+mean paired distance improvement = -3.989833%
+mean paired travel-time improvement = -4.023187%
+SLA change = -0.763359 percentage points
+late-delivery change = 1
+
+[vs SARSA]
+distance improvement (ratio of means) = -1.796655%
+travel time improvement (ratio of means) = -1.975129%
+mean paired distance improvement = -1.826634%
+mean paired travel-time improvement = -2.005923%
+SLA change = -0.763359 percentage points
+late-delivery change = 1
+
+[vs DQN]
+distance improvement (ratio of means) = -8.376677%
+travel time improvement (ratio of means) = -8.333803%
+mean paired distance improvement = -7.707988%
+mean paired travel-time improvement = -7.743397%
+SLA change = -0.763359 percentage points
+late-delivery change = 1

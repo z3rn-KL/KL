@@ -1,0 +1,41 @@
+PROPOSED RL MULTI-WORKLOAD VALIDATION
+
+seed = 42
+train_workloads = 76
+validation_workloads = 16
+test_workloads_used = 0
+epochs = 40
+episodes_per_workload_per_epoch = 1
+training_episodes_per_model = 3040
+epsilon_decay = 0.998571188754
+
+Important:
+Objective values of A and D are not compared directly because they use different objective weights.
+
+External validation metrics are used for A-vs-D comparison:
+distance, travel time, late deliveries, weighted SLA, lateness and cluster switches.
+
+pareto_status = TRADE_OFF
+
+total_experiment_runtime_seconds = 226.974015
+
+[A_current]
+best_epoch = 5
+mean_distance_km = 65.401132
+mean_travel_time_minutes = 72.151114
+late_deliveries = 5
+weighted_sla = 0.963768116
+total_lateness_minutes = 181.550139
+mean_cluster_switches = 4.375000
+
+[D_moderate_sla]
+best_epoch = 30
+mean_distance_km = 65.775699
+mean_travel_time_minutes = 72.492910
+late_deliveries = 2
+weighted_sla = 0.985507246
+total_lateness_minutes = 60.470442
+mean_cluster_switches = 4.125000
+
+No final Test-set conclusion is made in this experiment.
+The objective/model configuration must be locked before Test road matrices are prepared.

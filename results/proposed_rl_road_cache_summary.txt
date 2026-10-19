@@ -1,0 +1,13 @@
+PROPOSED RL TRAIN/VALIDATION ROAD CACHE
+
+cached_workloads = 92
+train_workloads = 76
+validation_workloads = 16
+test_workloads_cached = 0
+depot_node = 1769277472
+mean_matrix_runtime_seconds = 4.318422
+total_matrix_runtime_seconds = 397.294846
+total_runtime_seconds = 419.403813
+total_cache_bytes = 380598
+
+Test road matrices are intentionally deferred until the final objective and model configuration are locked.
