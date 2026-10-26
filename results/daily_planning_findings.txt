@@ -1,0 +1,84 @@
+DAILY PLANNING: OVERTIME / DEFERRAL AND CLUSTER ALLOCATION
+
+horizon_days = 30
+shipper_pool = 4, shift = 10h, service time = 10 min/stop
+Load multiplier 1 is the real XeDu data; higher values are
+stress scenarios resampled from the same dataset.
+Cost coefficients are scenario parameters, not real XeDu costs.
+over_cap = shipper-days with overtime above the legal-style cap of
+120 min/day; only the hybrid and defer policies respect it.
+
+[load x1]  orders = 562
+  dedicated   overtime cost/order =      99253  on_time = 1.000  OT_h =     0.0  over_cap =    0  final_backlog =    0  mean_shippers =  3.47
+  dedicated   defer    cost/order =      99253  on_time = 1.000  OT_h =     0.0  over_cap =    0  final_backlog =    0  mean_shippers =  3.47
+  dedicated   hybrid   cost/order =      99253  on_time = 1.000  OT_h =     0.0  over_cap =    0  final_backlog =    0  mean_shippers =  3.47
+  merge_small overtime cost/order =      87378  on_time = 0.995  OT_h =     0.0  over_cap =    0  final_backlog =    0  mean_shippers =  2.97
+  merge_small defer    cost/order =      87378  on_time = 0.995  OT_h =     0.0  over_cap =    0  final_backlog =    0  mean_shippers =  2.97
+  merge_small hybrid   cost/order =      87378  on_time = 0.995  OT_h =     0.0  over_cap =    0  final_backlog =    0  mean_shippers =  2.97
+  best within cap = merge_small + overtime
+
+[load x2]  orders = 1124
+  dedicated   overtime cost/order =      59046  on_time = 0.902  OT_h =     0.0  over_cap =    0  final_backlog =    0  mean_shippers =  3.57
+  dedicated   defer    cost/order =      59046  on_time = 0.902  OT_h =     0.0  over_cap =    0  final_backlog =    0  mean_shippers =  3.57
+  dedicated   hybrid   cost/order =      59046  on_time = 0.902  OT_h =     0.0  over_cap =    0  final_backlog =    0  mean_shippers =  3.57
+  merge_small overtime cost/order =      56811  on_time = 0.899  OT_h =     0.0  over_cap =    0  final_backlog =    0  mean_shippers =  3.37
+  merge_small defer    cost/order =      56811  on_time = 0.899  OT_h =     0.0  over_cap =    0  final_backlog =    0  mean_shippers =  3.37
+  merge_small hybrid   cost/order =      56811  on_time = 0.899  OT_h =     0.0  over_cap =    0  final_backlog =    0  mean_shippers =  3.37
+  best within cap = merge_small + overtime
+
+[load x4]  orders = 2248
+  dedicated   overtime cost/order =      41981  on_time = 0.709  OT_h =     9.4  over_cap =    3  final_backlog =    0  mean_shippers =  3.63
+  dedicated   defer    cost/order =      43499  on_time = 0.696  OT_h =     0.0  over_cap =    0  final_backlog =   11  mean_shippers =  3.63
+  dedicated   hybrid   cost/order =      42210  on_time = 0.707  OT_h =     8.5  over_cap =    0  final_backlog =    1  mean_shippers =  3.63
+  merge_small overtime cost/order =      41593  on_time = 0.709  OT_h =     9.4  over_cap =    3  final_backlog =    0  mean_shippers =  3.57
+  merge_small defer    cost/order =      43111  on_time = 0.696  OT_h =     0.0  over_cap =    0  final_backlog =   11  mean_shippers =  3.57
+  merge_small hybrid   cost/order =      41822  on_time = 0.707  OT_h =     8.5  over_cap =    0  final_backlog =    1  mean_shippers =  3.57
+  best within cap = merge_small + hybrid
+  cheapest overall = merge_small + overtime, but it breaks the cap on 3 shipper-days
+
+[load x8]  orders = 4496
+  dedicated   overtime cost/order =      37024  on_time = 0.540  OT_h =   164.7  over_cap =   25  final_backlog =    0  mean_shippers =  3.80
+  dedicated   defer    cost/order =      86420  on_time = 0.281  OT_h =     0.0  over_cap =    0  final_backlog =  223  mean_shippers =  4.00
+  dedicated   hybrid   cost/order =      58174  on_time = 0.378  OT_h =    70.3  over_cap =    0  final_backlog =  100  mean_shippers =  3.90
+  merge_small overtime cost/order =      36618  on_time = 0.540  OT_h =   164.7  over_cap =   25  final_backlog =    0  mean_shippers =  3.67
+  merge_small defer    cost/order =      86318  on_time = 0.281  OT_h =     0.0  over_cap =    0  final_backlog =  223  mean_shippers =  3.97
+  merge_small hybrid   cost/order =      57971  on_time = 0.378  OT_h =    70.3  over_cap =    0  final_backlog =  100  mean_shippers =  3.83
+  best within cap = merge_small + hybrid
+  cheapest overall = merge_small + overtime, but it breaks the cap on 25 shipper-days
+
+[load x12]  orders = 6744
+  dedicated   overtime cost/order =      37950  on_time = 0.423  OT_h =   475.3  over_cap =   53  final_backlog =    0  mean_shippers =  3.83
+  dedicated   defer    cost/order =     434751  on_time = 0.078  OT_h =     0.0  over_cap =    0  final_backlog = 1619  mean_shippers =  4.00
+  dedicated   hybrid   cost/order =     183105  on_time = 0.129  OT_h =   151.9  over_cap =    0  final_backlog =  898  mean_shippers =  4.00
+  merge_small overtime cost/order =      37821  on_time = 0.423  OT_h =   475.3  over_cap =   53  final_backlog =    0  mean_shippers =  3.77
+  merge_small defer    cost/order =     434693  on_time = 0.077  OT_h =     0.0  over_cap =    0  final_backlog = 1619  mean_shippers =  3.97
+  merge_small hybrid   cost/order =     183047  on_time = 0.129  OT_h =   151.9  over_cap =    0  final_backlog =  898  mean_shippers =  3.97
+  best within cap = merge_small + hybrid
+  cheapest overall = merge_small + overtime, but it breaks the cap on 53 shipper-days
+
+[load x16]  orders = 8992
+  dedicated   overtime cost/order =      38512  on_time = 0.365  OT_h =   844.5  over_cap =   74  final_backlog =    0  mean_shippers =  3.87
+  dedicated   defer    cost/order =    1166603  on_time = 0.035  OT_h =     0.0  over_cap =    0  final_backlog = 3629  mean_shippers =  4.00
+  dedicated   hybrid   cost/order =     613988  on_time = 0.059  OT_h =   170.7  over_cap =    0  final_backlog = 2632  mean_shippers =  4.00
+  merge_small overtime cost/order =      38365  on_time = 0.365  OT_h =   844.5  over_cap =   74  final_backlog =    0  mean_shippers =  3.77
+  merge_small defer    cost/order =    1166603  on_time = 0.035  OT_h =     0.0  over_cap =    0  final_backlog = 3629  mean_shippers =  4.00
+  merge_small hybrid   cost/order =     613988  on_time = 0.059  OT_h =   170.7  over_cap =    0  final_backlog = 2632  mean_shippers =  4.00
+  best within cap = dedicated + hybrid
+  cheapest overall = merge_small + overtime, but it breaks the cap on 74 shipper-days
+
+SENSITIVITY (load x12): best policy within the cap
+  defer_penalty_per_order_day = 20000.0: best within cap = merge_small + hybrid (cost/order = 87334)
+  defer_penalty_per_order_day = 60000.0: best within cap = merge_small + hybrid (cost/order = 183047)
+  defer_penalty_per_order_day = 150000.0: best within cap = merge_small + hybrid (cost/order = 388964)
+  max_overtime_minutes = 60.0: best within cap = merge_small + hybrid (cost/order = 285954)
+  max_overtime_minutes = 120.0: best within cap = merge_small + hybrid (cost/order = 183047)
+  max_overtime_minutes = 180.0: best within cap = merge_small + hybrid (cost/order = 126143)
+  n_shippers = 3.0: best within cap = dedicated + hybrid (cost/order = 675744)
+  n_shippers = 4.0: best within cap = merge_small + hybrid (cost/order = 183047)
+  n_shippers = 6.0: best within cap = merge_small + hybrid (cost/order = 57311)
+  overtime_multiplier = 1.0: best within cap = merge_small + hybrid (cost/order = 178553)
+  overtime_multiplier = 1.5: best within cap = merge_small + hybrid (cost/order = 183047)
+  overtime_multiplier = 2.0: best within cap = merge_small + hybrid (cost/order = 183498)
+  small_cluster_threshold = 2.0: best within cap = dedicated + hybrid (cost/order = 183105)
+  small_cluster_threshold = 3.0: best within cap = merge_small + hybrid (cost/order = 183047)
+  small_cluster_threshold = 5.0: best within cap = merge_small + hybrid (cost/order = 182985)
