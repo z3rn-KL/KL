@@ -10,6 +10,7 @@ from fastapi import (
 )
 
 from api.config import (
+    KMEANS_RESULT_PATH,
     XEDU_DATASET_PATH,
 )
 
@@ -190,59 +191,114 @@ def find_first_existing_column(
 # ENDPOINTS
 # ============================================================
 
+@lru_cache(maxsize=1)
+def load_deliveries_with_clusters() -> pd.DataFrame:
+    """Cleaned dataset joined with the thesis K-Means label (cluster_id)."""
+
+    dataframe = load_deliveries().copy()
+
+    if (
+        "cluster_id" not in dataframe.columns
+        and KMEANS_RESULT_PATH.exists()
+    ):
+        labels = pd.read_csv(
+            KMEANS_RESULT_PATH,
+            usecols=["id", "cluster_id"],
+        )
+        labels["id"] = labels["id"].astype(str)
+        labels = labels.drop_duplicates("id")
+        dataframe["id"] = dataframe["id"].astype(str)
+        dataframe = dataframe.merge(
+            labels,
+            on="id",
+            how="left",
+        )
+
+    return dataframe
+
+
+SORTABLE_COLUMNS = {
+    "createdAt",
+    "expectedDeliveryTime",
+    "weight",
+    "haversineDistanceKm",
+    "cluster_id",
+    "mdh",
+}
+
+
 @router.get("")
 def list_deliveries(
-    offset: int = Query(
-        default=0,
-        ge=0,
+    offset: int = Query(default=0, ge=0),
+    limit: int = Query(default=50, ge=1, le=200),
+    q: str | None = Query(
+        default=None,
+        description="Search in order code, product, receiver address, id.",
     ),
-    limit: int = Query(
-        default=50,
-        ge=1,
-        le=200,
-    ),
+    service_type: str | None = None,
+    is_late: bool | None = None,
+    cluster_id: int | None = None,
+    sort_by: str | None = None,
+    sort_dir: str = Query(default="asc", pattern="^(asc|desc)$"),
 ) -> dict:
     """
-    Return a paginated list of deliveries.
+    Paginated list with optional search / filter / sort.
 
-    The endpoint intentionally returns the original cleaned
-    dataset columns so the frontend can inspect all available
-    delivery information.
+    Without any filter the behaviour is identical to the original
+    endpoint (original columns plus the K-Means ``cluster_id``).
     """
 
-    dataframe = (
-        load_deliveries()
-    )
+    dataframe = load_deliveries_with_clusters()
 
-    total = len(
-        dataframe
-    )
+    if q:
+        needle = q.strip().lower()
+        haystack = (
+            dataframe["id"].astype(str)
+            + " "
+            + dataframe.get("mdh", "").astype(str)
+            + " "
+            + dataframe.get("package_name", "").astype(str)
+            + " "
+            + dataframe.get("receiverAddress", "").astype(str)
+        ).str.lower()
+        dataframe = dataframe[
+            haystack.str.contains(needle, regex=False)
+        ]
 
-    page = dataframe.iloc[
-        offset:
-        offset + limit
-    ]
+    if service_type:
+        dataframe = dataframe[
+            dataframe["serviceType"].astype(str) == service_type
+        ]
+
+    if is_late is not None and "isLate" in dataframe.columns:
+        late = dataframe["isLate"].astype(str).str.lower() == "true"
+        dataframe = dataframe[late if is_late else ~late]
+
+    if cluster_id is not None and "cluster_id" in dataframe.columns:
+        dataframe = dataframe[dataframe["cluster_id"] == cluster_id]
+
+    if sort_by:
+        if sort_by not in SORTABLE_COLUMNS or sort_by not in dataframe.columns:
+            raise HTTPException(
+                status_code=422,
+                detail=f"Cannot sort by '{sort_by}'.",
+            )
+        dataframe = dataframe.sort_values(
+            sort_by,
+            ascending=(sort_dir == "asc"),
+            kind="stable",
+            na_position="last",
+        )
+
+    total = len(dataframe)
+    page = dataframe.iloc[offset: offset + limit]
 
     return {
-        "total": int(
-            total
-        ),
-        "offset": int(
-            offset
-        ),
-        "limit": int(
-            limit
-        ),
-        "returned": int(
-            len(
-                page
-            )
-        ),
-        "items": (
-            dataframe_records(
-                page
-            )
-        ),
+        "total": int(total),
+        "offset": int(offset),
+        "limit": int(limit),
+        "returned": int(len(page)),
+        "items": dataframe_records(page),
     }
 
 
@@ -393,7 +449,7 @@ def get_delivery(
     """
 
     dataframe = (
-        load_deliveries()
+        load_deliveries_with_clusters()
     )
 
     id_column = (

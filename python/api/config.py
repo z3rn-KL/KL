@@ -137,6 +137,16 @@ DQN_ROUTE_PATH = (
     / "dqn_single_workload_route.csv"
 )
 
+PROPOSED_RL_BASELINE_ROUTE_RECOVERY_PATH = (
+    RESULTS_DIR
+    / "proposed_rl_baseline_route_recovery.csv"
+)
+
+REPRODUCIBILITY_VALIDATION_RESULTS_PATH = (
+    RESULTS_DIR
+    / "reproducibility_validation_results.csv"
+)
+
 
 # ============================================================
 # API SETTINGS
