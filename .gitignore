@@ -12,3 +12,4 @@ maps/xedu_drive.graphml
 python/cache/
 results/daily_planning_road_matrix.npz
 
+results/proposed_rl_lookahead_D_best.pt

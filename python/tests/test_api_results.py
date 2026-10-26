@@ -185,3 +185,77 @@ def test_final_validation_results():
         ]
         == 108
     )
+
+def test_daily_planning_summary_filters():
+    response = client.get(
+        "/api/results/daily-planning/summary",
+        params={
+            "load_multiplier": 12,
+            "overtime_policy": "hybrid",
+        },
+    )
+
+    assert response.status_code == 200
+
+    payload = response.json()
+
+    assert len(payload["rows"]) == 2
+    assert all(
+        row["overtime_policy"] == "hybrid"
+        for row in payload["rows"]
+    )
+
+
+def test_daily_planning_best_within_cap_respects_cap():
+    payload = client.get(
+        "/api/results/daily-planning/summary"
+    ).json()
+
+    assert len(payload["best_within_cap"]) == 6
+    assert all(
+        row["over_cap_shipper_days"] == 0
+        for row in payload["best_within_cap"]
+    )
+
+
+def test_daily_planning_daily_requires_valid_scenario():
+    ok = client.get(
+        "/api/results/daily-planning/daily",
+        params={
+            "load_multiplier": 4,
+            "allocation": "dedicated",
+            "overtime_policy": "defer",
+        },
+    )
+
+    assert ok.status_code == 200
+    assert len(ok.json()["days"]) == 30
+
+    bad = client.get(
+        "/api/results/daily-planning/daily",
+        params={
+            "load_multiplier": 4,
+            "allocation": "nope",
+            "overtime_policy": "defer",
+        },
+    )
+
+    assert bad.status_code == 422
+
+
+def test_daily_planning_sensitivity_unknown_parameter():
+    response = client.get(
+        "/api/results/daily-planning/sensitivity",
+        params={"parameter": "nope"},
+    )
+
+    assert response.status_code == 404
+
+
+def test_proposed_rl_final_test():
+    payload = client.get(
+        "/api/results/proposed-rl/final-test"
+    ).json()
+
+    assert payload["summary"]
+    assert payload["pairwise_vs_baselines"]

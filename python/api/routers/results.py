@@ -6,6 +6,10 @@ import numpy as np
 
 import pandas as pd
 
+from typing import (
+    Literal,
+)
+
 from fastapi import (
     APIRouter,
     HTTPException,
@@ -13,11 +17,16 @@ from fastapi import (
 )
 
 from api.config import (
+    DAILY_PLANNING_DAILY_PATH,
+    DAILY_PLANNING_SENSITIVITY_PATH,
+    DAILY_PLANNING_SUMMARY_PATH,
     DATASET_BENCHMARK_PATH,
     DATASET_BENCHMARK_SUMMARY_PATH,
     DATASET_WORKLOADS_PATH,
     FINAL_VALIDATION_PAIRED_PATH,
     FINAL_VALIDATION_SUMMARY_PATH,
+    PROPOSED_RL_TEST_PAIRWISE_PATH,
+    PROPOSED_RL_TEST_SUMMARY_PATH,
     SENSITIVITY_PAIRWISE_PATH,
     SENSITIVITY_SUMMARY_PATH,
 )
@@ -550,4 +559,177 @@ def final_validation_results(
                 "is available for 6 workloads "
                 "with vanilla route information."
             ),
+    }
+
+
+# ============================================================
+# DAILY PLANNING
+# ============================================================
+
+AllocationPolicy = Literal[
+    "dedicated",
+    "merge_small",
+]
+
+OvertimePolicy = Literal[
+    "overtime",
+    "defer",
+    "hybrid",
+]
+
+DAILY_PLANNING_NOTE = (
+    "30-day simulation, 4-shipper pool, 10h shift, "
+    "10 min service time. Load x1 is real XeDu data; "
+    "higher loads are stress scenarios resampled from "
+    "the same dataset. Cost coefficients are scenario "
+    "parameters, not real XeDu costs. over_cap_shipper_days "
+    "counts shipper-days above the 2h overtime cap."
+)
+
+
+def filter_policies(
+    dataframe: pd.DataFrame,
+    load_multiplier: int | None,
+    allocation: str | None,
+    overtime_policy: str | None,
+) -> pd.DataFrame:
+    for column, value in (
+        ("load_multiplier", load_multiplier),
+        ("allocation", allocation),
+        ("overtime_policy", overtime_policy),
+    ):
+        if value is not None:
+            dataframe = dataframe[
+                dataframe[column] == value
+            ]
+
+    return dataframe
+
+
+@router.get(
+    "/daily-planning/summary"
+)
+def daily_planning_summary(
+    load_multiplier: int | None = Query(
+        default=None
+    ),
+    allocation: AllocationPolicy | None = Query(
+        default=None
+    ),
+    overtime_policy: OvertimePolicy | None = Query(
+        default=None
+    ),
+) -> dict:
+    summary = load_csv(
+        str(DAILY_PLANNING_SUMMARY_PATH)
+    )
+
+    # Cheapest policy per load among those that respect the cap.
+    legal = summary[
+        summary["over_cap_shipper_days"] == 0
+    ]
+
+    best = legal.loc[
+        legal.groupby("load_multiplier")[
+            "total_cost"
+        ].idxmin()
+    ]
+
+    rows = filter_policies(
+        summary,
+        load_multiplier,
+        allocation,
+        overtime_policy,
+    )
+
+    return {
+        "note": DAILY_PLANNING_NOTE,
+        "rows": records(rows),
+        "best_within_cap": records(best),
+    }
+
+
+@router.get(
+    "/daily-planning/daily"
+)
+def daily_planning_daily(
+    load_multiplier: int = Query(),
+    allocation: AllocationPolicy = Query(),
+    overtime_policy: OvertimePolicy = Query(),
+) -> dict:
+    daily = filter_policies(
+        load_csv(str(DAILY_PLANNING_DAILY_PATH)),
+        load_multiplier,
+        allocation,
+        overtime_policy,
+    )
+
+    if daily.empty:
+        raise HTTPException(
+            status_code=404,
+            detail="No daily rows for this scenario.",
+        )
+
+    return {
+        "note": DAILY_PLANNING_NOTE,
+        "days": records(
+            daily.sort_values("day")
+        ),
+    }
+
+
+@router.get(
+    "/daily-planning/sensitivity"
+)
+def daily_planning_sensitivity(
+    parameter: str | None = Query(
+        default=None
+    ),
+) -> dict:
+    sensitivity = load_csv(
+        str(DAILY_PLANNING_SENSITIVITY_PATH)
+    )
+
+    if parameter is not None:
+        sensitivity = sensitivity[
+            sensitivity["parameter"] == parameter
+        ]
+
+        if sensitivity.empty:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Unknown parameter: {parameter}",
+            )
+
+    return {
+        "note": DAILY_PLANNING_NOTE,
+        "rows": records(sensitivity),
+    }
+
+
+# ============================================================
+# PROPOSED RL
+# ============================================================
+
+@router.get(
+    "/proposed-rl/final-test"
+)
+def proposed_rl_final_test(
+) -> dict:
+    return {
+        "scope_note": (
+            "Held-out Test: 16 workloads, 131 deliveries. "
+            "The model and objective were locked on Train and "
+            "Validation before Test; nothing was tuned on Test."
+        ),
+        "summary": records(
+            load_csv(
+                str(PROPOSED_RL_TEST_SUMMARY_PATH)
+            )
+        ),
+        "pairwise_vs_baselines": records(
+            load_csv(
+                str(PROPOSED_RL_TEST_PAIRWISE_PATH)
+            )
+        ),
     }

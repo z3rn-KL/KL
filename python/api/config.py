@@ -167,3 +167,38 @@ CORS_ORIGINS = [
 # Keep live road-network requests small enough
 # for an interactive web demo.
 MAX_LIVE_ROUTE_DELIVERIES = 30
+
+
+# ============================================================
+# DAILY PLANNING (OVERTIME / DEFERRAL / CLUSTER MERGING)
+# ============================================================
+
+DAILY_PLANNING_SUMMARY_PATH = (
+    RESULTS_DIR
+    / "daily_planning_summary.csv"
+)
+
+DAILY_PLANNING_DAILY_PATH = (
+    RESULTS_DIR
+    / "daily_planning_daily.csv"
+)
+
+DAILY_PLANNING_SENSITIVITY_PATH = (
+    RESULTS_DIR
+    / "daily_planning_sensitivity.csv"
+)
+
+
+# ============================================================
+# PROPOSED RL (HELD-OUT TEST, LOCKED OBJECTIVE)
+# ============================================================
+
+PROPOSED_RL_TEST_SUMMARY_PATH = (
+    RESULTS_DIR
+    / "proposed_rl_final_locked_objective_summary.csv"
+)
+
+PROPOSED_RL_TEST_PAIRWISE_PATH = (
+    RESULTS_DIR
+    / "proposed_rl_final_locked_objective_pairwise.csv"
+)
