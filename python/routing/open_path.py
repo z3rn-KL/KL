@@ -1,15 +1,17 @@
 from __future__ import annotations
 
 import itertools
+from typing import Callable
 
 
 def path_cost(
     cost: list[list[float]],
     order: list[int] | tuple[int, ...],
+    closed: bool = False,
 ) -> float:
     """
-    Cost of visiting `order` (indices 1..n) starting from node 0, with no
-    return to node 0.
+    Cost of visiting `order` (indices 0..n-1, node k + 1) starting from
+    node 0. With closed=True the route also returns to node 0.
     """
 
     total = 0.0
@@ -18,6 +20,9 @@ def path_cost(
     for k in order:
         total += cost[previous][k + 1]
         previous = k + 1
+
+    if closed:
+        total += cost[previous][0]
 
     return total
 
@@ -40,13 +45,22 @@ def nearest_path(cost: list[list[float]]) -> list[int]:
 def improve_path(
     cost: list[list[float]],
     order: list[int],
+    closed: bool = False,
+    objective: Callable[[list[int]], float] | None = None,
 ) -> list[int]:
     """
-    2-opt (reversal) and relocate moves until no move shortens the path.
+    2-opt (reversal) and relocate moves until no move lowers the objective,
+    which is the path cost unless `objective` is given.
     """
 
+    def evaluate(candidate: list[int]) -> float:
+        if objective is not None:
+            return objective(candidate)
+
+        return path_cost(cost, candidate, closed)
+
     best = list(order)
-    best_cost = path_cost(cost, best)
+    best_cost = evaluate(best)
     n = len(best)
 
     improved = True
@@ -68,7 +82,7 @@ def improve_path(
                     moves.append(rest[:j] + [best[i]] + rest[j:])
 
         for move in moves:
-            value = path_cost(cost, move)
+            value = evaluate(move)
 
             if value < best_cost - 1e-12:
                 best, best_cost = move, value
@@ -80,9 +94,11 @@ def improve_path(
 
 def optimal_path(
     cost: list[list[float]],
+    closed: bool = False,
 ) -> tuple[float, list[int]]:
     """
-    Cheapest open path from node 0 through every other node (Held-Karp).
+    Cheapest path from node 0 through every other node (Held-Karp), open or
+    (closed=True) returning to node 0.
     """
 
     n = len(cost) - 1
@@ -112,8 +128,11 @@ def optimal_path(
                     best[key] = (value, last)
 
     full = (1 << n) - 1
-    last = min(range(n), key=lambda k: best[(full, k)][0])
-    total = best[(full, last)][0]
+    def finish(k: int) -> float:
+        return best[(full, k)][0] + (cost[k + 1][0] if closed else 0.0)
+
+    last = min(range(n), key=finish)
+    total = finish(last)
 
     order: list[int] = []
     mask = full
@@ -129,9 +148,10 @@ def optimal_path(
     return total, order
 
 
-def brute_force_path(cost: list[list[float]]) -> float:
+def brute_force_path(cost: list[list[float]], closed: bool = False) -> float:
     n = len(cost) - 1
 
     return min(
-        path_cost(cost, order) for order in itertools.permutations(range(n))
+        path_cost(cost, order, closed)
+        for order in itertools.permutations(range(n))
     )
