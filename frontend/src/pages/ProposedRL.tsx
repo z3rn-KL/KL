@@ -32,7 +32,7 @@ import {
   MetricCard,
   ResearchCallout,
 } from "@/components/shared/DomainComponents";
-import { api } from "../lib/api";
+import { api, type ShiftRlMethod } from "../lib/api";
 import { num, pct, signedPct } from "../lib/format";
 import { useAsync } from "../lib/useAsync";
 
@@ -40,6 +40,7 @@ const PROPOSED = "Proposed RL";
 
 export default function ProposedRL() {
   const test = useAsync((s) => api.proposedRlFinalTest(s), []);
+  const shift = useAsync((s) => api.shiftRl(s), []);
 
   // Lower objective J is better.
   const ranked = useMemo(
@@ -233,6 +234,76 @@ export default function ProposedRL() {
             </CardContent>
           </Card>
         </>
+      )}
+
+      {shift.data && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm">
+              Agent RL theo ca làm (thưởng phạt mới), kiểm tra cuối ({shift.data.test_set})
+            </CardTitle>
+            <CardDescription className="text-xs">
+              {shift.data.scope_note} Tập kiểm tra này chưa được dùng khi phát triển
+              mô hình; mô hình và seed được chọn bằng validation. Khoảng cách tới tham chiếu: càng thấp càng
+              tốt. Tham chiếu là nghiệm tối ưu chính xác khi ca có tối đa 14 đơn,
+              còn lại là nghiệm tốt nhất tìm được bằng local search nhiều lần.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Phương pháp</TableHead>
+                    {shift.data.groups.map((g) => (
+                      <TableHead key={g.group} className="text-right">
+                        {g.group} ({num(g.shifts, 0)} ca)
+                      </TableHead>
+                    ))}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {shift.data.groups[0].methods.map((m, row) => (
+                    <TableRow key={m.key}>
+                      <TableCell className="font-medium">
+                        {m.label}
+                        {m.kind === "rl" && (
+                          <Badge variant="outline" className="ml-2 text-[10px] px-1.5 py-0">
+                            RL
+                          </Badge>
+                        )}
+                      </TableCell>
+                      {shift.data!.groups.map((g) => {
+                        const cell: ShiftRlMethod = g.methods[row];
+                        return (
+                          <TableCell
+                            key={g.group}
+                            className="text-right font-mono tabular-nums"
+                          >
+                            {num(cell.mean_gap_pct, 1)}%
+                            {cell.std_gap_pct !== null &&
+                              ` ± ${num(cell.std_gap_pct, 1)}`}
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Mô hình RL chính (chọn theo validation): {shift.data.headline.label}, seed{" "}
+              {shift.data.headline.seed}. Suy luận mất{" "}
+              {num(shift.data.headline.inference_ms, 1)} ms mỗi ca, so với{" "}
+              {num(shift.data.local_search_seconds_per_shift, 2)} giây của NN + local
+              search. So với NN + local search trên cùng các ca: thắng{" "}
+              {num(shift.data.paired_vs.nn_all_ls.wins, 0)}, hòa{" "}
+              {num(shift.data.paired_vs.nn_all_ls.ties, 0)}, thua{" "}
+              {num(shift.data.paired_vs.nn_all_ls.losses, 0)}. Mọi hệ số tiền là giả
+              định; dữ liệu XeDu không có giá đơn hàng.
+            </p>
+          </CardContent>
+        </Card>
       )}
     </div>
   );

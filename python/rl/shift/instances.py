@@ -67,15 +67,21 @@ class ShiftSampler:
         self.distance_km = distance_km
         self.travel_minutes = travel_minutes
         self.config = config if config is not None else ShiftObjectiveConfig()
+        self._eligible_cache: dict = {}
 
     def eligible(self, days: set, n: int) -> list[pd.DataFrame]:
-        subset = self.pool[self.pool["local_day"].isin(days)]
+        key = (id(days), n)
 
-        return [
-            group
-            for _, group in subset.groupby("cluster_id")
-            if len(group) >= n
-        ]
+        if key not in self._eligible_cache:
+            subset = self.pool[self.pool["local_day"].isin(days)]
+
+            self._eligible_cache[key] = [
+                group
+                for _, group in subset.groupby("cluster_id")
+                if len(group) >= n
+            ]
+
+        return self._eligible_cache[key]
 
     def sample(
         self,

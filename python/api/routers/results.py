@@ -28,6 +28,7 @@ from api.config import (
     FINAL_VALIDATION_SUMMARY_PATH,
     PROPOSED_RL_TEST_PAIRWISE_PATH,
     REAL_REPLAY_SUMMARY_PATH,
+    SHIFT_RL_SUMMARY_PATH,
     PROPOSED_RL_TEST_SUMMARY_PATH,
     SENSITIVITY_PAIRWISE_PATH,
     SENSITIVITY_SUMMARY_PATH,
@@ -770,3 +771,28 @@ def real_data_results(
             "are not measured and no algorithm was tried in the field."
         ),
     }
+
+
+# ============================================================
+# SHIFT-LEVEL RL
+# ============================================================
+
+@router.get(
+    "/shift-rl"
+)
+def shift_rl_results(
+) -> dict:
+    if not SHIFT_RL_SUMMARY_PATH.exists():
+        raise HTTPException(
+            status_code=404,
+            detail=(
+                "Shift RL test has not been run. "
+                "Run python experiments/shift_rl_final_test.py."
+            ),
+        )
+
+    return json.loads(
+        SHIFT_RL_SUMMARY_PATH.read_text(
+            encoding="utf-8"
+        )
+    )

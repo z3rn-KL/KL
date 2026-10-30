@@ -4,6 +4,8 @@ from dataclasses import dataclass
 import math
 from typing import Sequence
 
+import numpy as np
+
 from .objective import (
     ShiftObjectiveConfig,
     order_terms,
@@ -55,6 +57,18 @@ class ShiftEnvironment:
         self.number_of_orders = len(self.orders)
 
         self._validate()
+
+        # Array copies for the encoder; the lists stay the source of truth.
+        self.travel_np = np.asarray(self.travel_minutes, dtype=float)
+        self.distance_np = np.asarray(self.distance_km, dtype=float)
+        self.value_np = np.array([o.value for o in self.orders], dtype=float)
+        self.deadline_np = np.array(
+            [
+                np.inf if o.deadline_minutes is None else o.deadline_minutes
+                for o in self.orders
+            ],
+            dtype=float,
+        )
 
         self.stop_action = self.number_of_orders
 

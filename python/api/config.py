@@ -222,3 +222,15 @@ REAL_REPLAY_SUMMARY_PATH = (
     RESULTS_DIR
     / "real_replay_summary.json"
 )
+
+
+# ============================================================
+# SHIFT-LEVEL RL (new reward, assumption-based money terms)
+# ============================================================
+
+# Second test set: untouched while the models were developed, and every
+# variant (including the first round) is compared on it.
+SHIFT_RL_SUMMARY_PATH = (
+    RESULTS_DIR
+    / "shift_rl_summary_test2.json"
+)

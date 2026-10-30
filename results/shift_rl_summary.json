@@ -1,0 +1,451 @@
+{
+  "shifts": 46,
+  "headline": {
+    "variant": "clone_then_policy_gradient",
+    "label": "Bắt chước, rồi gradient chính sách",
+    "seed": 42,
+    "validation_gap_pct": 6.69450480393997,
+    "late_per_shift": 0.5217391304347826,
+    "deferred_per_shift": 1.891304347826087,
+    "overtime_minutes_per_shift": 0.0,
+    "inference_ms": 1.8804230433528097
+  },
+  "local_search_seconds_per_shift": 0.12422109760870088,
+  "paired_vs": {
+    "nn_all_ls": {
+      "wins": 7,
+      "ties": 0,
+      "losses": 39,
+      "mean_difference_points": -19957.127421173846
+    },
+    "nn_stop_ls": {
+      "wins": 11,
+      "ties": 0,
+      "losses": 35,
+      "mean_difference_points": 120434.31566592767
+    }
+  },
+  "groups": [
+    {
+      "group": "tất cả",
+      "shifts": 46,
+      "methods": [
+        {
+          "key": "nn_serve_all",
+          "label": "NN giao hết",
+          "kind": "heuristic",
+          "mean_gap_pct": 67.88996117235227,
+          "std_gap_pct": null,
+          "at_reference": 2
+        },
+        {
+          "key": "nn_stop_rule",
+          "label": "NN dừng khi không đáng",
+          "kind": "heuristic",
+          "mean_gap_pct": 67.78405490882322,
+          "std_gap_pct": null,
+          "at_reference": 1
+        },
+        {
+          "key": "nn_all_ls",
+          "label": "NN + local search",
+          "kind": "heuristic",
+          "mean_gap_pct": 2.272605205008247,
+          "std_gap_pct": null,
+          "at_reference": 25
+        },
+        {
+          "key": "nn_stop_ls",
+          "label": "NN dừng + local search",
+          "kind": "heuristic",
+          "mean_gap_pct": 42.906615263179795,
+          "std_gap_pct": null,
+          "at_reference": 22
+        },
+        {
+          "key": "dqn",
+          "label": "DQN, Q thường",
+          "kind": "rl",
+          "mean_gap_pct": 62.361445531224376,
+          "std_gap_pct": 3.7334781888919104,
+          "at_reference": 0
+        },
+        {
+          "key": "dqn_residual",
+          "label": "DQN, Q = thưởng tức thời + tương lai",
+          "kind": "rl",
+          "mean_gap_pct": 56.15138824861682,
+          "std_gap_pct": 1.9486977701542685,
+          "at_reference": 0
+        },
+        {
+          "key": "policy_gradient",
+          "label": "Gradient chính sách từ đầu",
+          "kind": "rl",
+          "mean_gap_pct": 12.873685366829807,
+          "std_gap_pct": 1.2881306672909227,
+          "at_reference": 5
+        },
+        {
+          "key": "clone_then_policy_gradient",
+          "label": "Bắt chước, rồi gradient chính sách",
+          "kind": "rl",
+          "mean_gap_pct": 9.54009045370855,
+          "std_gap_pct": 0.21043955148672286,
+          "at_reference": 1
+        }
+      ]
+    },
+    {
+      "group": "n = 10",
+      "shifts": 15,
+      "methods": [
+        {
+          "key": "nn_serve_all",
+          "label": "NN giao hết",
+          "kind": "heuristic",
+          "mean_gap_pct": 14.507890831585293,
+          "std_gap_pct": null,
+          "at_reference": 2
+        },
+        {
+          "key": "nn_stop_rule",
+          "label": "NN dừng khi không đáng",
+          "kind": "heuristic",
+          "mean_gap_pct": 57.502171556977565,
+          "std_gap_pct": null,
+          "at_reference": 1
+        },
+        {
+          "key": "nn_all_ls",
+          "label": "NN + local search",
+          "kind": "heuristic",
+          "mean_gap_pct": 1.083119601985431,
+          "std_gap_pct": null,
+          "at_reference": 13
+        },
+        {
+          "key": "nn_stop_ls",
+          "label": "NN dừng + local search",
+          "kind": "heuristic",
+          "mean_gap_pct": 42.88565600524098,
+          "std_gap_pct": null,
+          "at_reference": 9
+        },
+        {
+          "key": "dqn",
+          "label": "DQN, Q thường",
+          "kind": "rl",
+          "mean_gap_pct": 39.79495128547429,
+          "std_gap_pct": 3.786670545023071,
+          "at_reference": 0
+        },
+        {
+          "key": "dqn_residual",
+          "label": "DQN, Q = thưởng tức thời + tương lai",
+          "kind": "rl",
+          "mean_gap_pct": 41.08440299374363,
+          "std_gap_pct": 3.2998311622162766,
+          "at_reference": 0
+        },
+        {
+          "key": "policy_gradient",
+          "label": "Gradient chính sách từ đầu",
+          "kind": "rl",
+          "mean_gap_pct": 8.521024366194668,
+          "std_gap_pct": 0.1879818279141965,
+          "at_reference": 2
+        },
+        {
+          "key": "clone_then_policy_gradient",
+          "label": "Bắt chước, rồi gradient chính sách",
+          "kind": "rl",
+          "mean_gap_pct": 5.129588269717459,
+          "std_gap_pct": 0.7594431087604981,
+          "at_reference": 1
+        }
+      ]
+    },
+    {
+      "group": "n = 14",
+      "shifts": 15,
+      "methods": [
+        {
+          "key": "nn_serve_all",
+          "label": "NN giao hết",
+          "kind": "heuristic",
+          "mean_gap_pct": 25.78097295240598,
+          "std_gap_pct": null,
+          "at_reference": 0
+        },
+        {
+          "key": "nn_stop_rule",
+          "label": "NN dừng khi không đáng",
+          "kind": "heuristic",
+          "mean_gap_pct": 46.17712046049514,
+          "std_gap_pct": null,
+          "at_reference": 0
+        },
+        {
+          "key": "nn_all_ls",
+          "label": "NN + local search",
+          "kind": "heuristic",
+          "mean_gap_pct": 1.9417341919345394,
+          "std_gap_pct": null,
+          "at_reference": 7
+        },
+        {
+          "key": "nn_stop_ls",
+          "label": "NN dừng + local search",
+          "kind": "heuristic",
+          "mean_gap_pct": 20.266305315760086,
+          "std_gap_pct": null,
+          "at_reference": 8
+        },
+        {
+          "key": "dqn",
+          "label": "DQN, Q thường",
+          "kind": "rl",
+          "mean_gap_pct": 58.58186171336194,
+          "std_gap_pct": 7.470681160479759,
+          "at_reference": 0
+        },
+        {
+          "key": "dqn_residual",
+          "label": "DQN, Q = thưởng tức thời + tương lai",
+          "kind": "rl",
+          "mean_gap_pct": 63.26247300219299,
+          "std_gap_pct": 2.993543652245463,
+          "at_reference": 0
+        },
+        {
+          "key": "policy_gradient",
+          "label": "Gradient chính sách từ đầu",
+          "kind": "rl",
+          "mean_gap_pct": 18.5172682968213,
+          "std_gap_pct": 3.0917550845415445,
+          "at_reference": 0
+        },
+        {
+          "key": "clone_then_policy_gradient",
+          "label": "Bắt chước, rồi gradient chính sách",
+          "kind": "rl",
+          "mean_gap_pct": 9.849283067295074,
+          "std_gap_pct": 0.43869858548767554,
+          "at_reference": 0
+        }
+      ]
+    },
+    {
+      "group": "n = 20",
+      "shifts": 6,
+      "methods": [
+        {
+          "key": "nn_serve_all",
+          "label": "NN giao hết",
+          "kind": "heuristic",
+          "mean_gap_pct": 61.61176494441901,
+          "std_gap_pct": null,
+          "at_reference": 0
+        },
+        {
+          "key": "nn_stop_rule",
+          "label": "NN dừng khi không đáng",
+          "kind": "heuristic",
+          "mean_gap_pct": 56.030818352436675,
+          "std_gap_pct": null,
+          "at_reference": 0
+        },
+        {
+          "key": "nn_all_ls",
+          "label": "NN + local search",
+          "kind": "heuristic",
+          "mean_gap_pct": 0.7259702714374606,
+          "std_gap_pct": null,
+          "at_reference": 5
+        },
+        {
+          "key": "nn_stop_ls",
+          "label": "NN dừng + local search",
+          "kind": "heuristic",
+          "mean_gap_pct": 24.4342146683331,
+          "std_gap_pct": null,
+          "at_reference": 2
+        },
+        {
+          "key": "dqn",
+          "label": "DQN, Q thường",
+          "kind": "rl",
+          "mean_gap_pct": 80.18760484831556,
+          "std_gap_pct": 7.383692412890892,
+          "at_reference": 0
+        },
+        {
+          "key": "dqn_residual",
+          "label": "DQN, Q = thưởng tức thời + tương lai",
+          "kind": "rl",
+          "mean_gap_pct": 78.09151903358942,
+          "std_gap_pct": 0.7057907419403527,
+          "at_reference": 0
+        },
+        {
+          "key": "policy_gradient",
+          "label": "Gradient chính sách từ đầu",
+          "kind": "rl",
+          "mean_gap_pct": 19.050308753298005,
+          "std_gap_pct": 0.5293864424146815,
+          "at_reference": 1
+        },
+        {
+          "key": "clone_then_policy_gradient",
+          "label": "Bắt chước, rồi gradient chính sách",
+          "kind": "rl",
+          "mean_gap_pct": 29.36609817443117,
+          "std_gap_pct": 1.001769716159907,
+          "at_reference": 0
+        }
+      ]
+    },
+    {
+      "group": "n = 30",
+      "shifts": 6,
+      "methods": [
+        {
+          "key": "nn_serve_all",
+          "label": "NN giao hết",
+          "kind": "heuristic",
+          "mean_gap_pct": 167.6948804751681,
+          "std_gap_pct": null,
+          "at_reference": 0
+        },
+        {
+          "key": "nn_stop_rule",
+          "label": "NN dừng khi không đáng",
+          "kind": "heuristic",
+          "mean_gap_pct": 171.16062156616715,
+          "std_gap_pct": null,
+          "at_reference": 0
+        },
+        {
+          "key": "nn_all_ls",
+          "label": "NN + local search",
+          "kind": "heuristic",
+          "mean_gap_pct": 7.060005495994226,
+          "std_gap_pct": null,
+          "at_reference": 0
+        },
+        {
+          "key": "nn_stop_ls",
+          "label": "NN dừng + local search",
+          "kind": "heuristic",
+          "mean_gap_pct": 146.32111128622194,
+          "std_gap_pct": null,
+          "at_reference": 1
+        },
+        {
+          "key": "dqn",
+          "label": "DQN, Q thường",
+          "kind": "rl",
+          "mean_gap_pct": 82.15021236577408,
+          "std_gap_pct": 16.309484221021886,
+          "at_reference": 0
+        },
+        {
+          "key": "dqn_residual",
+          "label": "DQN, Q = thưởng tức thời + tương lai",
+          "kind": "rl",
+          "mean_gap_pct": 65.06961591394459,
+          "std_gap_pct": 1.976991657774664,
+          "at_reference": 0
+        },
+        {
+          "key": "policy_gradient",
+          "label": "Gradient chính sách từ đầu",
+          "kind": "rl",
+          "mean_gap_pct": 10.318423960648616,
+          "std_gap_pct": 1.9079358445478718,
+          "at_reference": 1
+        },
+        {
+          "key": "clone_then_policy_gradient",
+          "label": "Bắt chước, rồi gradient chính sách",
+          "kind": "rl",
+          "mean_gap_pct": 5.559946818336585,
+          "std_gap_pct": 0.770983268499917,
+          "at_reference": 0
+        }
+      ]
+    },
+    {
+      "group": "n = 50",
+      "shifts": 4,
+      "methods": [
+        {
+          "key": "nn_serve_all",
+          "label": "NN giao hết",
+          "kind": "heuristic",
+          "mean_gap_pct": 285.6913461627033,
+          "std_gap_pct": null,
+          "at_reference": 0
+        },
+        {
+          "key": "nn_stop_rule",
+          "label": "NN dừng khi không đáng",
+          "kind": "heuristic",
+          "mean_gap_pct": 49.93212650803849,
+          "std_gap_pct": null,
+          "at_reference": 0
+        },
+        {
+          "key": "nn_all_ls",
+          "label": "NN + local search",
+          "kind": "heuristic",
+          "mean_gap_pct": 3.1127944792474196,
+          "std_gap_pct": null,
+          "at_reference": 0
+        },
+        {
+          "key": "nn_stop_ls",
+          "label": "NN dừng + local search",
+          "kind": "heuristic",
+          "mean_gap_pct": 0.473231640981118,
+          "std_gap_pct": null,
+          "at_reference": 2
+        },
+        {
+          "key": "dqn",
+          "label": "DQN, Q thường",
+          "kind": "rl",
+          "mean_gap_pct": 104.73684904231011,
+          "std_gap_pct": 52.76381952224199,
+          "at_reference": 0
+        },
+        {
+          "key": "dqn_residual",
+          "label": "DQN, Q = thưởng tức thời + tương lai",
+          "kind": "rl",
+          "mean_gap_pct": 39.69847745302994,
+          "std_gap_pct": 8.994681396728044,
+          "at_reference": 0
+        },
+        {
+          "key": "policy_gradient",
+          "label": "Gradient chính sách từ đầu",
+          "kind": "rl",
+          "mean_gap_pct": 2.6006851613129705,
+          "std_gap_pct": 0.26836953104922845,
+          "at_reference": 1
+        },
+        {
+          "key": "clone_then_policy_gradient",
+          "label": "Bắt chước, rồi gradient chính sách",
+          "kind": "rl",
+          "mean_gap_pct": 1.1512052146996792,
+          "std_gap_pct": 1.4043669360459718,
+          "at_reference": 0
+        }
+      ]
+    }
+  ],
+  "scope_note": "Shifts are built from real orders (one K-Means cluster per shift, deadlines from the original lead time). All money coefficients are assumptions: XeDu data has no order price."
+}

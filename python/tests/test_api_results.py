@@ -284,3 +284,18 @@ def test_real_data_summary():
         assert methods["optimal"]["at_optimum"] == count
         assert methods["optimal"]["mean_excess_pct"] == 0.0
         assert methods["real"]["mean"] >= methods["optimal"]["mean"]
+
+
+def test_shift_rl_summary():
+    payload = client.get("/api/results/shift-rl").json()
+
+    assert payload["shifts"] > 0
+    assert payload["groups"][0]["group"] == "tất cả"
+
+    first = [m["key"] for m in payload["groups"][0]["methods"]]
+
+    assert all(
+        [m["key"] for m in g["methods"]] == first for g in payload["groups"]
+    )
+    assert "nn_all_ls" in first
+    assert payload["paired_vs"]["nn_all_ls"]["wins"] >= 0

@@ -490,6 +490,49 @@ export interface RealData {
   scope_note: string;
 }
 
+// ------------------------------------------------ shift-level RL
+
+export interface ShiftRlMethod {
+  key: string;
+  label: string;
+  kind: "heuristic" | "rl";
+  mean_gap_pct: number;
+  std_gap_pct: number | null;
+  at_reference: number;
+}
+
+export interface ShiftRlGroup {
+  group: string;
+  shifts: number;
+  methods: ShiftRlMethod[];
+}
+
+export interface ShiftRlPair {
+  wins: number;
+  ties: number;
+  losses: number;
+  mean_difference_points: number;
+}
+
+export interface ShiftRl {
+  test_set: string;
+  shifts: number;
+  headline: {
+    variant: string;
+    label: string;
+    seed: number;
+    validation_gap_pct: number;
+    late_per_shift: number;
+    deferred_per_shift: number;
+    overtime_minutes_per_shift: number;
+    inference_ms: number;
+  };
+  local_search_seconds_per_shift: number;
+  paired_vs: Record<string, ShiftRlPair>;
+  groups: ShiftRlGroup[];
+  scope_note: string;
+}
+
 export const api = {
   health: (s?: AbortSignal) => get<Health>("/api/health", s),
 
@@ -626,4 +669,6 @@ export const api = {
     get<ProposedRlFinalTest>("/api/results/proposed-rl/final-test", s),
   realData: (s?: AbortSignal) =>
     get<RealData>("/api/results/real-data", s),
+  shiftRl: (s?: AbortSignal) =>
+    get<ShiftRl>("/api/results/shift-rl", s),
 };

@@ -15,3 +15,6 @@ results/daily_planning_road_matrix.npz
 results/proposed_rl_lookahead_D_best.pt
 
 .venv/
+results/shift_demonstrations.npz
+results/shift_rl_seed45_best.pt
+results/shift_rl_seed46_best.pt
