@@ -1,0 +1,51 @@
+SHIFT OBJECTIVE HEADROOM - VALIDATION DAYS ONLY
+
+Score is the shift score of ShiftObjectiveConfig in VND-equivalent
+points (higher is better); gap = reference score - method score.
+Costs, fee tariff and penalties are assumed scenario parameters.
+Exact reference: dynamic programming over every plan (sizes (8, 10, 12, 14),
+15 shifts each). Large sizes use the best of local search
+from several starts, which is a lower bound on the true headroom.
+
+EXACT REFERENCE, ALL SIZES
+method                   mean score  mean gap VND  gap % of |ref|  worst gap VND  at reference
+nn_serve_all                -208706         33633          19.21%          96726         0/60
+nn_stop_rule                -301029        125955          71.94%         570269         0/60
+nn_all_local_search         -178965          3891           2.22%          29422        37/60
+nn_stop_local_search        -265016         89942          51.37%         570269        32/60
+optimal plans defer 0.02 orders per shift on average
+
+EXACT REFERENCE, n = 8
+method                   mean score  mean gap VND  gap % of |ref|  worst gap VND  at reference
+nn_serve_all                -170687         25355          17.45%          59726         0/15
+nn_stop_rule                -201901         56570          38.92%         289178         0/15
+nn_all_local_search         -148154          2823           1.94%          26227        11/15
+nn_stop_local_search        -182854         37523          25.82%         289178        11/15
+
+EXACT REFERENCE, n = 10
+method                   mean score  mean gap VND  gap % of |ref|  worst gap VND  at reference
+nn_serve_all                -219084         34973          19.00%          75347         0/15
+nn_stop_rule                -344164        160054          86.93%         388109         0/15
+nn_all_local_search         -187275          3165           1.72%          17311        10/15
+nn_stop_local_search        -299516        115406          62.68%         388109         7/15
+
+EXACT REFERENCE, n = 12
+method                   mean score  mean gap VND  gap % of |ref|  worst gap VND  at reference
+nn_serve_all                -195414         26457          15.66%          45483         0/15
+nn_stop_rule                -314679        145722          86.25%         532414         0/15
+nn_all_local_search         -173610          4653           2.75%          29422        10/15
+nn_stop_local_search        -296802        127845          75.67%         532414         9/15
+
+EXACT REFERENCE, n = 14
+method                   mean score  mean gap VND  gap % of |ref|  worst gap VND  at reference
+nn_serve_all                -249640         47744          23.65%          96726         0/15
+nn_stop_rule                -343371        141475          70.07%         570269         0/15
+nn_all_local_search         -206821          4925           2.44%          19175         6/15
+nn_stop_local_search        -280893         78997          39.13%         570269         5/15
+
+MULTI-START REFERENCE (not exact), n = 30
+method                   mean score  mean gap VND  gap % of |ref|  worst gap VND  at reference
+nn_serve_all               -1683682        956184         131.43%        1196276         0/6
+nn_stop_rule                -938913        211415          29.06%         338636         0/6
+nn_stop_local_search        -729028          1530           0.21%           6432         4/6
+

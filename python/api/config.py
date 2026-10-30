@@ -212,3 +212,13 @@ PROPOSED_RL_TEST_PAIRWISE_PATH = (
     RESULTS_DIR
     / "proposed_rl_final_locked_objective_pairwise.csv"
 )
+
+
+# ============================================================
+# REAL-DATA REPLAY (observed outcomes, no simulated orders)
+# ============================================================
+
+REAL_REPLAY_SUMMARY_PATH = (
+    RESULTS_DIR
+    / "real_replay_summary.json"
+)

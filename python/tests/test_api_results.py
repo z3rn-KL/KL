@@ -259,3 +259,28 @@ def test_proposed_rl_final_test():
 
     assert payload["summary"]
     assert payload["pairwise_vs_baselines"]
+
+
+def test_real_data_summary():
+    payload = client.get("/api/results/real-data").json()
+
+    assert 0.0 < payload["observed"]["late_rate"] < 1.0
+    assert payload["time_model"]["pairs"] > 0
+    assert payload["time_model"]["real_median_minutes"] > (
+        payload["time_model"]["model_median_minutes"]
+    )
+
+    count = payload["clean_shifts"]["count"]
+
+    for unit in ("time", "km"):
+        methods = {row["method"]: row for row in payload["replay"][unit]}
+
+        assert set(methods) == {
+            "real",
+            "nearest",
+            "nearest_search",
+            "optimal",
+        }
+        assert methods["optimal"]["at_optimum"] == count
+        assert methods["optimal"]["mean_excess_pct"] == 0.0
+        assert methods["real"]["mean"] >= methods["optimal"]["mean"]

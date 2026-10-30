@@ -1,3 +1,4 @@
+import json
 from functools import (
     lru_cache,
 )
@@ -26,6 +27,7 @@ from api.config import (
     FINAL_VALIDATION_PAIRED_PATH,
     FINAL_VALIDATION_SUMMARY_PATH,
     PROPOSED_RL_TEST_PAIRWISE_PATH,
+    REAL_REPLAY_SUMMARY_PATH,
     PROPOSED_RL_TEST_SUMMARY_PATH,
     SENSITIVITY_PAIRWISE_PATH,
     SENSITIVITY_SUMMARY_PATH,
@@ -731,5 +733,40 @@ def proposed_rl_final_test(
             load_csv(
                 str(PROPOSED_RL_TEST_PAIRWISE_PATH)
             )
+        ),
+    }
+
+
+# ============================================================
+# REAL DATA
+# ============================================================
+
+@router.get(
+    "/real-data"
+)
+def real_data_results(
+) -> dict:
+    if not REAL_REPLAY_SUMMARY_PATH.exists():
+        raise HTTPException(
+            status_code=404,
+            detail=(
+                "Real-data replay has not been run. "
+                "Run python experiments/real_data_replay.py."
+            ),
+        )
+
+    summary = json.loads(
+        REAL_REPLAY_SUMMARY_PATH.read_text(
+            encoding="utf-8"
+        )
+    )
+
+    return {
+        **summary,
+        "scope_note": (
+            "Orders, coordinates, deadlines and delivery times are "
+            "real XeDu data. Route distances and times are computed on "
+            "the OpenStreetMap road graph with free-flow speeds; they "
+            "are not measured and no algorithm was tried in the field."
         ),
     }

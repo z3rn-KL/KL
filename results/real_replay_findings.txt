@@ -1,0 +1,43 @@
+REAL-DATA REPLAY (XeDu, no simulated orders)
+
+Inputs are real: orders, receiver coordinates, deadlines, real delivery
+times and the OpenStreetMap road network. Distances and times of routes
+are computed on the road graph with OSM free-flow speeds; they are not
+measured. No algorithm was tried in the field.
+
+OBSERVED IN THE DATA
+orders delivered = 2386; late against the real deadline = 20.3% of 2281 orders with a deadline
+
+TIME MODEL VS REALITY
+consecutive deliveries of one shipper, gap <= 120 min: 1241 pairs
+real minutes between them: median 28.9, mean 36.1
+road-model travel minutes:  median 6.9, mean 7.8
+Spearman correlation model vs real = 0.63
+share of pairs where the real gap is shorter than the model's travel time = 0.4%
+median (real - model) = 20.3 min (service, pickups and waiting are not in the model)
+
+CLEAN SHIFTS: 64 shipper-days with 3-13 orders,
+one pickup point (used as the depot), and every order created before
+the first delivery. The route starts at the pickup point and ends at the
+last delivery (no return). The real order is the order of delivery
+times. sizes: min 3, median 3, max 7; skipped for unreachable road nodes: 0
+
+ROAD TIME (min), mean per shift
+method                       mean   mean excess over optimum             95% CI  at optimum
+real                        27.94                     10.81%     7.45% to  14.54%      24/64
+nearest                     26.01                      3.72%     2.08% to   5.65%      41/64
+nearest_search              25.05                      0.16%     0.00% to   0.39%      62/64
+optimal                     25.00                      0.00%     0.00% to   0.00%      64/64
+
+ROAD KM (km), mean per shift
+method                       mean   mean excess over optimum             95% CI  at optimum
+real                        25.53                     11.58%     8.27% to  15.21%      22/64
+nearest                     23.77                      4.61%     2.71% to   6.86%      38/64
+nearest_search              22.65                      0.10%     0.00% to   0.24%      61/64
+optimal                     22.62                      0.00%     0.00% to   0.00%      64/64
+
+Reading this: the optimum is a lower bound for a static route. Real
+shippers also handled traffic, service time, customer availability and
+orders not visible in this data, so a gap to the optimum is not a
+saving that can be promised. The 'clean' filter keeps a small, selected
+subset of all shifts.
