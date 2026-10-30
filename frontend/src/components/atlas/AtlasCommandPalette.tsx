@@ -75,6 +75,9 @@ const WORKSPACE_DESCRIPTIONS: Record<string, { desc: string; badge: string }> = 
   "/so-sanh": { desc: "Đối chuẩn thuật toán trên 3 cohort độc lập", badge: "Nghiên cứu" },
   "/do-nhay": { desc: "Khảo sát đánh đổi cự ly qua 24 lần chạy", badge: "Nghiên cứu" },
   "/on-dinh": { desc: "Kiểm chứng 10 seed khớp 120 hoán vị tối ưu", badge: "Nghiên cứu" },
+  "/ke-hoach-ngay": { desc: "Làm thêm giờ hay dời đơn, gộp cụm nhỏ (mô phỏng 30 ngày)", badge: "Định tuyến" },
+  "/proposed-rl": { desc: "Kết quả kiểm tra cuối của Proposed RL so với baseline", badge: "Nghiên cứu" },
+  "/du-lieu-that": { desc: "Giao trễ thực tế, mô hình so với thực tế, phát lại ca thật", badge: "Tổng quan" },
 };
 
 export function AtlasCommandPalette({

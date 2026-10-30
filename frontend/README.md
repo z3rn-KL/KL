@@ -16,6 +16,9 @@ trong `python/api`, không tự tính toán thuật toán.
 | So sánh thuật toán | `/so-sanh` | Bảng và biểu đồ 5 thuật toán (có cột chi phí vận hành), thắng/hoà/thua so với NN, ảnh hưởng quy mô | `/api/results/benchmark/*`, `/api/evaluation/cost` |
 | Ổn định & chọn tham số | `/on-dinh` | Silhouette/elbow chọn K, lưới DBSCAN, ổn định Q-Learning theo seed và siêu tham số | `/api/results/clustering-quality`, `/api/results/stability` |
 | Độ nhạy & kiểm chứng | `/do-nhay` | Hệ số phạt đổi cụm λ, kiểm chứng cặp đôi 12 workload | `/api/results/sensitivity`, `/api/results/final-validation` |
+| Kế hoạch theo ngày | `/ke-hoach-ngay` | Mô phỏng 30 ngày: làm thêm giờ / dời đơn / chính sách lai, gộp cụm nhỏ; chọn mức tải và cách phân bổ, đơn tồn theo ngày, độ nhạy tham số | `/api/results/daily-planning/*` |
+| Proposed RL | `/proposed-rl` | Kết quả kiểm tra cuối (16 workload, 131 đơn): hàm mục tiêu J của Proposed RL so với NN, CW, Q-Learning, SARSA, DQN | `/api/results/proposed-rl/final-test` |
+| Dữ liệu thật | `/du-lieu-that` | Tỷ lệ giao trễ thực tế, mô hình đường phố so với thực tế, phát lại ca giao thật so với tối ưu và NN | `/api/results/real-data` |
 
 ## Chạy thử
 

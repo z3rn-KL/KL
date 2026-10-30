@@ -13,6 +13,9 @@ const Compare = lazy(() => import("./pages/Compare"));
 const GuidedDQN = lazy(() => import("./pages/GuidedDQN"));
 const Sensitivity = lazy(() => import("./pages/Sensitivity"));
 const Stability = lazy(() => import("./pages/Stability"));
+const DailyPlanning = lazy(() => import("./pages/DailyPlanning"));
+const ProposedRL = lazy(() => import("./pages/ProposedRL"));
+const RealData = lazy(() => import("./pages/RealData"));
 
 export default function App() {
   return (
@@ -93,6 +96,31 @@ export default function App() {
             }
           />
 
+          <Route
+            path="/ke-hoach-ngay"
+            element={
+              <PageErrorBoundary>
+                <DailyPlanning />
+              </PageErrorBoundary>
+            }
+          />
+          <Route
+            path="/du-lieu-that"
+            element={
+              <PageErrorBoundary>
+                <RealData />
+              </PageErrorBoundary>
+            }
+          />
+          <Route
+            path="/proposed-rl"
+            element={
+              <PageErrorBoundary>
+                <ProposedRL />
+              </PageErrorBoundary>
+            }
+          />
+
           {/* English URL aliases */}
           <Route path="/overview" element={<Navigate to="/tong-quan" replace />} />
           <Route path="/orders" element={<Navigate to="/don-hang" replace />} />
@@ -102,6 +130,8 @@ export default function App() {
           <Route path="/compare" element={<Navigate to="/so-sanh" replace />} />
           <Route path="/sensitivity" element={<Navigate to="/do-nhay" replace />} />
           <Route path="/stability" element={<Navigate to="/on-dinh" replace />} />
+          <Route path="/daily-planning" element={<Navigate to="/ke-hoach-ngay" replace />} />
+          <Route path="/real-data" element={<Navigate to="/du-lieu-that" replace />} />
           <Route path="*" element={<Navigate to="/tong-quan" replace />} />
         </Routes>
       </Suspense>

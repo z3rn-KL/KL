@@ -44,6 +44,7 @@ import {
   type CostEstimate,
   type DeliveryRecord,
   type OptimizeResponse,
+  type PrecomputedIndex,
   type PrecomputedRoute,
 } from "@/lib/api";
 import { toast } from "sonner";
@@ -97,8 +98,6 @@ const ALGOS: RouteAlgorithm[] = [
   "clarke_wright",
 ];
 
-const TARGET_WORKLOAD_IDS = [101, 29, 103, 42, 104, 65, 1, 106, 71, 105, 62, 97, 90];
-const RL_EXPANDED_WORKLOAD_IDS = [1, 29, 42, 62, 71, 90];
 
 const BASELINE_DELIVERY_ORDERS: Record<number, string[]> = {
   101: ["66bece979973faa9d133011a", "66bebbf19973faa9d132fda9", "66beceaa9973faa9d1330129", "66bebf9a0f42ac1ad11cb88f", "66bebc4c9973faa9d132fdb9"],
@@ -115,12 +114,39 @@ const BASELINE_DELIVERY_ORDERS: Record<number, string[]> = {
   90: ["66b1af828bafc7aafe84104f", "66b1aef78bafc7aafe84102c", "66b1ac0c41dd95a0cd9774ae", "66b1a3a841dd95a0cd977312", "66b1add041dd95a0cd97754b", "66b1a2f041dd95a0cd9772cb", "66b1a12a41dd95a0cd976eec", "66b1ad7b41dd95a0cd9774fb", "66b1a22241dd95a0cd976f21", "66b1afe941dd95a0cd9776fe", "66b1adfc41dd95a0cd977570", "66b1aedf41dd95a0cd97757d", "66b1b07141dd95a0cd977755"],
 };
 
-export function hasRouteForAlgo(algorithm: RouteAlgorithm, workloadId: number): boolean {
+const idsOf = (index: PrecomputedIndex | null, key: string): number[] => {
+  const entry = index?.[key];
+  return entry && typeof entry === "object" ? entry.available_workload_ids : [];
+};
+
+/** Workloads the backend can serve a route for with this algorithm. */
+export function workloadsForAlgo(index: PrecomputedIndex | null, algorithm: RouteAlgorithm): number[] {
+  const ids = new Set<number>(idsOf(index, algorithm));
+  if (algorithm === "dqn") {
+    // Vanilla DQN keeps its visiting order here; its metrics come from the Guided DQN record.
+    for (const id of idsOf(index, "kmeans_guided_dqn")) {
+      if (BASELINE_DELIVERY_ORDERS[id]) ids.add(id);
+    }
+  }
+  return Array.from(ids);
+}
+
+/** Every workload the backend knows about, so the list never drifts from the API. */
+export function knownWorkloadIds(index: PrecomputedIndex | null): number[] {
+  const ids = new Set<number>();
+  for (const key of ["kmeans_guided_dqn", "dqn", "q_learning", "sarsa"]) {
+    for (const id of idsOf(index, key)) ids.add(id);
+  }
+  return Array.from(ids);
+}
+
+export function hasRouteForAlgo(
+  index: PrecomputedIndex | null,
+  algorithm: RouteAlgorithm,
+  workloadId: number,
+): boolean {
   if (algorithm === "nearest_neighbor" || algorithm === "clarke_wright") return true;
-  if (algorithm === "kmeans_guided_dqn") return TARGET_WORKLOAD_IDS.includes(workloadId) && workloadId !== 1;
-  if (algorithm === "dqn") return workloadId === 1 || Boolean(BASELINE_DELIVERY_ORDERS[workloadId]);
-  if (algorithm === "q_learning" || algorithm === "sarsa") return RL_EXPANDED_WORKLOAD_IDS.includes(workloadId);
-  return false;
+  return workloadsForAlgo(index, algorithm).includes(workloadId);
 }
 
 type RouteResult = PrecomputedRoute & { geometryNote: string | null };
@@ -146,6 +172,10 @@ export default function RoutesPage() {
   const [theme] = useTheme();
   const casingColor = theme === "dark" ? "rgba(11, 19, 33, 0.95)" : "rgba(255, 255, 255, 0.95)";
   const wls = useAsync((s) => api.workloads(200, s), []);
+  const routeIndex = useAsync((s) => api.precomputedIndex(s), []);
+  const index = routeIndex.data;
+  const has = (a: RouteAlgorithm, id: number) => hasRouteForAlgo(index, a, id);
+  const validIdsFor = (a: RouteAlgorithm) => knownWorkloadIds(index).filter((id) => has(a, id));
 
   const [alg, setAlg] = useState<RouteAlgorithm>("kmeans_guided_dqn");
   const [wid, setWid] = useState<number>(65);
@@ -157,7 +187,7 @@ export default function RoutesPage() {
   const bus = useMemo(() => createBus(), []);
 
   const workloadList = useMemo(() => {
-    return TARGET_WORKLOAD_IDS.filter((id) => hasRouteForAlgo(alg, id))
+    return validIdsFor(alg)
       .map((id) => {
         const found = wls.data?.items.find((w) => w.workload_id === id);
         return {
@@ -166,7 +196,7 @@ export default function RoutesPage() {
         };
       })
       .sort((a, b) => a.deliveries - b.deliveries || a.id - b.id);
-  }, [alg, wls.data]);
+  }, [alg, wls.data, index]);
 
   const workload = wls.data?.items.find((w) => w.workload_id === wid) ?? null;
   const isHeuristic = alg === "nearest_neighbor" || alg === "clarke_wright";
@@ -228,7 +258,7 @@ export default function RoutesPage() {
       }
 
       if (alg === "q_learning" || alg === "sarsa") {
-        if (RL_EXPANDED_WORKLOAD_IDS.includes(wid)) {
+        if (has(alg, wid)) {
           const res = await api.precomputedRoute(alg as any, wid, true, s);
           return { ...res, geometryNote: null };
         }
@@ -242,7 +272,7 @@ export default function RoutesPage() {
 
       return null;
     },
-    [alg, wid, workload?.delivery_ids?.join(",")]
+    [alg, wid, workload?.delivery_ids?.join(","), index]
   );
 
   const vanillaCompare = useAsync<OptimizeResponse | null>(
@@ -346,8 +376,8 @@ export default function RoutesPage() {
                   if (k) {
                     const newAlg = k as RouteAlgorithm;
                     setAlg(newAlg);
-                    if (!hasRouteForAlgo(newAlg, wid)) {
-                      const validIds = TARGET_WORKLOAD_IDS.filter((id) => hasRouteForAlgo(newAlg, id));
+                    if (!has(newAlg, wid)) {
+                      const validIds = validIdsFor(newAlg);
                       const fallback = validIds.includes(29) ? 29 : validIds[0] ?? 1;
                       setWid(fallback);
                       toast.info(`Đã chuyển sang Workload #${fallback} có dữ liệu thực nghiệm cho ${ALGO_LABEL[newAlg] ?? newAlg}.`);
@@ -414,7 +444,15 @@ export default function RoutesPage() {
           </div>
 
           <Card className="overflow-hidden border-border/80 shadow-xs relative">
-            {!hasRouteForAlgo(alg, wid) ? (
+            {routeIndex.loading ? (
+              <div className="h-[560px] sm:h-[660px] w-full flex items-center justify-center p-6">
+                <LoadingCard message="Đang lấy danh sách tuyến từ backend…" />
+              </div>
+            ) : routeIndex.error ? (
+              <div className="h-[560px] sm:h-[660px] w-full flex items-center justify-center p-6">
+                <ErrorCard message={`Không đọc được danh sách tuyến từ backend: ${routeIndex.error}`} />
+              </div>
+            ) : !has(alg, wid) ? (
               <div className="h-[560px] sm:h-[660px] w-full flex flex-col items-center justify-center p-6 text-center space-y-3 bg-muted/10">
                 <div className="p-3 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400">
                   <ShieldAlert className="size-8" />
@@ -423,16 +461,16 @@ export default function RoutesPage() {
                   <h3 className="font-semibold text-foreground text-sm">Chưa có dữ liệu tuyến cho Workload #{wid}</h3>
                   <p className="text-xs text-muted-foreground max-w-md">
                     Thuật toán {ALGO_LABEL[alg] ?? alg} không có dữ liệu tuyến cho Workload #{wid}.
-                    {alg === "q_learning" || alg === "sarsa"
-                      ? " Q-Learning và SARSA có dữ liệu thực nghiệm đã xác minh cho 6 Workload: WL #1, #29, #42, #62, #71, #90."
-                      : ""}
+                    {validIdsFor(alg).length > 0
+                      ? ` Backend hiện có tuyến ${ALGO_LABEL[alg] ?? alg} cho ${validIdsFor(alg).length} Workload: ${validIdsFor(alg).map((id) => `#${id}`).join(", ")}.`
+                      : " Backend chưa có tuyến nào cho thuật toán này (kiểm tra backend đang chạy đúng phiên bản)."}
                   </p>
                 </div>
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={() => {
-                    const validIds = TARGET_WORKLOAD_IDS.filter((id) => hasRouteForAlgo(alg, id));
+                    const validIds = validIdsFor(alg);
                     setWid(validIds.includes(29) ? 29 : validIds[0] ?? 1);
                   }}
                   className="text-xs cursor-pointer"
@@ -558,7 +596,7 @@ export default function RoutesPage() {
             )}
 
             {/* Animation Controls Bar */}
-            {hasRouteForAlgo(alg, wid) && (
+            {has(alg, wid) && (
               <div className="p-3 border-t border-border/60 bg-muted/20">
                 <AtlasPlaybackConsole bus={bus} totalStops={stopRecs.length} />
               </div>

@@ -180,6 +180,12 @@ export default function RunLab() {
     () => km.data?.points.filter((p) => p.cluster_id === cluster) ?? [],
     [km.data, cluster]
   );
+  // Size of every cluster; clusterPoints above only holds the selected one.
+  const clusterSizes = useMemo(() => {
+    const sizes: Record<number, number> = {};
+    for (const p of km.data?.points ?? []) sizes[p.cluster_id] = (sizes[p.cluster_id] ?? 0) + 1;
+    return sizes;
+  }, [km.data]);
   const workload = wls.data?.items.find((w) => w.workload_id === wid) ?? null;
 
   const ids: string[] = useMemo(() => {
@@ -406,7 +412,7 @@ export default function RunLab() {
                                 className="size-2 rounded-full"
                                 style={{ backgroundColor: clusterColor(i) }}
                               />
-                              <span>Cụm #{i} ({clusterPoints.filter((p) => p.cluster_id === i).length} đơn)</span>
+                              <span>Cụm #{i}{km.data ? ` (${clusterSizes[i] ?? 0} đơn)` : ""}</span>
                             </div>
                           </SelectItem>
                         ))}

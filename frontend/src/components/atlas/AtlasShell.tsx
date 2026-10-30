@@ -17,6 +17,9 @@ import {
   Minimize2,
   Radio,
   Minimize,
+  Truck,
+  Sparkles,
+  Database,
 } from "lucide-react";
 import { useTheme } from "@/lib/theme";
 import { api, Health } from "@/lib/api";
@@ -50,6 +53,14 @@ export const ATLAS_NAV_GROUPS: AtlasNavGroup[] = [
         shortTitle: "Tổng quan",
         category: "spatial",
         icon: LayoutDashboard,
+      },
+      {
+        id: "real-data",
+        to: "/du-lieu-that",
+        title: "Dữ liệu thật",
+        shortTitle: "Dữ liệu thật",
+        category: "spatial",
+        icon: Database,
       },
     ],
   },
@@ -95,6 +106,14 @@ export const ATLAS_NAV_GROUPS: AtlasNavGroup[] = [
         category: "engine",
         icon: PlayCircle,
       },
+      {
+        id: "daily-planning",
+        to: "/ke-hoach-ngay",
+        title: "Kế hoạch ngày",
+        shortTitle: "Kế hoạch ngày",
+        category: "engine",
+        icon: Truck,
+      },
     ],
   },
   {
@@ -132,6 +151,14 @@ export const ATLAS_NAV_GROUPS: AtlasNavGroup[] = [
         shortTitle: "Độ ổn định",
         category: "validation",
         icon: ShieldCheck,
+      },
+      {
+        id: "proposed-rl",
+        to: "/proposed-rl",
+        title: "Proposed RL",
+        shortTitle: "Proposed RL",
+        category: "rl",
+        icon: Sparkles,
       },
     ],
   },

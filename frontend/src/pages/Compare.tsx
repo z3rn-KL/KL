@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import {
   Bar,
   BarChart,
@@ -258,6 +259,7 @@ const BENCHMARK_16_TEST_WORKLOADS: Record<ExtendedAlgoKey, Partial<DisplayRow>> 
 export default function Compare() {
   const sum = useAsync((s) => api.benchmarkSummary(s), []);
   const val = useAsync((s) => api.finalValidation(s), []);
+  const real = useAsync((s) => api.realData(s), []);
 
   const [mode, setMode] = useState<"primary" | "all">("primary");
   const [datasetScope, setDatasetScope] = useState<"same12" | "full108" | "proposed16">("full108");
@@ -554,6 +556,14 @@ export default function Compare() {
         title="So sánh thuật toán định tuyến"
         subtitle="Đối chuẩn thực nghiệm giữa Heuristic cổ điển và Học tăng cường theo từng tập kiểm thử độc lập"
       />
+
+      <ResearchCallout title="Tỷ lệ đúng hạn ở đây là kết quả tính theo mô hình, không phải thực tế" type="warning">
+        Các con số SLA trong trang này được tính trên đồ thị đường phố (tốc độ lý tưởng, không tính thời gian phục vụ tại điểm giao).
+        {real.data
+          ? ` Thực tế quan sát trong dữ liệu XeDu chỉ có ${pct(1 - real.data.observed.late_rate, 1)} đơn giao đúng hạn.`
+          : ""}{" "}
+        Xem trang <Link to="/du-lieu-that" className="underline font-medium">Dữ liệu thật</Link>.
+      </ResearchCallout>
 
       <div className="stack">
         {/* ─── Scope Switcher & Algorithm Filter Toolbar ─── */}

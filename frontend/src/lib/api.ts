@@ -347,6 +347,149 @@ export interface OptimizeResponse {
 
 // ---------------------------------------------------------------- calls
 
+// ------------------------------------------------ daily planning / Proposed RL
+
+export type AllocationPolicy = "dedicated" | "merge_small";
+export type OvertimePolicy = "overtime" | "defer" | "hybrid";
+
+export interface DailyPlanningRow {
+  load_multiplier: number;
+  allocation: AllocationPolicy;
+  overtime_policy: OvertimePolicy;
+  orders: number;
+  delivered: number;
+  final_backlog: number;
+  on_time_rate: number;
+  same_day_rate: number;
+  mean_backlog: number;
+  max_backlog: number;
+  order_days_deferred: number;
+  overtime_hours: number;
+  over_cap_shipper_days: number;
+  mean_shippers_used: number;
+  distance_km: number;
+  wage_cost: number;
+  overtime_cost: number;
+  distance_cost: number;
+  defer_cost: number;
+  late_cost: number;
+  total_cost: number;
+  cost_per_order: number;
+  work_hours: number;
+}
+
+export interface DailyPlanningSummary {
+  note: string;
+  rows: DailyPlanningRow[];
+  best_within_cap: DailyPlanningRow[];
+}
+
+export interface DailyPlanningDay {
+  load_multiplier: number;
+  allocation: AllocationPolicy;
+  overtime_policy: OvertimePolicy;
+  day: number;
+  incoming: number;
+  backlog_in: number;
+  delivered: number;
+  deferred_out: number;
+  shippers_used: number;
+  overtime_minutes: number;
+  total_cost: number;
+}
+
+export interface DailyPlanningDaily {
+  note: string;
+  days: DailyPlanningDay[];
+}
+
+export interface DailyPlanningSensitivityRow extends DailyPlanningRow {
+  parameter: string;
+  value: number;
+}
+
+export interface DailyPlanningSensitivity {
+  note: string;
+  rows: DailyPlanningSensitivityRow[];
+}
+
+export interface ProposedRlSummaryRow {
+  algorithm: string;
+  workloads: number;
+  deliveries: number;
+  mean_distance_km: number;
+  mean_travel_time_minutes: number;
+  late_deliveries: number;
+  weighted_sla: number;
+  total_lateness_minutes: number;
+  mean_cluster_switches: number;
+  mean_cluster_switch_rate: number;
+  mean_locked_objective: number;
+}
+
+export interface ProposedRlPairwiseRow {
+  baseline_algorithm: string;
+  baseline_mean_locked_objective: number;
+  proposed_mean_locked_objective: number;
+  locked_objective_improvement_pct: number;
+  baseline_mean_cluster_switches: number;
+  proposed_mean_cluster_switches: number;
+  cluster_switch_reduction_pct: number;
+  sla_change_percentage_points: number;
+  late_delivery_change: number;
+}
+
+export interface ProposedRlFinalTest {
+  scope_note: string;
+  summary: ProposedRlSummaryRow[];
+  pairwise_vs_baselines: ProposedRlPairwiseRow[];
+}
+
+// ------------------------------------------------ real-data replay
+
+export interface RealReplayMethod {
+  method: "real" | "nearest" | "nearest_search" | "optimal";
+  mean: number;
+  mean_excess_pct: number;
+  ci_low_pct: number;
+  ci_high_pct: number;
+  at_optimum: number;
+}
+
+export interface RealData {
+  observed: {
+    orders_delivered: number;
+    orders_with_deadline: number;
+    late_rate: number;
+  };
+  time_model: {
+    pairs: number;
+    max_gap_minutes: number;
+    real_median_minutes: number;
+    real_mean_minutes: number;
+    model_median_minutes: number;
+    model_mean_minutes: number;
+    spearman: number;
+    real_shorter_than_model_share: number;
+    median_overhead_minutes: number;
+  };
+  clean_shifts: {
+    count: number;
+    min_orders: number;
+    median_orders: number;
+    max_orders: number;
+    size_counts: Record<string, number>;
+    skipped_unreachable: number;
+  };
+  deadline_order: {
+    earliest_deadline_first_shifts: number;
+    shifts: number;
+    mean_spearman_position_vs_deadline: number;
+  };
+  replay: { time: RealReplayMethod[]; km: RealReplayMethod[] };
+  scope_note: string;
+}
+
 export const api = {
   health: (s?: AbortSignal) => get<Health>("/api/health", s),
 
@@ -464,4 +607,23 @@ export const api = {
       { late_deliveries: 0, total_lateness_minutes: 0, ...body },
       s,
     ),
+
+  dailyPlanningSummary: (s?: AbortSignal) =>
+    get<DailyPlanningSummary>("/api/results/daily-planning/summary", s),
+  dailyPlanningDaily: (
+    load_multiplier: number,
+    allocation: AllocationPolicy,
+    overtime_policy: OvertimePolicy,
+    s?: AbortSignal,
+  ) =>
+    get<DailyPlanningDaily>(
+      `/api/results/daily-planning/daily?load_multiplier=${load_multiplier}&allocation=${allocation}&overtime_policy=${overtime_policy}`,
+      s,
+    ),
+  dailyPlanningSensitivity: (s?: AbortSignal) =>
+    get<DailyPlanningSensitivity>("/api/results/daily-planning/sensitivity", s),
+  proposedRlFinalTest: (s?: AbortSignal) =>
+    get<ProposedRlFinalTest>("/api/results/proposed-rl/final-test", s),
+  realData: (s?: AbortSignal) =>
+    get<RealData>("/api/results/real-data", s),
 };
