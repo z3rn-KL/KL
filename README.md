@@ -1,121 +1,77 @@
-# Xây dựng hệ thống tối ưu tuyến giao hàng kết hợp kỹ thuật phân cụm và Reinforcement Learning trong logistics
+# Tối ưu tuyến giao hàng: Proposed RL, dữ liệu thật và giao diện web
 
-## Giới thiệu
+Mã nguồn khóa luận trên dữ liệu giao hàng XeDu (TP.HCM) và mạng đường OpenStreetMap. Nhánh `feature/frontend-duy` gồm toàn bộ phần nền của `main` (phân cụm, Nearest Neighbor, Clarke-Wright, Q-Learning, SARSA, DQN, K-Means-guided DQN, API FastAPI) và `proposed-routing-rl` (Proposed RL, lập kế hoạch theo ngày), cộng:
 
-Đây là mã nguồn phục vụ khóa luận xây dựng hệ thống tối ưu tuyến giao hàng trong logistics bằng cách kết hợp:
+1. **Giao diện web** React (12 trang).
+2. **Phân tích trên dữ liệu thật**: phát lại ca giao thật so với tối ưu.
+3. **Đo khoảng trống cải thiện** của RL bằng nghiệm tối ưu chính xác.
 
-- kỹ thuật phân cụm;
-- thuật toán heuristic;
-- Reinforcement Learning;
-- mạng đường OpenStreetMap;
-- FastAPI backend.
+## Dữ liệu và cách chạy
 
-Hệ thống hỗ trợ:
+Dữ liệu và đồ thị đường **không nằm trong repo** (đã `.gitignore`): đặt `dataset/xedu/xedu_cleaned.csv` và `maps/xedu_drive.graphml` (166 MB). Kết quả đã tính nằm trong `results/`.
 
-- tiền xử lý dữ liệu giao hàng;
-- phân cụm đơn hàng;
-- tối ưu thứ tự giao hàng;
-- đánh giá quãng đường và thời gian di chuyển;
-- đánh giá SLA và độ trễ;
-- phát hiện điểm giao hàng bất lợi;
-- ước lượng chi phí vận hành;
-- cung cấp API phục vụ frontend và demo.
-
----
-
-## Dữ liệu
-
-Dataset XeDu sau tiền xử lý gồm:
-
-```text
-2,394 deliveries
-16 shippers
-92 unique sender locations
-105 deliveries missing expectedDeliveryTime
-```
-
----
-
-## Lập kế hoạch theo ngày
-
-Phần này trả lời hai câu hỏi rất thực tế. Thứ nhất, khi một shipper đã làm đủ 10 giờ mà vẫn còn đơn chưa giao thì nên cho làm thêm giờ hay dời số đơn đó sang hôm sau? Thứ hai, những cụm chỉ có vài đơn thì nên giữ một shipper riêng, hay giao luôn cho shipper ở cụm gần nhất?
-
-Để so sánh, hệ thống mô phỏng 30 ngày liên tiếp (27/06 đến 26/07/2024, gồm 562 đơn thật). Mỗi shipper làm tối đa 10 giờ một ngày, mất 10 phút ở mỗi điểm giao, và xe chở được 100 kg. Đơn nào chưa giao kịp sẽ chuyển sang hôm sau và được ưu tiên giao trước.
-
-Dữ liệu thật khá nhẹ so với giới hạn 10 giờ: trung bình mỗi ngày chỉ có khoảng 2,3 shipper hoạt động, và ngày đông nhất cũng chỉ 33 đơn. Vì vậy ở mức tải thật (x1) và gấp đôi (x2), không shipper nào làm quá ca. Để thấy rõ tác động, số đơn được nhân lên từ x4 đến x16 bằng cách lấy mẫu lại từ chính dữ liệu XeDu (giữ nguyên vị trí, cân nặng và hạn giao), và nhóm shipper được cố định ở 4 người. Các hệ số chi phí như lương giờ, hệ số làm thêm giờ 1,5 hay mức phạt dời đơn chỉ là giả định của mô phỏng, không phải chi phí thật của XeDu.
-
-### Các cách xử lý được so sánh
-
-Khi shipper hết ca mà còn đơn:
-
-- **`overtime`**: cho làm thêm giờ đến khi giao hết, không giới hạn.
-- **`defer`**: dừng đúng giờ, đơn còn lại chuyển sang hôm sau.
-- **`hybrid`**: cho làm thêm tối đa 2 giờ, và chỉ giao tiếp khi tiền làm thêm giờ rẻ hơn mức phạt dời đơn.
-
-Với các cụm nhỏ:
-
-- **`dedicated`**: mỗi cụm một shipper riêng.
-- **`merge_small`**: cụm dưới 3 đơn được giao cho shipper của cụm gần nhất, miễn là shipper đó vẫn xong việc trong ca.
-
-### Kết quả
-
-Chi phí trung bình mỗi đơn (VND), với cách phân bổ `dedicated`:
-
-| Mức tải | `overtime` | `defer` | `hybrid` |
-|---|---|---|---|
-| x4 | 41,981 | 43,499, tồn 11 đơn | 42,210, tồn 1 đơn |
-| x12 | 37,950 | 434,751, tồn 1,619 đơn | 183,105, tồn 898 đơn |
-
-Một vài điều rút ra từ các con số này:
-
-- **Dời đơn hoàn toàn là cách tệ nhất khi quá tải.** Đơn tồn cộng dồn qua từng ngày; ở x12, sau 30 ngày vẫn còn 1,619 đơn chưa giao và chi phí cao gấp hơn 11 lần so với làm thêm giờ.
-- **Làm thêm giờ không giới hạn rẻ nhất, nhưng không thực tế.** Ở x12 có 53 ca shipper làm thêm quá 2 giờ. Nếu coi 2 giờ mỗi ngày là mức trần, chính sách tốt nhất là `hybrid`, rẻ hơn dời hẳn khoảng 2,4 lần. Vì vậy báo cáo chỉ chọn chính sách tốt nhất trong số những chính sách không vượt trần.
-- **Khi tải vượt hẳn năng lực, thêm người hiệu quả hơn mọi chính sách.** Ở x12, tăng từ 4 lên 6 shipper đưa chi phí `hybrid` từ 183,105 xuống 57,502 VND mỗi đơn, và đơn tồn từ 898 xuống 129.
-- **Gộp cụm nhỏ có lợi khi tải nhẹ.** Trên dữ liệu thật, `merge_small` giảm chi phí khoảng 12% (99,253 xuống 87,378 VND mỗi đơn) và chỉ cần 2,97 shipper thay vì 3,47. Cái giá là tỷ lệ giao đúng hạn giảm nhẹ, từ 100% xuống 99,5%. Khi tải cao, lợi ích này gần như mất đi vì số cụm đã bị giới hạn bởi số shipper.
-
-### Hạn chế
-
-- Mọi đơn được coi là phát sinh vào đầu ngày làm việc, và hạn giao là thời gian chờ ban đầu của đơn.
-- `hybrid` chỉ cân nhắc mức phạt của một ngày dời tiếp theo, không tính đến việc hôm sau cũng có thể quá tải.
-- Định tuyến trong mô phỏng dùng Nearest Neighbor kết hợp 2-opt, chưa dùng RL.
-
-### Chạy lại
+Cần Python 3.12 trở lên và Node.js 18 trở lên. 378 test.
 
 ```bash
-cd python
-python experiments/daily_planning_prepare_matrix.py   # khoảng 46 giây, tạo ma trận đường đi
-python experiments/daily_planning_experiment.py       # khoảng 2 phút
+pip install -r requirements.txt
+pytest python                                    # từ thư mục gốc (một số test dùng đường dẫn results/)
+
+# Terminal 1: backend
+cd python && PYTHONPATH=. uvicorn api.main:app --port 8000
+
+# Terminal 2: giao diện, http://localhost:5173 (proxy /api sang cổng 8000)
+cd frontend && npm install && npm run dev
 ```
 
-Kết quả nằm trong `results/`: `daily_planning_findings.txt` (bản tóm tắt), cùng ba file `daily_planning_summary.csv`, `daily_planning_daily.csv` và `daily_planning_sensitivity.csv`. Ma trận đường đi (`daily_planning_road_matrix.npz`, 25 MB) không được commit, nên cần chạy lệnh đầu tiên để dựng lại.
+Build giao diện: `npm run build`. Chi tiết các trang và endpoint: `frontend/README.md`.
 
----
+## Quyền riêng tư trước khi deploy
+
+Dữ liệu là đơn hàng thật. `GET /api/deliveries` trả địa chỉ người gửi và người nhận, tọa độ, mã shipper, tên gói hàng và đường dẫn ảnh. **Chưa có cơ chế ẩn danh hay đăng nhập.** Trước khi đưa lên web công khai cần ẩn các trường này (hoặc chỉ phục vụ số tổng hợp) và đặt mật khẩu truy cập. Các trang chỉ dùng số tổng hợp (Dữ liệu thật, Kế hoạch ngày, Proposed RL) không lộ dữ liệu cá nhân.
+
+## Phân tích trên dữ liệu thật
+
+Đầu vào là thật: đơn, tọa độ, hạn giao, thời điểm giao thật, đồ thị OSM. Quãng đường và thời gian của tuyến được tính trên đồ thị với tốc độ lý tưởng, **không đo ngoài đời**, và chưa thuật toán nào được thử thực tế.
+
+- **Thực tế giao trễ 20,3%** (2.281 đơn có hạn giao).
+- **Mô hình thời gian lạc quan hơn thực tế nhiều:** giữa hai lần giao liên tiếp, thực tế trung vị 28,9 phút, mô hình đường phố 6,9 phút (chênh trung vị 20,3 phút mỗi điểm cho phục vụ, lấy hàng, chờ, kẹt xe). Vì vậy SLA 96 đến 100% ở bảng benchmark là số tính theo mô hình, không phải thực tế.
+- **Phát lại 64 ca sạch** (một shipper, một điểm lấy hàng dùng làm kho, mọi đơn tạo trước khi giao; 3 đến 7 đơn, trung vị 3):
+
+| | Dài hơn tối ưu (thời gian) | Dài hơn tối ưu (quãng đường) |
+|---|---|---|
+| Thứ tự giao thật | +10,8% (CI 95%: 7,5 đến 14,5) | +11,6% |
+| Nearest Neighbor | +3,7% | +4,6% |
+| NN + local search | +0,16% | +0,10% |
+
+Thứ tự giao thật không bám theo hạn giao (16/64 ca đúng thứ tự hạn sớm nhất). Tối ưu là cận dưới cho bài toán tĩnh nên khoảng cách tới nó không phải mức tiết kiệm có thể hứa. Mẫu nhỏ và đã chọn lọc.
+
+Chạy lại: `python experiments/real_data_replay.py` (khoảng 20 giây, cần dữ liệu, đồ thị và ma trận đường). Kết quả: `results/real_replay_*`. API: `GET /api/results/real-data`.
 
 ## Proposed RL
 
-Agent học chọn điểm giao tiếp theo bằng cách chấm điểm từng đơn còn lại (một Q-network nhận 8 đặc trưng của mỗi ứng viên). Phần thưởng ở mỗi bước là phần tăng thêm của hàm mục tiêu J, lấy dấu âm; J kết hợp quãng đường, thời gian di chuyển, số đơn và số phút trễ, và số lần đổi cụm.
+Q-network nhỏ chấm điểm từng đơn ứng viên (8 đặc trưng, hai lớp ẩn 64, huấn luyện kiểu DQN), phần thưởng là trừ phần tăng thêm của hàm mục tiêu J. 76 workload huấn luyện, 16 kiểm định, 16 kiểm tra; mô hình khóa trước khi chạm tập kiểm tra. Mã ở `python/rl/proposed/`.
 
-Các workload được chia thành 76 để huấn luyện, 16 để kiểm định (validation) và 16 để kiểm tra cuối (test). Hàm mục tiêu và checkpoint chỉ được chọn dựa trên train và validation, rồi khóa lại trước khi chạm vào test.
-
-Kết quả trên tập test (16 workload, 131 đơn), đo bằng cùng hàm mục tiêu J đã khóa (càng thấp càng tốt):
+Trên tập kiểm tra (16 workload, 131 đơn), J càng thấp càng tốt:
 
 | CW | DQN | Q-Learning | NN | SARSA | Proposed RL |
 |---|---|---|---|---|---|
-| 0.4257 | 0.4352 | 0.4495 | 0.4515 | 0.4575 | 0.4649 |
+| 0,4257 | 0,4352 | 0,4495 | 0,4515 | 0,4575 | 0,4649 |
 
-Nói thẳng: **Proposed RL không thắng các baseline trên tập test.** Trên validation, nó cũng chỉ ngang Nearest Neighbor (J = 0.4688 so với 0.4640). Đã thử thêm 5 đặc trưng "nhìn trước" (quãng đường về depot, độ vòng thêm, khoảng cách tới các điểm còn lại; xem `python/rl/proposed/lookahead_encoder.py`), nhưng kết quả còn tệ hơn trên validation (J trung bình 0.515 qua 3 seed), nên không đem sang đánh giá test. Chi tiết ở `results/proposed_rl_lookahead_validation_findings.txt`.
+**Proposed RL không thắng các thuật toán đối chứng.** Thêm 5 đặc trưng nhìn trước cho kết quả tệ hơn nên không đưa sang kiểm tra.
 
-Một lời giải thích hợp lý là mỗi workload chỉ có từ 5 đến 16 điểm, nên các heuristic đã gần tối ưu và RL chưa có chỗ để cải thiện thêm. Đây là nhận định từ kết quả đo, chưa được kiểm chứng riêng.
+**Khoảng trống cải thiện** (16 workload kiểm định, 5 đến 13 điểm, nghiệm tối ưu chính xác bằng quy hoạch động, đã kiểm chứng với vét cạn): Proposed RL cách tối ưu 8,7%, Nearest Neighbor 7,6%, **NN + local search chỉ 0,49%** (`results/proposed_rl_headroom_validation_findings.txt`). Một hàm điểm theo ca làm với phần thưởng hoa hồng và phạt trễ (`python/rl/shift/`, tiền là giả định) cho khoảng cách 2,2% ở ca đến 14 đơn (`results/shift_headroom_validation_findings.txt`). Kết luận: ở quy mô ca thật (3 đến 13 đơn), heuristic có local search gần như tối ưu nên RL khó có chỗ cải thiện; hướng còn lại là điều phối trực tuyến khi đơn đến dần, chưa làm.
 
----
+## Lập kế hoạch theo ngày
 
-## API cho các kết quả mới
+Mô phỏng 30 ngày (562 đơn thật), ca 10 giờ, 10 phút phục vụ mỗi điểm, đơn chưa giao chuyển sang hôm sau. So sánh `overtime`, `defer`, `hybrid` (làm thêm tối đa 2 giờ) và hai cách phân bổ cụm (`dedicated`, `merge_small`). Mã ở `python/simulation/daily_planning.py`.
 
-| Endpoint | Tham số |
-|---|---|
-| `GET /api/results/daily-planning/summary` | `load_multiplier`, `allocation`, `overtime_policy` (đều tùy chọn) |
-| `GET /api/results/daily-planning/daily` | `load_multiplier`, `allocation`, `overtime_policy` (bắt buộc cả ba) |
-| `GET /api/results/daily-planning/sensitivity` | `parameter` (tùy chọn) |
-| `GET /api/results/proposed-rl/final-test` | không có |
+Dữ liệu thật không bao giờ vượt ca 10 giờ, nên các mức tải x4 đến x16 là **kịch bản dựng thêm**. Chi phí mỗi đơn (VND, `dedicated`): ở x12, `overtime` 37.950 nhưng 53 ca vượt trần 2 giờ, `defer` 434.751 (tồn 1.619 đơn), `hybrid` 183.105 (tồn 898 đơn). Chính sách tốt nhất trong trần làm thêm giờ là `hybrid`; gộp cụm nhỏ giảm khoảng 12% chi phí ở tải thật. Chạy lại: `python experiments/daily_planning_prepare_matrix.py` rồi `python experiments/daily_planning_experiment.py`.
 
-`allocation` nhận `dedicated` hoặc `merge_small`; `overtime_policy` nhận `overtime`, `defer` hoặc `hybrid`. Endpoint `summary` còn trả thêm `best_within_cap`: chính sách rẻ nhất ở từng mức tải trong số những chính sách không vượt trần làm thêm giờ.
+## Giới hạn
+
+- Hệ số tiền (lương, làm thêm giờ, phí, hoa hồng, mức phạt) là giả định; dữ liệu XeDu không có giá đơn hàng.
+- Chi phí vận hành và các mức tải x4 đến x16 là kịch bản, không phải dữ liệu thật.
+- Kết quả Proposed RL chỉ một seed, tập kiểm tra nhỏ (16 workload).
+- Một số số liệu benchmark ở trang So sánh được ghi cứng trong `frontend/src/pages/Compare.tsx`, không đọc từ API.
+
+Các nhánh khác: `main` (phần nền), `proposed-routing-rl` (Proposed RL và lập kế hoạch theo ngày).
