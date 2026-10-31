@@ -31,6 +31,21 @@ Kết quả trên tập kiểm tra (16 workload, 131 đơn), J càng thấp càn
 
 **Proposed RL không thắng các thuật toán đối chứng.** Trên kiểm định nó chỉ ngang Nearest Neighbor (J = 0,4688 so với 0,4640). Thử thêm 5 đặc trưng nhìn trước cho kết quả tệ hơn (J trung bình 0,515 trên 3 seed) nên không đưa sang kiểm tra (`results/proposed_rl_lookahead_validation_findings.txt`). Mỗi workload chỉ có 5 đến 16 điểm nên heuristic đã gần tối ưu; đây là nhận định từ kết quả đo.
 
+## RL theo ca làm (thưởng phạt mới)
+
+Một episode là một ca làm của một shipper (8 đến 40 đơn khi huấn luyện). Mỗi bước chọn một đơn hoặc dừng ca (đơn còn lại dời sang hôm sau). Thưởng: hoa hồng 3% giá trị đơn đúng hẹn (tối đa 10% nếu đến sớm), thưởng kết thúc ca sớm. Phạt: thời gian và quãng đường, làm thêm giờ, đơn trễ, biên lợi nhuận dưới 30%, đơn dời; phạt trễ luôn lớn hơn thưởng tối đa. **Mọi hệ số tiền là giả định**: dữ liệu XeDu không có giá đơn.
+
+**Mã, checkpoint và kết quả của phần này nằm ở nhánh `feature/frontend-duy`** (`python/rl/shift/`), không có ở nhánh này. Kết quả trên tập test độc lập (46 ca từ 10 đến 50 đơn), khoảng cách tới tham chiếu, thấp hơn là tốt hơn:
+
+| Phương pháp | Tất cả 46 ca (%) | Ca có nghiệm chính xác, 30 ca (%) |
+|---|---|---|
+| NN + local search | **2,94** | **2,71** |
+| Attention, bắt chước rồi gradient chính sách | 6,60 ± 0,95 | 5,65 ± 0,20 |
+| Attention, gradient chính sách từ đầu | 10,70 ± 0,05 | 10,74 ± 0,33 |
+| DQN (hai biến thể) | 59 đến 62 | 47 đến 52 |
+
+DQN không học được; gradient chính sách học được. Mô hình tốt nhất dùng bắt chước heuristic làm điểm khởi đầu nên không phải RL thuần, và vẫn kém NN + local search (thắng 10, hòa 6, thua 30 trên 46 ca). Nhanh hơn: 5,6 ms so với 0,21 giây mỗi ca. "±" là độ lệch chuẩn mẫu giữa 2 đến 3 seed. Tham chiếu là nghiệm tối ưu chính xác khi ca có tối đa 14 đơn, còn lại là local search nhiều lần.
+
 ## Lập kế hoạch theo ngày
 
 Mô phỏng 30 ngày liên tiếp (562 đơn thật), ca 10 giờ, 10 phút phục vụ mỗi điểm, đơn chưa giao chuyển sang hôm sau. So sánh ba chính sách khi hết ca (`overtime`, `defer`, `hybrid` làm thêm tối đa 2 giờ) và hai cách phân bổ cụm (`dedicated`, `merge_small`). Mã ở `python/simulation/daily_planning.py`.
@@ -60,6 +75,6 @@ Chạy lại: `python experiments/daily_planning_prepare_matrix.py` (khoảng 46
 - Hệ số chi phí (lương, làm thêm giờ, mức phạt) là giả định; dữ liệu XeDu không có giá đơn hàng.
 - Mọi đơn coi như phát sinh đầu ngày; `hybrid` chỉ tính mức phạt dời đơn của một ngày; định tuyến dùng Nearest Neighbor kết hợp 2-opt.
 - Thời gian và SLA ở phần nền là tính theo mô hình đường phố; thực tế khoảng 20% đơn giao trễ.
-- Kết quả cuối chỉ một seed, tập kiểm tra nhỏ.
+- Kết quả Proposed RL (bản gốc) chỉ một seed, tập kiểm tra nhỏ; RL theo ca chỉ có 46 ca test.
 
-Phân tích trên dữ liệu thật và giao diện web nằm ở nhánh `feature/frontend-duy`.
+Phân tích trên dữ liệu thật, RL theo ca làm và giao diện web nằm ở nhánh `feature/frontend-duy`.
