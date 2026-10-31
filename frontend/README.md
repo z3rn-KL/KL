@@ -59,7 +59,9 @@ Trạng thái backend hiện ở góc dưới thanh bên trái (lấy từ `/api
 ## Backend: các thay đổi đi kèm
 
 - `GET /api/deliveries` nhận thêm `q`, `service_type`, `is_late`, `cluster_id`,
-  `sort_by`, `sort_dir`; mọi đơn nay có `cluster_id` (nối từ K-Means).
+  `sort_by`, `sort_dir`; mọi đơn nay có `cluster_id` (nối từ K-Means). Phản hồi đã ẩn danh
+  (không có shipper và ảnh, địa chỉ đến cấp quận, tọa độ làm tròn 3 chữ số); tắt cục bộ bằng
+  `XEDU_ANONYMIZE=0`, trang Đơn hàng khi đó hiện địa chỉ đầy đủ.
 - Mới: `GET /api/results/stability`, `GET /api/results/clustering-quality`
   (`python/api/routers/diagnostics.py`, chỉ đọc CSV có sẵn trong `results/`).
 - Backend nạp trước đồ thị đường (166 MB) ở luồng nền khi khởi động, nên yêu cầu

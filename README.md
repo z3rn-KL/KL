@@ -10,7 +10,7 @@ Mã nguồn khóa luận trên dữ liệu giao hàng XeDu (TP.HCM) và mạng �
 
 Dữ liệu và đồ thị đường **không nằm trong repo** (đã `.gitignore`): đặt `dataset/xedu/xedu_cleaned.csv` và `maps/xedu_drive.graphml` (166 MB). Kết quả đã tính nằm trong `results/`.
 
-Cần Python 3.12 trở lên và Node.js 18 trở lên. 407 test.
+Cần Python 3.12 trở lên và Node.js 18 trở lên. 408 test.
 
 ```bash
 pip install -r requirements.txt
@@ -27,7 +27,9 @@ Build giao diện: `npm run build`. Chi tiết các trang và endpoint: `fronten
 
 ## Quyền riêng tư trước khi deploy
 
-Dữ liệu là đơn hàng thật. `GET /api/deliveries` trả địa chỉ người gửi và người nhận, tọa độ, mã shipper, tên gói hàng và đường dẫn ảnh. **Chưa có cơ chế ẩn danh hay đăng nhập.** Trước khi đưa lên web công khai cần ẩn các trường này (hoặc chỉ phục vụ số tổng hợp) và đặt mật khẩu truy cập. Các trang chỉ dùng số tổng hợp (Dữ liệu thật, Kế hoạch ngày, Proposed RL) không lộ dữ liệu cá nhân.
+Dữ liệu là đơn hàng thật. `GET /api/deliveries` **mặc định đã ẩn danh**: bỏ mã shipper và đường dẫn ảnh, cắt địa chỉ người gửi và người nhận còn đến cấp quận, làm tròn tọa độ 3 chữ số (khoảng 110 m). Việc ẩn danh chạy trước khi tìm kiếm, nên tham số `q` không dò ra được số nhà. Chỉ khi chạy máy cá nhân mới tắt bằng `XEDU_ANONYMIZE=0`; **không bao giờ tắt trên máy chủ công khai**. Mã đơn (`id`, `mdh`) và tên gói hàng vẫn được giữ vì giao diện dùng chúng.
+
+Chưa có đăng nhập: trước khi deploy công khai cần đặt mật khẩu truy cập. Các endpoint `/api/routing` và `/api/evaluation` chưa được rà soát về dữ liệu trả về (chỉ giới hạn 30 đơn mỗi lần).
 
 ## Phân tích trên dữ liệu thật
 
@@ -67,14 +69,16 @@ Một episode là một ca làm của một shipper (8 đến 40 đơn khi huấ
 
 Các phiên bản đã huấn luyện đầy đủ (chọn mô hình và seed bằng validation, rồi đánh giá một lần trên tập test thứ hai chưa dùng khi phát triển, 46 ca từ 10 đến 50 đơn), khoảng cách tới tham chiếu, thấp hơn là tốt hơn:
 
-| Phương pháp | Khoảng cách TB (%) |
-|---|---|
-| NN + local search | **2,94** |
-| Attention, bắt chước rồi gradient chính sách | 6,60 ± 0,78 |
-| Bắt chước rồi gradient chính sách (MLP) | 8,79 ± 0,45 |
-| Attention, gradient chính sách từ đầu | 10,70 ± 0,03 |
-| Gradient chính sách từ đầu (MLP) | 13,25 ± 0,62 |
-| DQN (hai biến thể) | 59 đến 62 |
+| Phương pháp | Tất cả 46 ca (%) | Chỉ ca có nghiệm tối ưu chính xác, 30 ca (%) |
+|---|---|---|
+| NN + local search | **2,94** | **2,71** |
+| Attention, bắt chước rồi gradient chính sách | 6,60 ± 0,95 | 5,65 ± 0,20 |
+| Bắt chước rồi gradient chính sách (MLP) | 8,79 ± 0,55 | 7,29 ± 0,25 |
+| Attention, gradient chính sách từ đầu | 10,70 ± 0,05 | 10,74 ± 0,33 |
+| Gradient chính sách từ đầu (MLP) | 13,25 ± 0,88 | 13,77 ± 0,58 |
+| DQN (hai biến thể) | 59 đến 62 | 47 đến 52 |
+
+"±" là độ lệch chuẩn mẫu giữa 2 đến 3 seed huấn luyện, nên chỉ mang tính tham khảo. Với ca trên 14 đơn, tham chiếu là kết quả local search nhiều lần, cùng họ phương pháp với NN + local search, nên cột bên phải (nghiệm chính xác) mới công bằng cho phép so sánh; thứ tự các phương pháp không đổi ở cả hai cột. Tập test này đã dùng để đánh giá, mọi thay đổi mô hình tiếp theo cần một tập test mới (ví dụ seed 404).
 
 - **DQN không học được** (khoảng 50% trên validation sau 40.000 episode, mọi seed). **Gradient chính sách** học được, và mạng attention nhìn khoảng cách giữa các đơn còn lại tốt hơn MLP.
 - Mô hình tốt nhất dùng **bắt chước heuristic làm điểm khởi đầu**, nên không phải RL thuần. RL thuần tốt nhất là gradient chính sách attention từ đầu (10,7%).

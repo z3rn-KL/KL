@@ -226,3 +226,25 @@ def test_get_unknown_delivery():
         response.status_code
         == 404
     )
+
+def test_deliveries_are_anonymized():
+    items = client.get(
+        "/api/deliveries",
+        params={"limit": 200},
+    ).json()["items"]
+
+    for item in items:
+        assert not {"shipper", "shipper_id", "image"} & item.keys()
+        assert len(item["receiverAddress"].split(",")) <= 3
+        assert len(item["senderAddress"].split(",")) <= 3
+        assert round(item["receiverLat"], 3) == item["receiverLat"]
+
+    # The raw street must not be reachable through search either.
+    probe = load_deliveries().iloc[0]["receiverAddress"].split(",")[0]
+
+    found = client.get(
+        "/api/deliveries",
+        params={"q": probe},
+    ).json()
+
+    assert all(probe not in i["receiverAddress"] for i in found["items"])

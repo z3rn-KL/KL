@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 
@@ -172,6 +173,11 @@ CORS_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
 ]
+
+
+# /api/deliveries masks personal fields unless XEDU_ANONYMIZE=0
+# (local development only; never turn it off on a public server).
+ANONYMIZE_DELIVERIES = os.getenv("XEDU_ANONYMIZE", "1") != "0"
 
 
 # Keep live road-network requests small enough

@@ -73,7 +73,7 @@ def load_runner(tag: str, seed: int, encoder):
     checkpoint = torch.load(
         checkpoint_path(seed, tag),
         map_location="cpu",
-        weights_only=False,
+        weights_only=True,
     )
 
     if checkpoint.get("network") == "set":
@@ -92,6 +92,12 @@ def load_runner(tag: str, seed: int, encoder):
     agent.online.load_state_dict(checkpoint["online_state_dict"])
 
     return (lambda env: run_episode(env, encoder, agent)), checkpoint
+
+
+def spread(values):
+    """Sample standard deviation across seeds (ddof=1)."""
+
+    return float(np.std(values, ddof=1))
 
 
 def gap(reference, score):
@@ -172,6 +178,15 @@ def main() -> None:
     def groups():
         yield "tất cả", rows
 
+        # Large shifts are measured against a local-search reference, the
+        # same family as the heuristic baselines, so show the exact ones apart.
+        exact = rows["reference_kind"] == "exact"
+
+        yield "tối ưu chính xác", rows[exact]
+
+        if (~exact).any():
+            yield "tham chiếu local search", rows[~exact]
+
         for n in sorted(rows["n"].unique()):
             yield f"n = {n}", rows[rows["n"] == n]
 
@@ -238,7 +253,7 @@ def main() -> None:
             )
 
             lines.append(
-                f"  {LABEL[variant]:42s} {per_seed.mean():12.2f} ± {per_seed.std():4.2f}"
+                f"  {LABEL[variant]:42s} {per_seed.mean():12.2f} ± {spread(per_seed):4.2f}"
                 f"   (seed chọn: {chosen.mean():.2f}%)"
             )
 
@@ -248,7 +263,7 @@ def main() -> None:
                     "label": LABEL[variant],
                     "kind": "rl",
                     "mean_gap_pct": float(per_seed.mean()),
-                    "std_gap_pct": float(per_seed.std()),
+                    "std_gap_pct": spread(per_seed),
                     "at_reference": int((chosen < 1e-4).sum()),
                 }
             )
@@ -257,13 +272,24 @@ def main() -> None:
 
     lines.append(f"SO SÁNH CẶP MÔ HÌNH CHÍNH VỚI NN + LOCAL SEARCH (điểm số, tất cả ca)")
 
+    pairs = {}
+
     for baseline in ("nn_all_ls", "nn_stop_ls"):
         diff = rows[headline_column] - rows[baseline]
 
+        pairs[baseline] = {
+            "wins": int((diff > 1).sum()),
+            "ties": int((diff.abs() <= 1).sum()),
+            "losses": int((diff < -1).sum()),
+            "mean_difference_points": float(diff.mean()),
+        }
+
+        pair = pairs[baseline]
+
         lines.append(
-            f"  so với {LABEL[baseline]:24s}: thắng {int((diff > 1).sum())}, "
-            f"hòa {int((diff.abs() <= 1).sum())}, thua {int((diff < -1).sum())}, "
-            f"chênh trung bình {diff.mean():+.0f} điểm/ca"
+            f"  so với {LABEL[baseline]:24s}: thắng {pair['wins']}, "
+            f"hòa {pair['ties']}, thua {pair['losses']}, "
+            f"chênh trung bình {pair['mean_difference_points']:+.0f} điểm/ca"
         )
 
     lines += [
@@ -279,18 +305,6 @@ def main() -> None:
     ]
 
     FINDINGS_PATH.write_text("\n".join(lines) + "\n", encoding="utf-8")
-
-    pairs = {}
-
-    for baseline in ("nn_all_ls", "nn_stop_ls"):
-        diff = rows[headline_column] - rows[baseline]
-
-        pairs[baseline] = {
-            "wins": int((diff > 1).sum()),
-            "ties": int((diff.abs() <= 1).sum()),
-            "losses": int((diff < -1).sum()),
-            "mean_difference_points": float(diff.mean()),
-        }
 
     SUMMARY_PATH.write_text(
         json.dumps(

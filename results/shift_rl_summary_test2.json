@@ -9,7 +9,7 @@
     "late_per_shift": 0.391304347826087,
     "deferred_per_shift": 1.4782608695652173,
     "overtime_minutes_per_shift": 0.0,
-    "inference_ms": 6.004161826438022
+    "inference_ms": 6.828867847814209
   },
   "local_search_seconds_per_shift": 0.2083333918913606,
   "paired_vs": {
@@ -68,7 +68,7 @@
           "label": "DQN, Q thường",
           "kind": "rl",
           "mean_gap_pct": 62.205230929047595,
-          "std_gap_pct": 3.852280104662829,
+          "std_gap_pct": 4.718060301349653,
           "at_reference": 0
         },
         {
@@ -76,7 +76,7 @@
           "label": "DQN, Q = thưởng tức thời + tương lai",
           "kind": "rl",
           "mean_gap_pct": 59.034262557218334,
-          "std_gap_pct": 1.8298227587563571,
+          "std_gap_pct": 2.2410660393424573,
           "at_reference": 0
         },
         {
@@ -84,7 +84,7 @@
           "label": "Gradient chính sách từ đầu",
           "kind": "rl",
           "mean_gap_pct": 13.253339274554179,
-          "std_gap_pct": 0.623135323144707,
+          "std_gap_pct": 0.8812464251849857,
           "at_reference": 4
         },
         {
@@ -92,7 +92,7 @@
           "label": "Bắt chước, rồi gradient chính sách",
           "kind": "rl",
           "mean_gap_pct": 8.79309326317923,
-          "std_gap_pct": 0.4512569373339251,
+          "std_gap_pct": 0.5526746196796004,
           "at_reference": 5
         },
         {
@@ -100,7 +100,7 @@
           "label": "Attention, gradient chính sách từ đầu",
           "kind": "rl",
           "mean_gap_pct": 10.697467716100544,
-          "std_gap_pct": 0.03252548774988728,
+          "std_gap_pct": 0.04599798589869056,
           "at_reference": 5
         },
         {
@@ -108,8 +108,180 @@
           "label": "Attention, bắt chước rồi gradient",
           "kind": "rl",
           "mean_gap_pct": 6.602620433850949,
-          "std_gap_pct": 0.7783485399531154,
+          "std_gap_pct": 0.9532783824627095,
           "at_reference": 7
+        }
+      ]
+    },
+    {
+      "group": "tối ưu chính xác",
+      "shifts": 30,
+      "methods": [
+        {
+          "key": "nn_serve_all",
+          "label": "NN giao hết",
+          "kind": "heuristic",
+          "mean_gap_pct": 17.34925821377328,
+          "std_gap_pct": null,
+          "at_reference": 3
+        },
+        {
+          "key": "nn_stop_rule",
+          "label": "NN dừng khi không đáng",
+          "kind": "heuristic",
+          "mean_gap_pct": 49.36217597858966,
+          "std_gap_pct": null,
+          "at_reference": 3
+        },
+        {
+          "key": "nn_all_ls",
+          "label": "NN + local search",
+          "kind": "heuristic",
+          "mean_gap_pct": 2.7133445048289704,
+          "std_gap_pct": null,
+          "at_reference": 13
+        },
+        {
+          "key": "nn_stop_ls",
+          "label": "NN dừng + local search",
+          "kind": "heuristic",
+          "mean_gap_pct": 33.51233139678818,
+          "std_gap_pct": null,
+          "at_reference": 13
+        },
+        {
+          "key": "dqn",
+          "label": "DQN, Q thường",
+          "kind": "rl",
+          "mean_gap_pct": 47.47497038404985,
+          "std_gap_pct": 4.798893034955286,
+          "at_reference": 0
+        },
+        {
+          "key": "dqn_residual",
+          "label": "DQN, Q = thưởng tức thời + tương lai",
+          "kind": "rl",
+          "mean_gap_pct": 52.47560454574676,
+          "std_gap_pct": 3.8865675710066223,
+          "at_reference": 0
+        },
+        {
+          "key": "policy_gradient",
+          "label": "Gradient chính sách từ đầu",
+          "kind": "rl",
+          "mean_gap_pct": 13.773667852653258,
+          "std_gap_pct": 0.5825108022563865,
+          "at_reference": 3
+        },
+        {
+          "key": "clone_then_policy_gradient",
+          "label": "Bắt chước, rồi gradient chính sách",
+          "kind": "rl",
+          "mean_gap_pct": 7.290086020318225,
+          "std_gap_pct": 0.24695817438566425,
+          "at_reference": 3
+        },
+        {
+          "key": "attention_scratch",
+          "label": "Attention, gradient chính sách từ đầu",
+          "kind": "rl",
+          "mean_gap_pct": 10.7419420281331,
+          "std_gap_pct": 0.3269205383179504,
+          "at_reference": 4
+        },
+        {
+          "key": "attention_clone_then_pg",
+          "label": "Attention, bắt chước rồi gradient",
+          "kind": "rl",
+          "mean_gap_pct": 5.654066477223215,
+          "std_gap_pct": 0.19717149326850492,
+          "at_reference": 7
+        }
+      ]
+    },
+    {
+      "group": "tham chiếu local search",
+      "shifts": 16,
+      "methods": [
+        {
+          "key": "nn_serve_all",
+          "label": "NN giao hết",
+          "kind": "heuristic",
+          "mean_gap_pct": 171.5246614725833,
+          "std_gap_pct": null,
+          "at_reference": 0
+        },
+        {
+          "key": "nn_stop_rule",
+          "label": "NN dừng khi không đáng",
+          "kind": "heuristic",
+          "mean_gap_pct": 106.17899586800475,
+          "std_gap_pct": null,
+          "at_reference": 0
+        },
+        {
+          "key": "nn_all_ls",
+          "label": "NN + local search",
+          "kind": "heuristic",
+          "mean_gap_pct": 3.369056319772765,
+          "std_gap_pct": null,
+          "at_reference": 5
+        },
+        {
+          "key": "nn_stop_ls",
+          "label": "NN dừng + local search",
+          "kind": "heuristic",
+          "mean_gap_pct": 49.713581083875745,
+          "std_gap_pct": null,
+          "at_reference": 6
+        },
+        {
+          "key": "dqn",
+          "label": "DQN, Q thường",
+          "kind": "rl",
+          "mean_gap_pct": 89.82446945091836,
+          "std_gap_pct": 22.102093259888775,
+          "at_reference": 0
+        },
+        {
+          "key": "dqn_residual",
+          "label": "DQN, Q = thưởng tức thời + tương lai",
+          "kind": "rl",
+          "mean_gap_pct": 71.33174632872752,
+          "std_gap_pct": 0.8918973746308595,
+          "at_reference": 0
+        },
+        {
+          "key": "policy_gradient",
+          "label": "Gradient chính sách từ đầu",
+          "kind": "rl",
+          "mean_gap_pct": 12.277723190618406,
+          "std_gap_pct": 1.441375718176124,
+          "at_reference": 1
+        },
+        {
+          "key": "clone_then_policy_gradient",
+          "label": "Bắt chước, rồi gradient chính sách",
+          "kind": "rl",
+          "mean_gap_pct": 11.611231843543614,
+          "std_gap_pct": 2.004670465340364,
+          "at_reference": 2
+        },
+        {
+          "key": "attention_scratch",
+          "label": "Attention, gradient chính sách từ đầu",
+          "kind": "rl",
+          "mean_gap_pct": 10.614078381039505,
+          "std_gap_pct": 0.7452202188048933,
+          "at_reference": 1
+        },
+        {
+          "key": "attention_clone_then_pg",
+          "label": "Attention, bắt chước rồi gradient",
+          "kind": "rl",
+          "mean_gap_pct": 8.381159102527953,
+          "std_gap_pct": 2.37700828887799,
+          "at_reference": 0
         }
       ]
     },
@@ -154,7 +326,7 @@
           "label": "DQN, Q thường",
           "kind": "rl",
           "mean_gap_pct": 43.495251704677315,
-          "std_gap_pct": 2.2563213337581605,
+          "std_gap_pct": 2.7634179817317372,
           "at_reference": 0
         },
         {
@@ -162,7 +334,7 @@
           "label": "DQN, Q = thưởng tức thời + tương lai",
           "kind": "rl",
           "mean_gap_pct": 49.79217061242624,
-          "std_gap_pct": 3.3713763987701526,
+          "std_gap_pct": 4.1290759539243895,
           "at_reference": 0
         },
         {
@@ -170,7 +342,7 @@
           "label": "Gradient chính sách từ đầu",
           "kind": "rl",
           "mean_gap_pct": 10.518416476904711,
-          "std_gap_pct": 0.01742356964064129,
+          "std_gap_pct": 0.024640648490747024,
           "at_reference": 2
         },
         {
@@ -178,7 +350,7 @@
           "label": "Bắt chước, rồi gradient chính sách",
           "kind": "rl",
           "mean_gap_pct": 7.075341397189326,
-          "std_gap_pct": 0.8443639820582646,
+          "std_gap_pct": 1.0341304566136393,
           "at_reference": 1
         },
         {
@@ -186,7 +358,7 @@
           "label": "Attention, gradient chính sách từ đầu",
           "kind": "rl",
           "mean_gap_pct": 7.974624799673849,
-          "std_gap_pct": 0.045099343911291,
+          "std_gap_pct": 0.0637801038134762,
           "at_reference": 3
         },
         {
@@ -194,7 +366,7 @@
           "label": "Attention, bắt chước rồi gradient",
           "kind": "rl",
           "mean_gap_pct": 4.563152192745183,
-          "std_gap_pct": 1.1508234414446201,
+          "std_gap_pct": 1.4094651077865172,
           "at_reference": 4
         }
       ]
@@ -240,7 +412,7 @@
           "label": "DQN, Q thường",
           "kind": "rl",
           "mean_gap_pct": 51.4546890634224,
-          "std_gap_pct": 5.612189434733118,
+          "std_gap_pct": 6.8735002274674475,
           "at_reference": 0
         },
         {
@@ -248,7 +420,7 @@
           "label": "DQN, Q = thưởng tức thời + tương lai",
           "kind": "rl",
           "mean_gap_pct": 55.15903847906728,
-          "std_gap_pct": 4.229052613430096,
+          "std_gap_pct": 5.179510499143706,
           "at_reference": 0
         },
         {
@@ -256,7 +428,7 @@
           "label": "Gradient chính sách từ đầu",
           "kind": "rl",
           "mean_gap_pct": 17.0289192284018,
-          "std_gap_pct": 0.8412182464204534,
+          "std_gap_pct": 1.1896622530035175,
           "at_reference": 1
         },
         {
@@ -264,7 +436,7 @@
           "label": "Bắt chước, rồi gradient chính sách",
           "kind": "rl",
           "mean_gap_pct": 7.504830643447125,
-          "std_gap_pct": 0.45640552544065977,
+          "std_gap_pct": 0.5589803265582315,
           "at_reference": 2
         },
         {
@@ -272,7 +444,7 @@
           "label": "Attention, gradient chính sách từ đầu",
           "kind": "rl",
           "mean_gap_pct": 13.509259256592355,
-          "std_gap_pct": 0.41723611519627113,
+          "std_gap_pct": 0.5900609728224296,
           "at_reference": 1
         },
         {
@@ -280,7 +452,7 @@
           "label": "Attention, bắt chước rồi gradient",
           "kind": "rl",
           "mean_gap_pct": 6.744980761701245,
-          "std_gap_pct": 1.2685478725655097,
+          "std_gap_pct": 1.5536475010393191,
           "at_reference": 3
         }
       ]
@@ -326,7 +498,7 @@
           "label": "DQN, Q thường",
           "kind": "rl",
           "mean_gap_pct": 56.71961052646126,
-          "std_gap_pct": 1.217459063323172,
+          "std_gap_pct": 1.491076743934263,
           "at_reference": 0
         },
         {
@@ -334,7 +506,7 @@
           "label": "DQN, Q = thưởng tức thời + tương lai",
           "kind": "rl",
           "mean_gap_pct": 60.07180991645239,
-          "std_gap_pct": 1.8172025316101157,
+          "std_gap_pct": 2.225609480869301,
           "at_reference": 0
         },
         {
@@ -342,7 +514,7 @@
           "label": "Gradient chính sách từ đầu",
           "kind": "rl",
           "mean_gap_pct": 18.720103136130845,
-          "std_gap_pct": 2.6170667393966234,
+          "std_gap_pct": 3.701091276490239,
           "at_reference": 1
         },
         {
@@ -350,7 +522,7 @@
           "label": "Bắt chước, rồi gradient chính sách",
           "kind": "rl",
           "mean_gap_pct": 18.97538367943002,
-          "std_gap_pct": 4.080091765286397,
+          "std_gap_pct": 4.997071464341571,
           "at_reference": 1
         },
         {
@@ -358,7 +530,7 @@
           "label": "Attention, gradient chính sách từ đầu",
           "kind": "rl",
           "mean_gap_pct": 15.958457053802164,
-          "std_gap_pct": 0.5601206190846524,
+          "std_gap_pct": 0.7921301760743297,
           "at_reference": 1
         },
         {
@@ -366,7 +538,7 @@
           "label": "Attention, bắt chước rồi gradient",
           "kind": "rl",
           "mean_gap_pct": 10.847383758265885,
-          "std_gap_pct": 3.982363542918005,
+          "std_gap_pct": 4.8773793252056645,
           "at_reference": 0
         }
       ]
@@ -412,7 +584,7 @@
           "label": "DQN, Q thường",
           "kind": "rl",
           "mean_gap_pct": 112.06791727342527,
-          "std_gap_pct": 13.793773426927475,
+          "std_gap_pct": 16.89385326176701,
           "at_reference": 0
         },
         {
@@ -420,7 +592,7 @@
           "label": "DQN, Q = thưởng tức thời + tương lai",
           "kind": "rl",
           "mean_gap_pct": 94.97159925119553,
-          "std_gap_pct": 7.278093956160257,
+          "std_gap_pct": 8.913808246313396,
           "at_reference": 0
         },
         {
@@ -428,7 +600,7 @@
           "label": "Gradient chính sách từ đầu",
           "kind": "rl",
           "mean_gap_pct": 9.198620578978042,
-          "std_gap_pct": 0.3912693761111008,
+          "std_gap_pct": 0.5533384582375782,
           "at_reference": 0
         },
         {
@@ -436,7 +608,7 @@
           "label": "Bắt chước, rồi gradient chính sách",
           "kind": "rl",
           "mean_gap_pct": 9.692164535089775,
-          "std_gap_pct": 0.36015671977434727,
+          "std_gap_pct": 0.4411000954408495,
           "at_reference": 0
         },
         {
@@ -444,7 +616,7 @@
           "label": "Attention, gradient chính sách từ đầu",
           "kind": "rl",
           "mean_gap_pct": 8.250476027621836,
-          "std_gap_pct": 0.718978819125669,
+          "std_gap_pct": 1.0167895970665135,
           "at_reference": 0
         },
         {
@@ -452,7 +624,7 @@
           "label": "Attention, bắt chước rồi gradient",
           "kind": "rl",
           "mean_gap_pct": 9.474602394130063,
-          "std_gap_pct": 2.7328406974944643,
+          "std_gap_pct": 3.3470326285865584,
           "at_reference": 0
         }
       ]
@@ -498,7 +670,7 @@
           "label": "DQN, Q thường",
           "kind": "rl",
           "mean_gap_pct": 106.1165861038437,
-          "std_gap_pct": 52.98628175484986,
+          "std_gap_pct": 64.8946768333621,
           "at_reference": 0
         },
         {
@@ -506,7 +678,7 @@
           "label": "DQN, Q = thưởng tức thời + tương lai",
           "kind": "rl",
           "mean_gap_pct": 52.76187156343827,
-          "std_gap_pct": 11.423837743757424,
+          "std_gap_pct": 13.991286688276567,
           "at_reference": 0
         },
         {
@@ -514,7 +686,7 @@
           "label": "Gradient chính sách từ đầu",
           "kind": "rl",
           "mean_gap_pct": 7.232807189810297,
-          "std_gap_pct": 0.43567799502171844,
+          "std_gap_pct": 0.616141729387232,
           "at_reference": 0
         },
         {
@@ -522,7 +694,7 @@
           "label": "Bắt chước, rồi gradient chính sách",
           "kind": "rl",
           "mean_gap_pct": 3.443605052394762,
-          "std_gap_pct": 0.2796570204279044,
+          "std_gap_pct": 0.34250850151772877,
           "at_reference": 1
         },
         {
@@ -530,7 +702,7 @@
           "label": "Attention, gradient chính sách từ đầu",
           "kind": "rl",
           "mean_gap_pct": 6.142913902022021,
-          "std_gap_pct": 0.18915192346156484,
+          "std_gap_pct": 0.26750121550830264,
           "at_reference": 0
         },
         {
@@ -538,7 +710,7 @@
           "label": "Attention, bắt chước rồi gradient",
           "kind": "rl",
           "mean_gap_pct": 3.0416571815178908,
-          "std_gap_pct": 0.7139319525966115,
+          "std_gap_pct": 0.874384497465283,
           "at_reference": 0
         }
       ]

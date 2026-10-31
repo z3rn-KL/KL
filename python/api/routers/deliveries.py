@@ -10,6 +10,7 @@ from fastapi import (
 )
 
 from api.config import (
+    ANONYMIZE_DELIVERIES,
     KMEANS_RESULT_PATH,
     XEDU_DATASET_PATH,
 )
@@ -191,9 +192,46 @@ def find_first_existing_column(
 # ENDPOINTS
 # ============================================================
 
+PERSONAL_COLUMNS = ["shipper", "shipper_id", "image"]
+ADDRESS_COLUMNS = ["senderAddress", "receiverAddress"]
+COORDINATE_COLUMNS = ["senderLat", "senderLng", "receiverLat", "receiverLng"]
+
+
+def anonymize(dataframe: pd.DataFrame) -> pd.DataFrame:
+    """
+    Drop shipper ids and photo links, cut addresses down to district level
+    and round coordinates to 3 decimals (about 110 m).
+
+    Applied before search and filters so that ``q`` cannot be used to probe
+    the hidden street addresses.
+    """
+
+    dataframe = dataframe.drop(columns=PERSONAL_COLUMNS, errors="ignore")
+
+    for column in ADDRESS_COLUMNS:
+        if column in dataframe.columns:
+            dataframe[column] = (
+                dataframe[column]
+                .astype(str)
+                .str.split(",")
+                .str[-3:]
+                .str.join(",")
+                .str.strip()
+            )
+
+    for column in COORDINATE_COLUMNS:
+        if column in dataframe.columns:
+            dataframe[column] = dataframe[column].round(3)
+
+    return dataframe
+
+
 @lru_cache(maxsize=1)
 def load_deliveries_with_clusters() -> pd.DataFrame:
-    """Cleaned dataset joined with the thesis K-Means label (cluster_id)."""
+    """
+    Cleaned dataset joined with the thesis K-Means label (cluster_id),
+    anonymized unless XEDU_ANONYMIZE=0.
+    """
 
     dataframe = load_deliveries().copy()
 
@@ -214,7 +252,7 @@ def load_deliveries_with_clusters() -> pd.DataFrame:
             how="left",
         )
 
-    return dataframe
+    return anonymize(dataframe) if ANONYMIZE_DELIVERIES else dataframe
 
 
 SORTABLE_COLUMNS = {
