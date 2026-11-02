@@ -1,0 +1,24 @@
+DQN HYPERPARAMETER SENSITIVITY (one parameter at a time)
+
+Workloads [19, 4, 50, 63] (sizes 8, 10, 12, 13), seeds [1, 7, 13, 21, 42]; base = lr 0.001, gamma 0.95, epsilon decay 0.998, hidden 128, 5,000 episodes.
+Gap = % longer than the exact optimum, mean of the per-workload mean over seeds.
+
+  parameter         value  runs  km gap %  min gap %  at optimum  seed std  late/run  train s
+  learning_rate    0.0003    20      6.91       6.47      0/20        0.10      0.00    221.0
+  learning_rate     0.001*   20      6.71       6.04      0/20        0.34      0.00    245.1
+  learning_rate     0.003    20      7.75       7.00      0/20        2.53      0.00    230.0
+  gamma               0.8    20     11.48      10.04      0/20        0.21      0.00    228.5
+  gamma              0.95*   20      6.71       6.04      0/20        0.34      0.00    245.1
+  gamma              0.99    20      6.06       5.07      0/20        0.67      0.00    227.5
+  epsilon_decay     0.995    20      7.44       6.80      0/20        1.62      0.00    199.3
+  epsilon_decay     0.998*   20      6.71       6.04      0/20        0.34      0.00    245.1
+  epsilon_decay    0.9995    20      7.44       6.46      0/20        0.86      0.00    204.0
+  hidden_size          64    20      7.72       7.05      0/20        1.52      0.00    194.2
+  hidden_size         128*   20      6.71       6.04      0/20        0.34      0.00    245.1
+  hidden_size         256    20      7.52       7.01      0/20        1.20      0.00    299.9
+  episodes           1000    20      8.17       7.12      0/20        3.91      0.00     36.7
+  episodes           2500    20      7.50       6.99      0/20        1.61      0.00    110.5
+  episodes           5000*   20      6.71       6.04      0/20        0.34      0.00    245.1
+  episodes          10000    20      7.01       6.57      0/20        0.57      0.00    464.1
+
+* = base value

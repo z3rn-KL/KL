@@ -9,7 +9,7 @@ Mã nguồn khóa luận trên dữ liệu giao hàng XeDu (TP.HCM) và mạng �
 
 Dữ liệu và đồ thị đường **không nằm trong repo** (đã `.gitignore`): đặt `dataset/xedu/xedu_cleaned.csv` và `maps/xedu_drive.graphml` (166 MB). Kết quả đã tính nằm trong `results/`.
 
-Cần Python 3.12 trở lên và Node.js 18 trở lên. 408 test.
+Cần Python 3.12 trở lên và Node.js 18 trở lên. 417 test.
 
 ```bash
 pip install -r requirements.txt
