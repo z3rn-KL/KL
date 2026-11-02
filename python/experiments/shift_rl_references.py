@@ -15,6 +15,7 @@ from experiments.shift_rl_common import (  # noqa: E402
     FIXED_SETS,
     MAX_EXACT,
     REFERENCES_PATH,
+    WAIT,
     fingerprint,
     fixed_instances,
     load_sampler,
@@ -51,7 +52,9 @@ def main() -> None:
     sampler, splits = load_sampler()
 
     # python shift_rl_references.py [set ...]; default: every set.
-    names = sys.argv[1:] or list(FIXED_SETS)
+    # With the waiting-cost objective the older test sets are not needed.
+    default = ["validation", "test3"] if WAIT else list(FIXED_SETS)
+    names = sys.argv[1:] or default
 
     kept = []
 

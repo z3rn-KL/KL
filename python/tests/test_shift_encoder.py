@@ -117,3 +117,24 @@ def test_pair_times_match_the_travel_matrix_and_zero_the_stop_row():
         env.travel_np[orders[0] + 1, orders[1] + 1] / TIME_REF_MINUTES, abs=1e-6
     )
     assert (pairs[-1] == 0).all() and (pairs[:, -1] == 0).all()
+
+
+def test_base_includes_the_waiting_cost():
+    from rl.shift.encoder import REWARD_SCALE
+    from rl.shift.objective import ShiftObjectiveConfig
+
+    env = random_environment(
+        8, n=5, config=ShiftObjectiveConfig(wait_cost_per_minute=50.0)
+    )
+
+    actions, _, base = ShiftEncoder().encode_with_base(env)
+
+    for action, scaled in zip(actions[:-1], base[:-1]):
+        probe = random_environment(
+            8, n=5, config=ShiftObjectiveConfig(wait_cost_per_minute=50.0)
+        )
+        probe.reset()
+
+        reward = probe.step(int(action)).reward
+
+        assert scaled == pytest.approx(reward * REWARD_SCALE, rel=1e-4)

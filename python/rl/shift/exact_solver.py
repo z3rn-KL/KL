@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from .environment import ShiftEnvironment
-from .objective import order_terms, terminal_terms
+from .objective import order_terms, terminal_terms, wait_cost
 
 
 MAX_EXACT_ORDERS = 14
@@ -15,10 +15,10 @@ def exact_best_shift(
     what order (the rest are deferred), by dynamic programming over
     (set of served orders, last order).
 
-    Lateness and the shift-end terms depend on the clock, so each state keeps
-    every (time, score) label that no other label beats on both. This is
-    exact because the score still to come never rises when a route starts
-    later.
+    Lateness, waiting cost and the shift-end terms depend on the clock, so
+    each state keeps every (time, score) label that no other label beats on
+    both. This is exact because the score still to come never rises when a
+    route starts later.
     """
 
     n = env.number_of_orders
@@ -49,7 +49,7 @@ def exact_best_shift(
 
         return (
             arrival + cfg.service_minutes,
-            score + commission - move - late - margin,
+            score + commission - move - late - margin - wait_cost(cfg, arrival),
         )
 
     def finish(mask: int, node: int, clock: float, score: float) -> float:

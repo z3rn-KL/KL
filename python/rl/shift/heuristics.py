@@ -3,7 +3,7 @@ from __future__ import annotations
 import random
 
 from .environment import ShiftEnvironment, score_sequence
-from .objective import order_terms
+from .objective import order_terms, wait_cost
 
 
 def nearest_plan(
@@ -39,7 +39,15 @@ def nearest_plan(
                 distance_km=env.distance_km[node][k + 1],
             )
 
-            if commission - move - late - margin + cfg.defer_penalty < 0.0:
+            gain = (
+                commission
+                - move
+                - late
+                - margin
+                - wait_cost(cfg, clock + travel)
+            )
+
+            if gain + cfg.defer_penalty < 0.0:
                 break
 
         plan.append(k)

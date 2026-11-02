@@ -13,12 +13,12 @@ sys.path.insert(
     str(PROJECT_ROOT / "python"),
 )
 
-from experiments.shift_common import RESULTS_DIR, load_sampler  # noqa: E402
+from experiments.shift_common import NAME, RESULTS_DIR, load_sampler  # noqa: E402
 from rl.shift.encoder import ShiftEncoder  # noqa: E402
 from rl.shift.environment import score_sequence  # noqa: E402
 from rl.shift.heuristics import local_search, nearest_plan  # noqa: E402
 
-DEMOS_PATH = RESULTS_DIR / "shift_demonstrations.npz"
+DEMOS_PATH = RESULTS_DIR / f"shift_demonstrations{NAME}.npz"
 
 SIZES = (8, 10, 12, 14, 16, 20, 24, 30)
 SHIFTS_PER_SIZE = 300

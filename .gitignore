@@ -18,3 +18,4 @@ results/proposed_rl_lookahead_D_best.pt
 results/shift_demonstrations.npz
 results/shift_rl_seed45_best.pt
 results/shift_rl_seed46_best.pt
+results/shift_demonstrations_wait.npz

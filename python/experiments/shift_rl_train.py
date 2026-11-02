@@ -15,6 +15,7 @@ sys.path.insert(
 )
 
 from experiments.shift_rl_common import (  # noqa: E402
+    NAME,
     REFERENCES_PATH,
     RESULTS_DIR,
     TRAIN_SIZES,
@@ -42,11 +43,11 @@ def name_part(tag: str) -> str:
 
 
 def checkpoint_path(seed: int, tag: str = "") -> Path:
-    return RESULTS_DIR / f"shift_rl{name_part(tag)}_seed{seed}_best.pt"
+    return RESULTS_DIR / f"shift_rl{NAME}{name_part(tag)}_seed{seed}_best.pt"
 
 
 def history_path(seed: int, tag: str = "") -> Path:
-    return RESULTS_DIR / f"shift_rl{name_part(tag)}_seed{seed}_history.csv"
+    return RESULTS_DIR / f"shift_rl{NAME}{name_part(tag)}_seed{seed}_history.csv"
 
 
 def validate(agent, encoder, instances, references) -> dict:

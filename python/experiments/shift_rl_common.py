@@ -1,9 +1,15 @@
 import hashlib
 import random
 
-from experiments.shift_common import RESULTS_DIR, load_sampler  # noqa: F401
+from experiments.shift_common import (  # noqa: F401
+    NAME,
+    OBJECTIVE,
+    RESULTS_DIR,
+    WAIT,
+    load_sampler,
+)
 
-REFERENCES_PATH = RESULTS_DIR / "shift_rl_references.csv"
+REFERENCES_PATH = RESULTS_DIR / f"shift_rl{NAME}_references.csv"
 
 # (shift size, number of shifts) per fixed evaluation set.
 FIXED_SETS = {
@@ -19,6 +25,13 @@ FIXED_SETS = {
     # seed, used to compare every variant once the first one was spent.
     "test2": {
         "seed": 303,
+        "split": "test",
+        "plan": [(10, 15), (14, 15), (20, 6), (30, 6), (50, 4)],
+    },
+    # A third set for the waiting-cost objective: the first two were already
+    # used to compare variants of the original objective.
+    "test3": {
+        "seed": 404,
         "split": "test",
         "plan": [(10, 15), (14, 15), (20, 6), (30, 6), (50, 4)],
     },

@@ -42,7 +42,8 @@ class ShiftObjectiveConfig:
         time and distance spent (wage and cost per km), overtime at
         overtime_multiplier times the wage, late orders (a share of the
         order value plus a per-minute charge), orders whose own margin
-        falls below required_margin, and every order deferred.
+        falls below required_margin, every order deferred, and the time each
+        customer waits for delivery (wait_cost_per_minute, off by default).
     """
 
     wage_per_minute: float = 40_000.0 / 60.0
@@ -62,6 +63,11 @@ class ShiftObjectiveConfig:
     margin_shortfall_weight: float = 2.0
     defer_penalty: float = 60_000.0
 
+    # Customer waiting cost per order and per minute between the start of the
+    # shift (when every order is released) and its delivery. 0 keeps the
+    # original score. An assumed scenario parameter, like every money value.
+    wait_cost_per_minute: float = 0.0
+
     def __post_init__(self) -> None:
         for name in (
             "wage_per_minute",
@@ -76,6 +82,7 @@ class ShiftObjectiveConfig:
             "late_penalty_per_minute",
             "margin_shortfall_weight",
             "defer_penalty",
+            "wait_cost_per_minute",
         ):
             if getattr(self, name) < 0.0:
                 raise ValueError(f"{name} must be >= 0.")
@@ -151,6 +158,19 @@ def order_terms(
         late_penalty,
         cfg.margin_shortfall_weight * margin_shortfall,
     )
+
+
+def wait_cost(
+    cfg: ShiftObjectiveConfig,
+    arrival: float,
+) -> float:
+    """
+    Waiting cost of one order delivered `arrival` minutes after the shift
+    starts. Serving close orders first lowers it, which is where it differs
+    from a pure distance objective.
+    """
+
+    return cfg.wait_cost_per_minute * arrival
 
 
 def terminal_terms(

@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 import sys
 
@@ -13,10 +14,22 @@ sys.path.insert(
 
 import experiments.daily_planning_experiment as daily  # noqa: E402
 from rl.shift.instances import ShiftSampler, split_days  # noqa: E402
+from rl.shift.objective import ShiftObjectiveConfig  # noqa: E402
 
 
 RESULTS_DIR = PROJECT_ROOT / "results"
 KMEANS_PATH = RESULTS_DIR / "xedu_kmeans_clusters.csv"
+
+# SHIFT_OBJECTIVE=wait adds the customer waiting cost (time from the start of
+# the shift to each delivery) to the shift score and writes every result
+# under a "_wait" name, next to the untouched original results. The cost is
+# an assumed scenario value, like every money coefficient.
+WAIT = os.environ.get("SHIFT_OBJECTIVE", "base") == "wait"
+WAIT_COST_PER_MINUTE = 50.0
+NAME = "_wait" if WAIT else ""
+OBJECTIVE = ShiftObjectiveConfig(
+    wait_cost_per_minute=WAIT_COST_PER_MINUTE if WAIT else 0.0
+)
 
 
 def load_sampler(**sampler_kwargs):
@@ -37,6 +50,8 @@ def load_sampler(**sampler_kwargs):
     pool = pool.merge(clusters, on="id", validate="one_to_one")
 
     matrix = np.load(daily.MATRIX_PATH)
+
+    sampler_kwargs.setdefault("config", OBJECTIVE)
 
     sampler = ShiftSampler(
         pool,

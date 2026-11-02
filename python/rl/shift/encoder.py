@@ -3,7 +3,7 @@ from __future__ import annotations
 import numpy as np
 
 from .environment import ShiftEnvironment
-from .objective import order_terms, terminal_terms
+from .objective import order_terms, terminal_terms, wait_cost
 
 
 FEATURE_NAMES = (
@@ -133,7 +133,13 @@ class ShiftEncoder:
                 distance_km=distance[i],
             )
 
-            reward = commission - move - late_penalty - margin
+            reward = (
+                commission
+                - move
+                - late_penalty
+                - margin
+                - wait_cost(cfg, arrival[i])
+            )
 
             immediate[i] = reward
             gain[i] = (reward + cfg.defer_penalty) / cfg.defer_penalty

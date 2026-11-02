@@ -13,7 +13,7 @@ sys.path.insert(
     str(PROJECT_ROOT / "python"),
 )
 
-from experiments.shift_common import RESULTS_DIR, load_sampler  # noqa: E402
+from experiments.shift_common import NAME, RESULTS_DIR, load_sampler  # noqa: E402
 from rl.shift.environment import score_sequence  # noqa: E402
 from rl.shift.exact_solver import exact_best_shift  # noqa: E402
 from rl.shift.heuristics import (  # noqa: E402
@@ -32,8 +32,8 @@ LARGE_RANDOM_STARTS = 4
 
 SEED = 42
 
-DETAILS_PATH = RESULTS_DIR / "shift_headroom_validation_details.csv"
-FINDINGS_PATH = RESULTS_DIR / "shift_headroom_validation_findings.txt"
+DETAILS_PATH = RESULTS_DIR / f"shift_headroom_validation{NAME}_details.csv"
+FINDINGS_PATH = RESULTS_DIR / f"shift_headroom_validation{NAME}_findings.txt"
 
 
 def gap_lines(frame: pd.DataFrame, methods: list[str], reference: str) -> list[str]:
