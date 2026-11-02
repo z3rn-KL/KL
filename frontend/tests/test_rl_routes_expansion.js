@@ -2,7 +2,7 @@ import { chromium } from 'playwright';
 import fs from 'fs';
 import path from 'path';
 
-const BASE_URL = (process.env.BASE_URL || 'http://localhost:5173').trim();
+const BASE_URL = (process.env.BASE_URL || 'http://127.0.0.1:5174').trim();
 const SCREENSHOT_DIR = path.resolve('C:/Users/nhtuo/.gemini/antigravity/brain/bb489227-1dab-4438-961a-614fb4492efc/screenshots');
 
 if (!fs.existsSync(SCREENSHOT_DIR)) {
@@ -76,8 +76,8 @@ async function runRlRoutesTest() {
     await page.waitForTimeout(400);
 
     // Click item with WL #{wid}
-    const item = page.locator(`[data-slot="select-item"]:has-text("WL #${wid} ")`).first();
-    await item.click();
+    const item = page.locator(`[data-slot="select-item"]:has-text("WL #${wid}")`).first();
+    await item.scrollIntoViewIfNeeded(); await item.click();
     await page.waitForTimeout(800);
   }
 

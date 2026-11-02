@@ -16,10 +16,11 @@ import {
   Maximize2,
   Minimize2,
   Radio,
-  Minimize,
   Truck,
   Sparkles,
   Database,
+  ChevronDown,
+  Layers,
 } from "lucide-react";
 import { useTheme } from "@/lib/theme";
 import { api, Health } from "@/lib/api";
@@ -35,60 +36,43 @@ export interface AtlasWorkspaceItem {
   icon: React.ElementType;
 }
 
-export interface AtlasNavGroup {
-  id: "overview" | "data" | "routing" | "research";
+export const CORE_PILLARS: AtlasWorkspaceItem[] = [
+  {
+    id: "dispatch",
+    to: "/dieu-phoi",
+    title: "Điều phối",
+    shortTitle: "Điều phối",
+    category: "engine",
+    icon: Truck,
+  },
+  {
+    id: "orders",
+    to: "/don-hang",
+    title: "Đơn hàng",
+    shortTitle: "Đơn hàng",
+    category: "spatial",
+    icon: Package,
+  },
+  {
+    id: "research",
+    to: "/nghien-cuu",
+    title: "Phân tích",
+    shortTitle: "Phân tích",
+    category: "rl",
+    icon: BarChart3,
+  },
+];
+
+export interface SpecializedGroup {
+  id: string;
   label: string;
   items: AtlasWorkspaceItem[];
 }
 
-export const ATLAS_NAV_GROUPS: AtlasNavGroup[] = [
+export const SPECIALIZED_MODULE_GROUPS: SpecializedGroup[] = [
   {
-    id: "overview",
-    label: "Tổng quan",
-    items: [
-      {
-        id: "overview",
-        to: "/tong-quan",
-        title: "Tổng quan",
-        shortTitle: "Tổng quan",
-        category: "spatial",
-        icon: LayoutDashboard,
-      },
-      {
-        id: "real-data",
-        to: "/du-lieu-that",
-        title: "Dữ liệu thật",
-        shortTitle: "Dữ liệu thật",
-        category: "spatial",
-        icon: Database,
-      },
-    ],
-  },
-  {
-    id: "data",
-    label: "Dữ liệu",
-    items: [
-      {
-        id: "orders",
-        to: "/don-hang",
-        title: "Đơn hàng",
-        shortTitle: "Đơn hàng",
-        category: "spatial",
-        icon: Package,
-      },
-      {
-        id: "clusters",
-        to: "/phan-cum",
-        title: "Phân cụm",
-        shortTitle: "Phân cụm",
-        category: "spatial",
-        icon: Network,
-      },
-    ],
-  },
-  {
-    id: "routing",
-    label: "Định tuyến",
+    id: "gis-ops",
+    label: "Vận hành GIS & Mô phỏng",
     items: [
       {
         id: "routes",
@@ -101,7 +85,7 @@ export const ATLAS_NAV_GROUPS: AtlasNavGroup[] = [
       {
         id: "run-lab",
         to: "/chay-thu",
-        title: "Chạy thử",
+        title: "Chạy thử (Run Lab)",
         shortTitle: "Chạy thử",
         category: "engine",
         icon: PlayCircle,
@@ -109,17 +93,57 @@ export const ATLAS_NAV_GROUPS: AtlasNavGroup[] = [
       {
         id: "daily-planning",
         to: "/ke-hoach-ngay",
-        title: "Kế hoạch ngày",
-        shortTitle: "Kế hoạch ngày",
+        title: "Kế hoạch ca",
+        shortTitle: "Kế hoạch ca",
         category: "engine",
         icon: Truck,
+      },
+      {
+        id: "real-data",
+        to: "/du-lieu-that",
+        title: "Dữ liệu thật",
+        shortTitle: "Dữ liệu thật",
+        category: "spatial",
+        icon: Database,
+      },
+      {
+        id: "overview",
+        to: "/tong-quan",
+        title: "Tổng quan GIS",
+        shortTitle: "Tổng quan",
+        category: "spatial",
+        icon: LayoutDashboard,
       },
     ],
   },
   {
-    id: "research",
-    label: "Nghiên cứu",
+    id: "algorithms-rl",
+    label: "Thuật toán & Kiểm chứng",
     items: [
+      {
+        id: "clusters",
+        to: "/phan-cum",
+        title: "Phân cụm K-Means",
+        shortTitle: "Phân cụm",
+        category: "spatial",
+        icon: Network,
+      },
+      {
+        id: "proposed-rl",
+        to: "/proposed-rl",
+        title: "Proposed RL",
+        shortTitle: "Proposed RL",
+        category: "rl",
+        icon: Sparkles,
+      },
+      {
+        id: "compare",
+        to: "/so-sanh",
+        title: "So sánh Cohort",
+        shortTitle: "So sánh",
+        category: "rl",
+        icon: BarChart3,
+      },
       {
         id: "guided-dqn",
         to: "/guided-dqn",
@@ -127,14 +151,6 @@ export const ATLAS_NAV_GROUPS: AtlasNavGroup[] = [
         shortTitle: "Guided DQN",
         category: "rl",
         icon: BrainCircuit,
-      },
-      {
-        id: "compare",
-        to: "/so-sanh",
-        title: "So sánh",
-        shortTitle: "So sánh",
-        category: "rl",
-        icon: BarChart3,
       },
       {
         id: "sensitivity",
@@ -152,32 +168,42 @@ export const ATLAS_NAV_GROUPS: AtlasNavGroup[] = [
         category: "validation",
         icon: ShieldCheck,
       },
-      {
-        id: "proposed-rl",
-        to: "/proposed-rl",
-        title: "Proposed RL",
-        shortTitle: "Proposed RL",
-        category: "rl",
-        icon: Sparkles,
-      },
     ],
   },
 ];
 
-export const ATLAS_WORKSPACES: AtlasWorkspaceItem[] = ATLAS_NAV_GROUPS.flatMap((g) => g.items);
+export const ATLAS_WORKSPACES: AtlasWorkspaceItem[] = [
+  ...CORE_PILLARS,
+  ...SPECIALIZED_MODULE_GROUPS.flatMap((g) => g.items),
+];
 
 export function AtlasShell({ children }: { children: React.ReactNode }) {
   const [isCmdOpen, setIsCmdOpen] = useState(false);
   const [isPresentation, setIsPresentation] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const health = useAsync((s) => api.health(s), []);
   const [theme, toggleTheme] = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
-  const navScrollRef = useRef<HTMLDivElement>(null);
 
   const activeWorkspace = ATLAS_WORKSPACES.find((item) =>
     location.pathname.startsWith(item.to)
   ) || ATLAS_WORKSPACES[0];
+
+  const activeSpecializedItem = SPECIALIZED_MODULE_GROUPS.flatMap((g) => g.items).find(
+    (item) => location.pathname.startsWith(item.to)
+  );
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -203,10 +229,16 @@ export function AtlasShell({ children }: { children: React.ReactNode }) {
         return;
       }
 
-      if (e.key === "Escape" && isPresentation) {
-        e.preventDefault();
-        setIsPresentation(false);
-        return;
+      if (e.key === "Escape") {
+        if (isDropdownOpen) {
+          setIsDropdownOpen(false);
+          return;
+        }
+        if (isPresentation) {
+          e.preventDefault();
+          setIsPresentation(false);
+          return;
+        }
       }
 
       if (isPresentation) {
@@ -225,7 +257,7 @@ export function AtlasShell({ children }: { children: React.ReactNode }) {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isPresentation, location.pathname, navigate]);
+  }, [isPresentation, isDropdownOpen, location.pathname, navigate]);
 
   const isHealthy = !health.loading && !health.error && health.data?.core_artifacts_ready;
   const isConnecting = health.loading;
@@ -242,57 +274,109 @@ export function AtlasShell({ children }: { children: React.ReactNode }) {
             <div className="flex items-center gap-2.5 shrink-0">
               <button
                 type="button"
-                onClick={() => navigate("/tong-quan")}
+                onClick={() => navigate("/dieu-phoi")}
                 className="group flex items-center gap-2 text-left cursor-pointer"
-                aria-label="Về trang tổng quan"
+                aria-label="Về trang điều phối"
               >
                 <div className="flex size-7 items-center justify-center rounded-md bg-primary text-primary-foreground shadow-xs">
                   <Radio className="size-3.5 text-primary-foreground" />
                 </div>
-                <span className="font-mono text-xs font-bold tracking-wider uppercase text-foreground">
-                  NEXUS ROUTE
-                </span>
+                <div className="hidden sm:flex flex-col">
+                  <span className="font-mono text-xs font-bold tracking-wider uppercase text-foreground leading-none">
+                    NEXUS DELIVERY
+                  </span>
+                  <span className="text-[9px] font-mono font-semibold tracking-widest uppercase text-muted-foreground leading-none mt-0.5">
+                    INTELLIGENCE
+                  </span>
+                </div>
               </button>
             </div>
 
-            {/* Center: Clean 4-Category Segmented Navigation */}
+            {/* Center: 3 Primary Pillars + Specialized Modules Dropdown */}
             <nav
-              aria-label="Điều hướng 4 nhóm phân hệ làm việc"
-              className="flex-1 overflow-x-auto no-scrollbar mx-2 py-1"
-              ref={navScrollRef}
+              aria-label="Điều hướng chính"
+              className="flex items-center gap-2"
             >
-              <div className="flex items-center gap-1.5 min-w-max">
-                {ATLAS_NAV_GROUPS.map((group, gIdx) => (
-                  <React.Fragment key={group.id}>
-                    {gIdx > 0 && (
-                      <div className="h-4 w-px bg-border/60 shrink-0 mx-0.5" aria-hidden="true" />
-                    )}
-                    <div className="flex items-center gap-1 bg-muted/30 px-1 py-0.5 rounded-lg border border-border/40">
-                      <span className="hidden 2xl:inline text-[9px] font-bold text-muted-foreground/75 uppercase tracking-wider px-1 select-none">
-                        {group.label}
-                      </span>
-                      {group.items.map((item) => {
-                        const Icon = item.icon;
-                        const isActive = location.pathname.startsWith(item.to);
+              <div className="flex items-center gap-1 bg-muted/40 p-0.5 rounded-lg border border-border/50">
+                {CORE_PILLARS.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = location.pathname.startsWith(item.to);
 
-                        return (
-                          <NavLink
-                            key={item.id}
-                            to={item.to}
-                            className={`atlas-nav-item flex h-7 items-center gap-1.5 rounded-md px-2 text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${
-                              isActive
-                                ? "active bg-primary text-primary-foreground font-semibold shadow-xs"
-                                : "text-muted-foreground hover:bg-muted/80 hover:text-foreground"
-                            }`}
-                          >
-                            <Icon className="size-3.5 shrink-0" />
-                            <span>{item.title}</span>
-                          </NavLink>
-                        );
-                      })}
+                  return (
+                    <NavLink
+                      key={item.id}
+                      to={item.to}
+                      className={`atlas-nav-item flex h-8 items-center gap-1.5 rounded-md px-2.5 sm:px-3 text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                        isActive
+                          ? "active bg-primary text-primary-foreground shadow-xs"
+                          : "text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+                      }`}
+                    >
+                      <Icon className="size-3.5 shrink-0" />
+                      <span className="hidden sm:inline">{item.title}</span>
+                    </NavLink>
+                  );
+                })}
+              </div>
+
+              {/* Specialized Modules Dropdown */}
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  type="button"
+                  onClick={() => setIsDropdownOpen((prev) => !prev)}
+                  className={`flex h-8 items-center gap-1.5 rounded-md border px-2.5 text-xs font-medium transition-colors cursor-pointer ${
+                    activeSpecializedItem
+                      ? "border-primary/50 bg-primary/10 text-primary font-semibold"
+                      : "border-border/70 bg-muted/30 text-muted-foreground hover:bg-muted hover:text-foreground"
+                  }`}
+                  aria-expanded={isDropdownOpen}
+                  aria-haspopup="true"
+                  title="Khám phá 11 chuyên trang GIS & Nghiên cứu nâng cao"
+                >
+                  <Layers className="size-3.5 shrink-0" />
+                  <span className="hidden lg:inline">
+                    {activeSpecializedItem ? `Chuyên mục: ${activeSpecializedItem.title}` : "Phân hệ chuyên sâu"}
+                  </span>
+                  <ChevronDown className={`size-3 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`} />
+                </button>
+
+                {isDropdownOpen && (
+                  <div className="absolute left-0 mt-1.5 w-80 md:w-96 rounded-xl border border-border/80 bg-card/98 p-3 shadow-xl backdrop-blur-lg z-50 animate-in fade-in zoom-in-95">
+                    <div className="space-y-3">
+                      {SPECIALIZED_MODULE_GROUPS.map((group) => (
+                        <div key={group.id} className="space-y-1">
+                          <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider px-2">
+                            {group.label}
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
+                            {group.items.map((item) => {
+                              const Icon = item.icon;
+                              const isActive = location.pathname.startsWith(item.to);
+                              return (
+                                <button
+                                  key={item.id}
+                                  type="button"
+                                  onClick={() => {
+                                    navigate(item.to);
+                                    setIsDropdownOpen(false);
+                                  }}
+                                  className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs text-left transition-colors cursor-pointer ${
+                                    isActive
+                                      ? "bg-primary text-primary-foreground font-semibold"
+                                      : "text-foreground hover:bg-muted"
+                                  }`}
+                                >
+                                  <Icon className="size-3.5 shrink-0 opacity-70" />
+                                  <span className="truncate">{item.title}</span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  </React.Fragment>
-                ))}
+                  </div>
+                )}
               </div>
             </nav>
 
@@ -307,14 +391,14 @@ export function AtlasShell({ children }: { children: React.ReactNode }) {
               >
                 <Search className="size-3.5" />
                 <span className="hidden xl:inline font-medium">Đi đến trang hoặc lệnh…</span>
-                <kbd className="hidden sm:inline-flex items-center rounded border border-border bg-muted/60 px-1.5 py-0.2 font-mono text-[10px] font-semibold text-muted-foreground">
+                <kbd className="hidden lg:inline-flex items-center rounded border border-border bg-muted/60 px-1.5 py-0.2 font-mono text-[10px] font-semibold text-muted-foreground">
                   Ctrl K
                 </kbd>
               </button>
 
               {/* Status Pill (Quiet, Static Dot, No blinking) */}
               <div
-                className="hidden sm:flex h-8 items-center gap-1.5 rounded-md border border-border/80 bg-background/60 px-2 text-xs font-medium text-muted-foreground"
+                className="hidden lg:flex h-8 items-center gap-1.5 rounded-md border border-border/80 bg-background/60 px-2 text-xs font-medium text-muted-foreground"
                 title={
                   isConnecting
                     ? "Đang thăm dò trạng thái FastAPI Backend..."
@@ -386,7 +470,7 @@ export function AtlasShell({ children }: { children: React.ReactNode }) {
       )}
 
       {/* Main Workspace Content */}
-      <main className="flex-1 min-w-0 w-full">
+      <main className="flex-1 min-w-0 w-full overflow-x-clip">
         {children}
       </main>
 

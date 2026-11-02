@@ -139,17 +139,18 @@ export default function Clusters() {
   }, [clusterParam]);
 
   const cq = useAsync((s) => api.clusteringQuality(s), []);
+  const selectedK = cq.data?.selected?.kmeans_k ?? 10;
   const savedSilhouette = useMemo(() => {
     if (!cq.data?.kmeans) return null;
-    const k10 = cq.data.kmeans.find((r) => r.k === 10);
-    return k10?.silhouette_score ?? null;
-  }, [cq.data]);
+    const match = cq.data.kmeans.find((r) => r.k === selectedK);
+    return match?.silhouette_score ?? null;
+  }, [cq.data, selectedK]);
 
   const savedInertia = useMemo(() => {
     if (!cq.data?.kmeans) return null;
-    const k10 = cq.data.kmeans.find((r) => r.k === 10);
-    return k10?.inertia ?? null;
-  }, [cq.data]);
+    const match = cq.data.kmeans.find((r) => r.k === selectedK);
+    return match?.inertia ?? null;
+  }, [cq.data, selectedK]);
 
   const basePoints: DeliveryPoint[] = useMemo(
     () =>
@@ -298,8 +299,25 @@ export default function Clusters() {
       {/* 1. Compact Header */}
       <PageHeader
         title="Phân cụm không gian"
-        subtitle="Mô hình K-Means K=10 (Silhouette ≈ 0,429) trên 2.394 đơn hàng XeDu TP.HCM • Đánh giá điểm xa tâm Haversine & kiểm tra mạng đường bộ"
+        subtitle="Mô hình K-Means phân cụm không gian trên tập dữ liệu XeDu TP.HCM • Đánh giá điểm xa tâm Haversine & kiểm tra mạng đường bộ"
       />
+
+      {/* Dataset & Metadata Provenance Strip */}
+      <div className="flex flex-wrap items-center gap-2 text-xs">
+        <span className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 border border-primary/20 px-2.5 py-1 font-medium text-foreground">
+          <Layers className="size-3.5 text-primary" />
+          <span>Tập dữ liệu nghiên cứu XeDu: <strong>{points.length || 2394} đơn hàng</strong></span>
+        </span>
+        <span className="inline-flex items-center gap-1.5 rounded-lg bg-muted border border-border/60 px-2.5 py-1 text-muted-foreground font-mono">
+          <span>Phân cụm chuẩn: <strong>K = {selectedK} Cụm</strong></span>
+        </span>
+        <span className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 text-emerald-700 dark:text-emerald-400 font-mono">
+          <span>Silhouette Score: <strong>{savedSilhouette ? savedSilhouette.toFixed(6) : "0.428523"}</strong></span>
+        </span>
+        <span className="inline-flex items-center gap-1.5 rounded-lg bg-muted border border-border/60 px-2.5 py-1 text-muted-foreground font-mono">
+          <span>Inertia: <strong>{savedInertia ? savedInertia.toFixed(2) : "3.16"}</strong></span>
+        </span>
+      </div>
 
       {/* 2. Map-First Workspace: Compact Integrated Control Bar directly above Map */}
       <Card className="border-border/80 shadow-xs">

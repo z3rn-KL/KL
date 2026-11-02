@@ -44,6 +44,7 @@ import {
   type CostEstimate,
   type DeliveryRecord,
   type OptimizeResponse,
+  type RouteEvaluation,
   type PrecomputedIndex,
   type PrecomputedRoute,
 } from "@/lib/api";
@@ -241,20 +242,50 @@ export default function RoutesPage() {
         return { ...res, geometryNote: null };
       }
 
-      if (alg === "dqn" && BASELINE_DELIVERY_ORDERS[wid]) {
-        const order = BASELINE_DELIVERY_ORDERS[wid];
-        const res = await api.precomputedRoute("kmeans_guided_dqn", wid, true, s);
-        return {
-          source: "thesis_baseline_dqn",
-          algorithm: "dqn",
-          workload_id: wid,
-          delivery_order: order,
-          reference_metrics: res.reference_metrics ?? {},
-          estimated_operating_cost_from_reference: res.estimated_operating_cost_from_reference,
-          evaluation: res.evaluation,
-          cost_note: "Thứ tự ghé thăm đối chuẩn Vanilla DQN",
-          geometryNote: null,
-        };
+      if (alg === "dqn") {
+        if (wid === 1) {
+          const res = await api.precomputedRoute("dqn", 1, true, s);
+          return {
+            ...res,
+            geometryNote: "Tuyến đơn Workload #1 gốc (lưu trực tiếp trong kết quả luận văn)",
+          };
+        }
+        if (BASELINE_DELIVERY_ORDERS[wid] && workload?.delivery_ids?.length) {
+          const order = BASELINE_DELIVERY_ORDERS[wid];
+          const evalRes = await api.evaluateRoute(
+            {
+              delivery_ids: workload.delivery_ids,
+              delivery_order: order,
+              algorithm_label: "vanilla_dqn_baseline",
+            },
+            s
+          );
+          return {
+            source: "evaluated_thesis_baseline_sequence",
+            algorithm: "dqn",
+            workload_id: wid,
+            delivery_order: order,
+            provenance: "Thứ tự ghé thăm Vanilla DQN đối chuẩn (đánh giá độc lập trên mạng đường OSM thật)",
+            data_status: "evaluated_sequence",
+            reference_metrics: {
+              total_distance_km: evalRes.evaluation.total_distance_km,
+              total_travel_time_minutes: evalRes.evaluation.total_travel_time_minutes,
+              on_time_rate: evalRes.evaluation.on_time_rate,
+              on_time_deliveries: evalRes.evaluation.on_time_deliveries,
+              late_deliveries: evalRes.evaluation.late_deliveries,
+              total_lateness_minutes: evalRes.evaluation.total_lateness_minutes,
+              max_lateness_minutes: evalRes.evaluation.max_lateness_minutes,
+              route_runtime_seconds: null,
+              training_runtime_seconds: null,
+              source: "Đánh giá thứ tự ghé thăm đối chuẩn Vanilla DQN qua /api/evaluation/route",
+            },
+            estimated_operating_cost_from_reference: null,
+            evaluation: evalRes.evaluation,
+            cost_note: evalRes.cost_note ?? "Đánh giá trực tiếp chuỗi thứ tự ghé thăm Vanilla DQN trên mạng đường",
+            geometryNote: "Hình học và chỉ số được tính toán chính xác cho chuỗi thứ tự ghé thăm Vanilla DQN (độc lập, không mượn Guided DQN)",
+          };
+        }
+        return null;
       }
 
       if (alg === "q_learning" || alg === "sarsa") {
@@ -275,20 +306,33 @@ export default function RoutesPage() {
     [alg, wid, workload?.delivery_ids?.join(","), index]
   );
 
-  const vanillaCompare = useAsync<OptimizeResponse | null>(
+  const vanillaCompare = useAsync<{
+    source: string;
+    algorithm: string;
+    evaluation: RouteEvaluation;
+    cost_note: string;
+  } | null>(
     async (s) => {
       if (!showCompareVanilla || alg !== "kmeans_guided_dqn" || !BASELINE_DELIVERY_ORDERS[wid]) {
         return null;
       }
-      return api.optimize(
+      if (!workload || !workload.delivery_ids?.length) return null;
+      const evalRes = await api.evaluateRoute(
         {
-          algorithm: "nearest_neighbor",
-          delivery_ids: BASELINE_DELIVERY_ORDERS[wid],
+          delivery_ids: workload.delivery_ids,
+          delivery_order: BASELINE_DELIVERY_ORDERS[wid],
+          algorithm_label: "vanilla_dqn_overlay",
         },
         s
       );
+      return {
+        source: "evaluated_baseline_sequence",
+        algorithm: "vanilla_dqn_baseline",
+        evaluation: evalRes.evaluation,
+        cost_note: "Chuỗi thứ tự ghé thăm Vanilla DQN đối chuẩn (đánh giá đường đi thật)",
+      };
     },
-    [showCompareVanilla, alg, wid]
+    [showCompareVanilla, alg, wid, workload]
   );
 
   const stops = useAsync<DeliveryRecord[]>(async (s) => {
@@ -507,6 +551,14 @@ export default function RoutesPage() {
                             <Separator orientation="vertical" className="h-3.5" />
                             <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-muted-foreground font-mono">
                               Tuyến gốc lưu sẵn
+                            </Badge>
+                          </>
+                        )}
+                        {rec?.source === "evaluated_thesis_baseline_sequence" && (
+                          <>
+                            <Separator orientation="vertical" className="h-3.5" />
+                            <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-sky-600 dark:text-sky-400 font-mono">
+                              Thứ tự DQN đánh giá OSM độc lập
                             </Badge>
                           </>
                         )}

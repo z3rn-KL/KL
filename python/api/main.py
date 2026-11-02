@@ -50,6 +50,10 @@ from api.routers.routing import (
     router as routing_router,
 )
 
+from api.routers.dispatch import (
+    router as dispatch_router,
+)
+
 
 def _warm_up_road_network() -> None:
     """Load the 166 MB road graph + depot once, off the request path."""
@@ -122,6 +126,10 @@ app.include_router(
 
 app.include_router(
     diagnostics_router
+)
+
+app.include_router(
+    dispatch_router
 )
 
 

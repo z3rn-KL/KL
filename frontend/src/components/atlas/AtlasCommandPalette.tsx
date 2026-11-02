@@ -46,7 +46,7 @@ export interface CommandItem {
   id: string;
   title: string;
   subtitle?: string;
-  section: "Phân hệ làm việc" | "Tùy biến môi trường" | "Hành động dữ liệu";
+  section: "Điều hướng" | "Nghiên cứu" | "Tiện ích";
   icon: React.ElementType;
   badge?: string;
   keywords?: string[];
@@ -165,7 +165,9 @@ export function AtlasCommandPalette({
         id: `nav-${n.to.replace("/", "")}`,
         title: n.label,
         subtitle: meta.desc,
-        section: "Phân hệ làm việc" as const,
+        section: (([
+        "/guided-dqn", "/so-sanh", "/do-nhay", "/on-dinh", "/chay-thu", "/proposed-rl", "/du-lieu-that", "/nghien-cuu"
+      ].includes(n.to) ? "Nghiên cứu" : "Điều hướng") as "Nghiên cứu" | "Điều hướng"),
         icon: n.icon || Compass,
         badge: meta.badge,
         keywords: [n.label.toLowerCase(), n.to, meta.desc.toLowerCase()],
@@ -181,7 +183,7 @@ export function AtlasCommandPalette({
       id: "theme-toggle",
       title: isDarkTheme ? "Chuyển sang giao diện Sáng (Mineral Light)" : "Chuyển sang giao diện Tối (Deep Jade Dark)",
       subtitle: "Thay đổi giao diện màu khoáng ấm hoặc lục thạch tối",
-      section: "Tùy biến môi trường" as const,
+      section: "Tiện ích" as const,
       icon: isDarkTheme ? Sun : Moon,
       badge: isDarkTheme ? "Light Mode" : "Dark Mode",
       keywords: ["theme", "giao diện", "sáng", "tối", "dark", "light"],
@@ -194,7 +196,7 @@ export function AtlasCommandPalette({
       id: "presentation-toggle",
       title: isPresentationMode ? "Thoát chế độ trình chiếu (Phím F / Esc)" : "Bật chế độ trình chiếu toàn màn hình (Phím F)",
       subtitle: "Ẩn các thanh công cụ, mở rộng bản đồ để báo cáo",
-      section: "Tùy biến môi trường" as const,
+      section: "Tiện ích" as const,
       icon: isPresentationMode ? Minimize2 : Maximize2,
       badge: "Phím F",
       keywords: ["presentation", "trình chiếu", "toàn màn hình", "fullscreen", "báo cáo"],
@@ -209,7 +211,7 @@ export function AtlasCommandPalette({
       id: "export-data",
       title: "Xuất tóm tắt nghiên cứu (JSON)",
       subtitle: "Tải file dữ liệu 4 cohort và các chỉ số tối ưu hóa",
-      section: "Hành động dữ liệu" as const,
+      section: "Tiện ích" as const,
       icon: Download,
       badge: "JSON",
       keywords: ["export", "xuất", "download", "tải", "json", "dữ liệu"],
@@ -302,7 +304,7 @@ export function AtlasCommandPalette({
 
         {/* Global Scope Clarification Hint */}
         <div className="px-4 py-1.5 bg-muted/20 border-b border-border/50 flex items-center justify-between text-[10.5px] text-muted-foreground select-none">
-          <span className="font-medium">4 nhóm phân hệ: Tổng quan • Dữ liệu • Định tuyến • Nghiên cứu</span>
+          <span className="font-medium">3 nhóm tác vụ: Điều hướng • Nghiên cứu khoa học • Tiện ích</span>
           <span className="hidden sm:inline opacity-70">Tra cứu đơn hàng tại phân hệ Đơn hàng</span>
         </div>
 

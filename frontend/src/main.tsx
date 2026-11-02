@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/sonner";
 import App from "./App";
 import "./app.css";
 import "./styles.css";
+import "./styles/nexus-redesign.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

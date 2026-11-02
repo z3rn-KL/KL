@@ -16,13 +16,31 @@ const Stability = lazy(() => import("./pages/Stability"));
 const DailyPlanning = lazy(() => import("./pages/DailyPlanning"));
 const ProposedRL = lazy(() => import("./pages/ProposedRL"));
 const RealData = lazy(() => import("./pages/RealData"));
+const DispatchDashboard = lazy(() => import("./pages/DispatchDashboard"));
+const ResearchAnalytics = lazy(() => import("./pages/ResearchAnalytics"));
 
 export default function App() {
   return (
     <AtlasShell>
       <Suspense fallback={<LoadingCard message="Đang tải trang…" />}>
         <Routes>
-          <Route path="/" element={<Navigate to="/tong-quan" replace />} />
+          <Route path="/" element={<Navigate to="/dieu-phoi" replace />} />
+          <Route
+            path="/dieu-phoi"
+            element={
+              <PageErrorBoundary>
+                <DispatchDashboard />
+              </PageErrorBoundary>
+            }
+          />
+          <Route
+            path="/nghien-cuu"
+            element={
+              <PageErrorBoundary>
+                <ResearchAnalytics />
+              </PageErrorBoundary>
+            }
+          />
           <Route
             path="/tong-quan"
             element={
@@ -122,6 +140,9 @@ export default function App() {
           />
 
           {/* English URL aliases */}
+          <Route path="/dispatch" element={<Navigate to="/dieu-phoi" replace />} />
+          <Route path="/research" element={<Navigate to="/nghien-cuu" replace />} />
+          <Route path="/research-analytics" element={<Navigate to="/nghien-cuu" replace />} />
           <Route path="/overview" element={<Navigate to="/tong-quan" replace />} />
           <Route path="/orders" element={<Navigate to="/don-hang" replace />} />
           <Route path="/clusters" element={<Navigate to="/phan-cum" replace />} />
