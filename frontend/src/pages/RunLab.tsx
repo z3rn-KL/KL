@@ -332,7 +332,7 @@ export default function RunLab() {
               </span>
             </div>
           </div>
-          <Badge variant="outline" className="font-mono text-[10px] text-primary border-primary/30 shrink-0">
+          <Badge variant="outline" className="font-mono text-xs text-primary border-primary/30 shrink-0">
             Handoff Active
           </Badge>
         </Alert>
@@ -347,7 +347,7 @@ export default function RunLab() {
                 <CardTitle className="text-sm font-semibold">
                   Thiết lập tham số bài toán định tuyến
                 </CardTitle>
-                <Badge variant="outline" className="text-[10px] font-mono">
+                <Badge variant="outline" className="text-xs font-mono">
                   Live Solvers
                 </Badge>
               </div>
@@ -372,7 +372,7 @@ export default function RunLab() {
           {/* Nhóm A & B: Nguồn đầu vào và Tham số thử nghiệm */}
           <div className="space-y-3">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                 1. Nguồn dữ liệu đầu vào:
               </span>
               <Tabs value={source} onValueChange={(v) => setSource(v as Source)}>
@@ -398,7 +398,7 @@ export default function RunLab() {
                   <div className="space-y-1">
                     <label className="text-xs font-semibold text-foreground flex items-center justify-between">
                       <span>Cụm không gian K-Means</span>
-                      <span className="text-[11px] font-mono text-muted-foreground">10 Cụm TP.HCM</span>
+                      <span className="text-xs font-mono text-muted-foreground">10 Cụm TP.HCM</span>
                     </label>
                     <Select value={String(cluster)} onValueChange={(v) => setCluster(Number(v))}>
                       <SelectTrigger className="h-8 text-xs bg-background">
@@ -443,7 +443,7 @@ export default function RunLab() {
                   <div className="space-y-1">
                     <label className="text-xs font-semibold text-foreground flex items-center justify-between">
                       <span>Random Seed</span>
-                      <span className="text-[11px] text-muted-foreground">Tái lập kết quả</span>
+                      <span className="text-xs text-muted-foreground">Tái lập kết quả</span>
                     </label>
                     <div className="flex gap-1.5">
                       <Input
@@ -470,7 +470,7 @@ export default function RunLab() {
                   <div className="space-y-1">
                     <label className="text-xs font-semibold text-foreground flex items-center justify-between">
                       <span>Đợt giao chuẩn hóa (Workload)</span>
-                      <span className="text-[11px] text-muted-foreground font-mono">108 Workload</span>
+                      <span className="text-xs text-muted-foreground font-mono">108 Workload</span>
                     </label>
                     <Select value={String(wid)} onValueChange={(v) => setWid(Number(v))}>
                       <SelectTrigger className="h-8 text-xs bg-background">
@@ -489,11 +489,11 @@ export default function RunLab() {
                   <div className="rounded-md border border-border/60 bg-muted/30 p-2.5 text-xs space-y-0.5">
                     <div className="font-semibold text-foreground flex items-center justify-between">
                       <span>Thông tin đợt giao #{wid}:</span>
-                      <Badge variant="outline" className="font-mono text-[10px]">
+                      <Badge variant="outline" className="font-mono text-xs">
                         {workload?.number_of_deliveries ?? 0} điểm giao
                       </Badge>
                     </div>
-                    <p className="text-[11px] text-muted-foreground leading-normal">
+                    <p className="text-xs text-muted-foreground leading-normal">
                       Dữ liệu đợt giao thực tế từ tập XeDu nội thành TP.HCM kèm tọa độ GPS và SLA cam kết.
                     </p>
                   </div>
@@ -529,7 +529,7 @@ export default function RunLab() {
                   {/* Search results dropdown suggestions */}
                   {found.data?.items && found.data.items.length > 0 && (
                     <div className="rounded-md border border-border bg-popover p-2 text-xs shadow-md space-y-1 max-h-48 overflow-y-auto">
-                      <div className="text-[10px] font-bold uppercase text-muted-foreground px-2 py-0.5">
+                      <div className="text-xs font-bold uppercase text-muted-foreground px-2 py-0.5">
                         Gợi ý đơn hàng ({found.data.items.length})
                       </div>
                       {found.data.items.map((d: DeliveryRecord) => {
@@ -548,7 +548,7 @@ export default function RunLab() {
                               size="sm"
                               disabled={isAdded || manual.length >= MAX}
                               onClick={() => setManual((prev) => [...prev, d.id])}
-                              className="h-6 text-[10px] px-2 gap-1 cursor-pointer"
+                              className="h-6 text-xs px-2 gap-1 cursor-pointer"
                             >
                               <Plus className="size-2.5" />
                               <span>{isAdded ? "Đã thêm" : "Thêm vào"}</span>
@@ -561,7 +561,7 @@ export default function RunLab() {
 
                   {/* Added manual chips */}
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="text-[11px] font-semibold text-muted-foreground mr-1">
+                    <span className="text-xs font-semibold text-muted-foreground mr-1">
                       Đơn đã chọn ({manual.length}/{MAX}):
                     </span>
                     {manual.length === 0 ? (
@@ -596,7 +596,7 @@ export default function RunLab() {
 
           {/* Nhóm C: Ràng buộc hành trình & Tiêu chí */}
           <div className="space-y-3">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
               2. Tiêu chí tối ưu & Ràng buộc hành trình:
             </span>
 
@@ -605,7 +605,7 @@ export default function RunLab() {
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-foreground flex items-center justify-between h-5">
                   <span>Hàm mục tiêu Heuristic</span>
-                  <span className="text-[11px] text-muted-foreground">Trọng số giải thuật</span>
+                  <span className="text-xs text-muted-foreground">Trọng số giải thuật</span>
                 </label>
                 <Select value={metric} onValueChange={(v) => setMetric(v as any)}>
                   <SelectTrigger className="h-9 text-xs bg-background">
@@ -628,7 +628,7 @@ export default function RunLab() {
                   <label htmlFor="return-depot" className="text-xs font-semibold text-foreground cursor-pointer select-none">
                     Quay về kho Depot (Quận 1)
                   </label>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     Tài xế kết thúc ca giao hàng và quay về điểm tập kết trung tâm.
                   </p>
                 </div>
@@ -643,7 +643,7 @@ export default function RunLab() {
             <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
             <span>Sẵn sàng giải song song trên <b>{ids.length}</b> đơn hàng</span>
           </div>
-          <span className="font-mono text-[11px]">Đồ thị OSM TP.HCM • Ma trận Dijkstra</span>
+          <span className="font-mono text-xs">Đồ thị OSM TP.HCM • Ma trận Dijkstra</span>
         </CardFooter>
       </Card>
 
@@ -692,7 +692,7 @@ export default function RunLab() {
                           />
                           <span>{ALGO_LABEL[algKey]}</span>
                           {algKey === "clarke_wright" && kmPct !== null && kmPct < 0 && (
-                            <Badge variant="outline" className="text-[10px] text-emerald-600 dark:text-emerald-400 border-emerald-500/40">
+                            <Badge variant="outline" className="text-xs text-emerald-600 dark:text-emerald-400 border-emerald-500/40">
                               Tiết kiệm {num(Math.abs(kmPct), 1)}%
                             </Badge>
                           )}
@@ -710,7 +710,7 @@ export default function RunLab() {
                       <TableCell className="text-right font-mono font-semibold">
                         {costs.data?.[algKey] ? vnd(costs.data[algKey]) : "–"}
                       </TableCell>
-                      <TableCell className="text-right font-mono text-muted-foreground text-[11px]">
+                      <TableCell className="text-right font-mono text-muted-foreground text-xs">
                         {num(sec, 2)} s
                       </TableCell>
                     </TableRow>
@@ -726,7 +726,7 @@ export default function RunLab() {
                 <b>Mô hình ước tính chi phí kịch bản:</b> 4.000 đ/km, 40.000 đ/giờ (~666,67 đ/phút) qua endpoint <code>/api/evaluation/cost</code>. Đây là ước tính theo kịch bản mô phỏng nghiên cứu, không phải chi phí kế toán thực tế của XeDu.
               </span>
             </div>
-            <Badge variant="outline" className="text-[10px] font-mono shrink-0">
+            <Badge variant="outline" className="text-xs font-mono shrink-0">
               Scenario Estimate
             </Badge>
           </CardFooter>
@@ -737,7 +737,7 @@ export default function RunLab() {
       {ok.length > 0 && inspectorStops.length > 0 && (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
               Thanh tra chuỗi ghé thăm giải pháp:
             </span>
             <div className="flex items-center gap-2">

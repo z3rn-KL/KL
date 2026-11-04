@@ -324,7 +324,7 @@ export default function Clusters() {
         <div className="p-3 bg-muted/20 border-b border-border/60 flex flex-wrap items-center justify-between gap-2.5 text-xs">
           {/* Model Switcher */}
           <div className="flex items-center gap-2">
-            <span className="font-semibold text-muted-foreground text-[11px] uppercase tracking-wider">
+            <span className="font-semibold text-muted-foreground text-xs uppercase tracking-wider">
               Mô hình:
             </span>
             <Tabs
@@ -365,7 +365,7 @@ export default function Clusters() {
           {/* Parameters for custom mode */}
           {mode === "kmeans" && (
             <div className="flex items-center gap-2 min-w-[160px]">
-              <span className="text-muted-foreground text-[11px]">K = {k}:</span>
+              <span className="text-muted-foreground text-xs">K = {k}:</span>
               <Slider
                 min={2}
                 max={20}
@@ -380,7 +380,7 @@ export default function Clusters() {
           {mode === "dbscan" && (
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-1.5">
-                <span className="text-muted-foreground text-[11px]">eps = {num(eps, 2)}km</span>
+                <span className="text-muted-foreground text-xs">eps = {num(eps, 2)}km</span>
                 <Slider
                   min={0.25}
                   max={2.5}
@@ -391,7 +391,7 @@ export default function Clusters() {
                 />
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="text-muted-foreground text-[11px]">minS = {minS}</span>
+                <span className="text-muted-foreground text-xs">minS = {minS}</span>
                 <Slider
                   min={3}
                   max={12}
@@ -406,7 +406,7 @@ export default function Clusters() {
 
           {/* Outlier Threshold Slider */}
           <div className="flex items-center gap-2">
-            <span className="text-muted-foreground text-[11px] whitespace-nowrap">
+            <span className="text-muted-foreground text-xs whitespace-nowrap">
               Xa tâm: top {num(100 - outlierPct, 1)}%
             </span>
             <Slider
@@ -436,13 +436,13 @@ export default function Clusters() {
 
         {/* Quick Cluster Filter Pills in Same Header */}
         <div className="px-3 py-2 bg-muted/10 border-b border-border/40 flex items-center gap-1.5 overflow-x-auto no-scrollbar text-xs">
-          <span className="text-[11px] font-semibold text-muted-foreground shrink-0 mr-1">
+          <span className="text-xs font-semibold text-muted-foreground shrink-0 mr-1">
             Lọc cụm:
           </span>
           <button
             type="button"
             onClick={() => handleFocusCluster(null)}
-            className={`h-6 px-2 text-[11px] font-medium rounded transition-all select-none border cursor-pointer shrink-0 ${
+            className={`h-6 px-2 text-xs font-medium rounded transition-all select-none border cursor-pointer shrink-0 ${
               selectedCluster === null
                 ? "bg-primary/10 border-primary text-foreground font-semibold"
                 : "bg-background border-border/60 text-muted-foreground hover:text-foreground"
@@ -458,7 +458,7 @@ export default function Clusters() {
                 key={c}
                 type="button"
                 onClick={() => handleFocusCluster(isSelected ? null : c)}
-                className={`h-6 px-2 text-[11px] font-medium rounded transition-all select-none inline-flex items-center gap-1 border cursor-pointer shrink-0 ${
+                className={`h-6 px-2 text-xs font-medium rounded transition-all select-none inline-flex items-center gap-1 border cursor-pointer shrink-0 ${
                   isSelected
                     ? "bg-primary/10 border-primary text-foreground font-semibold"
                     : "bg-background border-border/60 text-muted-foreground hover:text-foreground"
@@ -512,7 +512,7 @@ export default function Clusters() {
                         {selectedCluster !== null && (
                           <>
                             <Separator orientation="vertical" className="h-3.5" />
-                            <Badge variant="outline" className="text-[10px] px-1 py-0" style={{ color: clusterColor(selectedCluster) }}>
+                            <Badge variant="outline" className="text-xs font-semibold px-2 py-0.5" style={{ color: clusterColor(selectedCluster) }}>
                               Cụm #{selectedCluster}
                             </Badge>
                           </>
@@ -520,7 +520,7 @@ export default function Clusters() {
                         {savedSilhouette !== null && mode === "saved" && (
                           <>
                             <Separator orientation="vertical" className="h-3.5" />
-                            <span className="text-emerald-600 dark:text-emerald-400 font-mono font-bold text-[11px]">
+                            <span className="text-emerald-600 dark:text-emerald-400 font-mono font-bold text-xs">
                               Silhouette {num(savedSilhouette, 3)}
                             </span>
                           </>
@@ -562,15 +562,15 @@ export default function Clusters() {
                                   {p.c < 0 ? "Điểm nhiễu (DBSCAN)" : `Cụm #${p.c}`}
                                 </b>
                                 {isOut && (
-                                  <Badge variant="destructive" className="text-[9px] px-1 py-0">
+                                  <Badge variant="destructive" className="text-xs font-semibold px-2 py-0.5">
                                     Xa tâm
                                   </Badge>
                                 )}
                               </div>
-                              <div className="font-mono text-muted-foreground text-[11px]">
+                              <div className="font-mono text-muted-foreground text-xs">
                                 Mã: {p.id}
                               </div>
-                              <div className="text-muted-foreground text-[11px]">
+                              <div className="text-muted-foreground text-xs">
                                 Toạ độ: [{num(p.lat, 4)}, {num(p.lng, 4)}]
                               </div>
                             </div>
@@ -602,7 +602,7 @@ export default function Clusters() {
                               <div>
                                 Quy mô: <b>{num(ct.n, 0)} đơn</b> ({pct(ct.n / Math.max(1, points.length), 1)})
                               </div>
-                              <div className="text-muted-foreground text-[11px]">
+                              <div className="text-muted-foreground text-xs">
                                 [{num(ct.lat, 4)}, {num(ct.lng, 4)}]
                               </div>
                             </div>
@@ -620,7 +620,7 @@ export default function Clusters() {
                     <button
                       key={c}
                       onClick={() => toggle(c)}
-                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium border transition-colors ${
+                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium border transition-colors ${
                         hidden.has(c)
                           ? "bg-muted text-muted-foreground border-border/40 opacity-50"
                           : "bg-background text-foreground border-border/80"
@@ -635,7 +635,7 @@ export default function Clusters() {
                     </button>
                   ))}
                 </div>
-                <div className="flex items-center gap-1 text-[11px] text-muted-foreground font-medium">
+                <div className="flex items-center gap-1 text-xs text-muted-foreground font-medium">
                   <span className="size-2 rounded-full border-2 border-destructive bg-white" />
                   <span>Viền đỏ = Điểm xa tâm cụm</span>
                 </div>
@@ -718,12 +718,12 @@ export default function Clusters() {
                       margin={{ top: 0, right: 16, bottom: 0, left: 0 }}
                     >
                       <CartesianGrid horizontal={false} stroke="var(--border)" strokeDasharray="3 3" />
-                      <XAxis type="number" tick={{ fontSize: 10 }} stroke="var(--muted-foreground)" />
+                      <XAxis type="number" tick={{ fontSize: 12 }} stroke="var(--muted-foreground)" />
                       <YAxis
                         type="category"
                         dataKey="name"
                         width={60}
-                        tick={{ fontSize: 10 }}
+                        tick={{ fontSize: 12 }}
                         stroke="var(--muted-foreground)"
                         interval={0}
                       />
@@ -761,7 +761,7 @@ export default function Clusters() {
                 <div className="max-h-[220px] overflow-y-auto">
                   <Table className="tbl">
                     <TableHeader>
-                      <TableRow className="hover:bg-transparent bg-transparent border-b border-border/60 text-[11px]">
+                      <TableRow className="hover:bg-transparent bg-transparent border-b border-border/60 text-xs">
                         <TableHead className="py-2 text-muted-foreground font-semibold">Mã đơn</TableHead>
                         <TableHead className="py-2 text-muted-foreground font-semibold">Cụm</TableHead>
                         <TableHead className="py-2 text-right text-muted-foreground font-semibold">Cách tâm</TableHead>

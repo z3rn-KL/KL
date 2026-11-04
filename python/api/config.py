@@ -240,3 +240,28 @@ SHIFT_RL_SUMMARY_PATH = (
     RESULTS_DIR
     / "shift_rl_summary_test2.json"
 )
+
+
+# ============================================================
+# RL TRAINING HISTORY ARTIFACTS
+# ============================================================
+
+PROPOSED_RL_MULTIWORKLOAD_HISTORY_PATH = (
+    RESULTS_DIR
+    / "proposed_rl_multiworkload_D_moderate_sla_history.csv"
+)
+
+DQN_SINGLE_WORKLOAD_TRAINING_PATH = (
+    RESULTS_DIR
+    / "dqn_single_workload_training.csv"
+)
+
+SARSA_SINGLE_WORKLOAD_TRAINING_PATH = (
+    RESULTS_DIR
+    / "sarsa_single_workload_training.csv"
+)
+
+Q_LEARNING_SINGLE_WORKLOAD_TRAINING_PATH = (
+    RESULTS_DIR
+    / "q_learning_single_workload_training.csv"
+)

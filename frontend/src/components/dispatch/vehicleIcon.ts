@@ -9,23 +9,25 @@ export function createVehicleMarkerIcon(
   shipperId: string,
   heading: number = 0,
   status: string = "IDLE",
-  isSelected: boolean = false
+  isSelected: boolean = false,
+  isDimmed: boolean = false
 ) {
   const num = shipperId.replace("shipper_", "");
-  const size = isSelected ? 34 : 28;
+  const size = isSelected ? 34 : (isDimmed ? 22 : 28);
   const isDelivering = status === "DELIVERING";
   const isPickup = status === "PICKING_UP";
 
-  // Palette: Deep Jade & Emerald with Cyan/Amber accents
-  const primaryBg = isSelected ? "#0f766e" : "#0d9488";
-  const cargoBg = isPickup ? "#0284c7" : isDelivering ? "#f59e0b" : "#14b8a6";
-  const ringColor = isSelected ? "#38bdf8" : "#ffffff";
+  // Palette: Deep Jade & Emerald with Cyan/Amber accents; dimmed for background fleet
+  const primaryBg = isSelected ? "#0f766e" : (isDimmed ? "#475569" : "#0d9488");
+  const cargoBg = isPickup ? "#0284c7" : isDelivering ? "#f59e0b" : (isDimmed ? "#64748b" : "#14b8a6");
+  const ringColor = isSelected ? "#38bdf8" : (isDimmed ? "#94a3b8" : "#ffffff");
   const shadow = isSelected
     ? "0 3px 10px rgba(15,118,110,0.45)"
-    : "0 2px 6px rgba(0,0,0,0.25)";
+    : (isDimmed ? "none" : "0 2px 6px rgba(0,0,0,0.25)");
+  const markerOpacity = isDimmed ? 0.45 : 1.0;
 
   const html = `
-    <div style="position: relative; width: ${size}px; height: ${size}px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+    <div style="position: relative; width: ${size}px; height: ${size}px; display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: ${markerOpacity};">
       <!-- Rotatable Vehicle Body (Heading Angle) -->
       <div id="veh-rot-${shipperId}" style="width: 100%; height: 100%; transform: rotate(${heading}deg); transform-origin: center center; transition: transform 0.12s linear; display: flex; align-items: center; justify-content: center;">
         <svg width="${size}" height="${size}" viewBox="0 0 32 32" fill="none" style="filter: drop-shadow(${shadow});">

@@ -185,7 +185,7 @@ function LiveClockDisplay() {
     <div className="hidden h-8 items-center gap-1.5 px-2.5 text-xs font-medium text-foreground/90 bg-card/80 rounded-md border border-border/80 shadow-2xs lg:flex">
       <Clock className="size-3.5 text-primary" />
       <span className="font-mono text-xs font-semibold text-foreground tabular-nums tracking-tight">{timeStr}</span>
-      <span className="text-[10px] font-mono font-semibold text-muted-foreground ml-0.5">ICT</span>
+      <span className="text-xs font-mono font-semibold text-muted-foreground ml-0.5">ICT</span>
     </div>
   );
 }
@@ -208,11 +208,11 @@ function AppSidebar({ health }: { health: ReturnType<typeof useAsync<Health>> })
           <div className="flex flex-col overflow-hidden text-left group-data-[collapsible=icon]:hidden">
             <div className="flex items-center gap-1.5">
               <span className="text-sm font-bold tracking-tight text-sidebar-foreground">NEXUS ROUTE</span>
-              <Badge variant="outline" className="px-1 py-0 text-[9px] font-mono font-medium text-primary border-primary/30">
+              <Badge variant="outline" className="px-1 py-0 text-xs font-mono font-medium text-primary border-primary/30">
                 KLTN-11
               </Badge>
             </div>
-            <span className="text-[11px] font-medium text-muted-foreground/90 truncate">
+            <span className="text-xs font-medium text-muted-foreground/90 truncate">
               Tối ưu tuyến giao hàng
             </span>
           </div>
@@ -223,7 +223,7 @@ function AppSidebar({ health }: { health: ReturnType<typeof useAsync<Health>> })
       <SidebarContent className="px-2 py-2">
         {NAVIGATION_STRUCTURE.map((group) => (
           <SidebarGroup key={group.id} className="py-1.5">
-            <SidebarGroupLabel className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70 px-2 group-data-[collapsible=icon]:hidden">
+            <SidebarGroupLabel className="text-xs font-bold uppercase tracking-wider text-muted-foreground/70 px-2 group-data-[collapsible=icon]:hidden">
               {group.label}
             </SidebarGroupLabel>
             <SidebarGroupContent>
@@ -250,7 +250,7 @@ function AppSidebar({ health }: { health: ReturnType<typeof useAsync<Health>> })
                         {item.badge && (
                           <Badge
                             variant="outline"
-                            className="ml-auto px-1 py-0 text-[10px] font-mono font-semibold bg-primary/5 text-primary border-primary/20 group-data-[collapsible=icon]:hidden"
+                            className="ml-auto px-1 py-0 text-xs font-mono font-semibold bg-primary/5 text-primary border-primary/20 group-data-[collapsible=icon]:hidden"
                           >
                             {item.badge}
                           </Badge>
@@ -293,12 +293,12 @@ function AppSidebar({ health }: { health: ReturnType<typeof useAsync<Health>> })
                   <span className="relative inline-flex size-2 rounded-full bg-rose-500" />
                 )}
               </span>
-              <span className="truncate font-medium text-[11px] group-data-[collapsible=icon]:hidden">
+              <span className="truncate font-medium text-xs group-data-[collapsible=icon]:hidden">
                 {isConnecting ? "Kiểm tra API…" : isHealthy ? "Backend Trực tuyến" : "Mất kết nối API"}
               </span>
             </div>
             {isHealthy && (
-              <Badge variant="outline" className="text-[10px] font-mono px-1 py-0 group-data-[collapsible=icon]:hidden">
+              <Badge variant="outline" className="text-xs font-mono px-1 py-0 group-data-[collapsible=icon]:hidden">
                 v12.2
               </Badge>
             )}
@@ -372,7 +372,7 @@ function AppHeader({
         >
           <Search className="size-3.5 text-muted-foreground" />
           <span className="hidden md:inline font-medium">Tìm lệnh & điều hướng…</span>
-          <kbd className="hidden md:inline-flex items-center rounded border border-border/80 bg-muted/60 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-muted-foreground shadow-2xs">
+          <kbd className="hidden md:inline-flex items-center rounded border border-border/80 bg-muted/60 px-1.5 py-0.5 font-mono text-xs font-semibold text-muted-foreground shadow-2xs">
             Ctrl K
           </kbd>
         </Button>

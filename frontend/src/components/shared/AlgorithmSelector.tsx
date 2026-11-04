@@ -56,7 +56,7 @@ export function AlgorithmSelector({
             {/* Dot or Active Check Icon */}
             {isSel ? (
               <span
-                className="flex size-4 shrink-0 items-center justify-center rounded-full text-white text-[10px]"
+                className="flex size-4 shrink-0 items-center justify-center rounded-full text-white text-xs"
                 style={{ backgroundColor: color }}
               >
                 <Check className="size-2.5 stroke-[3]" />
@@ -72,7 +72,7 @@ export function AlgorithmSelector({
 
             {/* Badge for unavailable workload hint */}
             {!avail && badgeText && (
-              <span className="text-[10px] font-mono font-medium text-muted-foreground/90 bg-muted/60 px-1.5 py-0.5 rounded border border-border/60 ml-1 shrink-0 whitespace-nowrap">
+              <span className="text-xs font-mono font-medium text-muted-foreground/90 bg-muted/60 px-1.5 py-0.5 rounded border border-border/60 ml-1 shrink-0 whitespace-nowrap">
                 {badgeText}
               </span>
             )}

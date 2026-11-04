@@ -297,7 +297,7 @@ export function AtlasCommandPalette({
             aria-label="Tìm kiếm trang hoặc lệnh toàn cục"
             data-slot="command-input"
           />
-          <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 text-[10px] font-mono font-medium rounded border border-border bg-card text-muted-foreground shadow-2xs">
+          <kbd className="hidden sm:inline-flex items-center px-1.5 py-0.5 text-xs font-mono font-medium rounded border border-border bg-card text-muted-foreground shadow-2xs">
             Esc
           </kbd>
         </div>
@@ -371,7 +371,7 @@ export function AtlasCommandPalette({
                       {item.title}
                     </div>
                     {item.subtitle && (
-                      <div className="cmd-item-subtitle text-[11px] text-muted-foreground truncate mt-0.5">
+                      <div className="cmd-item-subtitle text-xs text-muted-foreground truncate mt-0.5">
                         {item.subtitle}
                       </div>
                     )}
@@ -379,7 +379,7 @@ export function AtlasCommandPalette({
                   {item.badge && (
                     <Badge
                       variant="outline"
-                      className={`cmd-item-badge text-[10px] font-mono shrink-0 px-1.5 py-0.2 transition-colors ${
+                      className={`cmd-item-badge text-xs font-mono shrink-0 px-1.5 py-0.2 transition-colors ${
                         isSelected
                           ? "border-primary/40 bg-primary/10 text-primary font-semibold"
                           : "border-border/60 bg-muted/20 text-muted-foreground"
@@ -396,20 +396,20 @@ export function AtlasCommandPalette({
 
         {/* Footer Keyboard Hints */}
         <div
-          className="cmd-footer flex items-center justify-between px-4 py-2 border-t border-border bg-muted/20 text-[11px] text-muted-foreground font-medium"
+          className="cmd-footer flex items-center justify-between px-4 py-2 border-t border-border bg-muted/20 text-xs text-muted-foreground font-medium"
           data-slot="command-footer"
         >
           <div className="flex items-center gap-1.5">
-            <kbd className="px-1.5 py-0.2 rounded border border-border bg-card text-[10px] font-mono font-semibold text-foreground">↑</kbd>
-            <kbd className="px-1.5 py-0.2 rounded border border-border bg-card text-[10px] font-mono font-semibold text-foreground">↓</kbd>
+            <kbd className="px-1.5 py-0.2 rounded border border-border bg-card text-xs font-mono font-semibold text-foreground">↑</kbd>
+            <kbd className="px-1.5 py-0.2 rounded border border-border bg-card text-xs font-mono font-semibold text-foreground">↓</kbd>
             <span className="ml-1">Chọn</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <kbd className="px-1.5 py-0.2 rounded border border-border bg-card text-[10px] font-mono font-semibold text-foreground">↵ Enter</kbd>
+            <kbd className="px-1.5 py-0.2 rounded border border-border bg-card text-xs font-mono font-semibold text-foreground">↵ Enter</kbd>
             <span className="ml-1">Mở</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <kbd className="px-1.5 py-0.2 rounded border border-border bg-card text-[10px] font-mono font-semibold text-foreground">Esc</kbd>
+            <kbd className="px-1.5 py-0.2 rounded border border-border bg-card text-xs font-mono font-semibold text-foreground">Esc</kbd>
             <span className="ml-1">Đóng</span>
           </div>
         </div>

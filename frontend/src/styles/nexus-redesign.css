@@ -12,13 +12,13 @@
   --surface-selected: #E5F3F0;
   --surface-disabled: #ECEFF0;
 
-  --ink: #172A30;
-  --ink-secondary: #536970;
-  --mute: #6C8289;
-  --mute-subtle: #8FA2A8;
+  --ink: #102227;
+  --ink-secondary: #2C434B;
+  --mute: #3C555E;
+  --mute-subtle: #4D6872;
 
-  --line: #DCE5E6;
-  --line-strong: #C4D3D5;
+  --line: #CBD6D8;
+  --line-strong: #A8BCC0;
   --line-subtle: #EDF2F2;
 
   --accent: #087E78;
@@ -57,7 +57,7 @@
   color: var(--ink);
   background-color: var(--bg);
   font-family: "Be Vietnam Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.5;
 }
 
@@ -71,13 +71,13 @@
   --surface-selected: #16403C;
   --surface-disabled: #1B292E;
 
-  --ink: #EFF6F5;
-  --ink-secondary: #B4C7CA;
-  --mute: #81989E;
-  --mute-subtle: #5C747A;
+  --ink: #F1F7F6;
+  --ink-secondary: #CAD7D9;
+  --mute: #A0B6BC;
+  --mute-subtle: #8DA5AB;
 
-  --line: #2B3E44;
-  --line-strong: #3A535A;
+  --line: #32474E;
+  --line-strong: #45626B;
   --line-subtle: #1E2D33;
 
   --accent: #2DD4BF;
@@ -199,7 +199,7 @@ body {
 }
 
 .brand-sub {
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 1px;
   color: var(--ink-secondary);
   text-transform: uppercase;
@@ -284,7 +284,7 @@ body {
   border: 1px solid var(--accent);
   padding: 4px 8px;
   border-radius: 6px;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.5px;
 }
@@ -325,7 +325,7 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 4px;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 650;
     color: var(--ink-secondary);
     text-decoration: none;
@@ -348,7 +348,7 @@ body {
 }
 
 .eyebrow {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--accent);
   font-weight: 800;
   letter-spacing: 1.5px;
@@ -500,9 +500,9 @@ body {
 }
 
 .btn.tiny {
-  min-height: 30px;
-  padding: 4px 10px;
-  font-size: 11px;
+  min-height: 32px;
+  padding: 4px 12px;
+  font-size: 12px;
 }
 
 .btn.block {
@@ -839,7 +839,7 @@ body {
 }
 
 .panel-label {
-  font-size: 11px;
+  font-size: 12.5px;
   font-weight: 800;
   color: var(--ink-secondary);
   text-transform: uppercase;
@@ -925,12 +925,12 @@ body {
 }
 
 .shipper-opt strong {
-  font-size: 11px;
+  font-size: 13px;
   display: block;
 }
 
 .shipper-opt small {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--ink-secondary);
   display: block;
 }
@@ -968,7 +968,7 @@ body {
 }
 
 .action-hint {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--ink-secondary);
   margin: 8px 0 0;
   line-height: 1.45;
@@ -984,18 +984,33 @@ body {
    ========================================================================== */
 .live-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 340px;
+  grid-template-columns: minmax(0, 1fr) 360px;
   gap: 20px;
   margin-bottom: 20px;
+  align-items: stretch;
 }
 
 .mapframe {
-  height: 600px;
+  height: 640px;
+  min-height: 580px;
   position: relative;
   overflow: hidden;
   background: var(--surface-secondary);
   border: 1px solid var(--line);
   border-radius: var(--radius);
+}
+
+.tracking {
+  display: flex;
+  flex-direction: column;
+  height: 640px;
+  min-height: 580px;
+  overflow: hidden;
+}
+
+.tracking .list {
+  flex: 1;
+  overflow-y: auto;
 }
 
 .map-legend {
@@ -1083,7 +1098,7 @@ body {
 }
 
 .track-stats span {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--ink-secondary);
 }
 
@@ -1154,7 +1169,7 @@ body {
 }
 
 .stop span {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--ink-secondary);
 }
 
@@ -1179,7 +1194,7 @@ body {
 }
 
 .activity li {
-  font-size: 11px;
+  font-size: 12.5px;
   color: var(--ink-secondary);
   margin: 6px 0;
   display: flex;
@@ -1209,7 +1224,7 @@ body {
 }
 
 .simbar .sub {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--night-muted);
 }
 
@@ -1342,7 +1357,7 @@ body {
 }
 
 .report-metrics span {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--ink-secondary);
 }
 
@@ -1375,7 +1390,7 @@ body {
 }
 
 .carryrow small {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--ink-secondary);
   display: block;
 }
@@ -1595,7 +1610,7 @@ body {
 
 .captioncaps {
   color: var(--ink-secondary);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -1625,6 +1640,11 @@ body {
   }
   .mapframe {
     height: 480px;
+    min-height: 420px;
+  }
+  .tracking {
+    height: auto;
+    max-height: 520px;
   }
   .research-wrap {
     grid-template-columns: 1fr;

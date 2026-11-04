@@ -1009,6 +1009,7 @@ export interface DispatchOrderItem {
   carryover_count: number;
   assigned_at_minute?: number | null;
   delivered_at_minute?: number | null;
+  delivered_day?: number | null;
   is_simulated_scenario: boolean;
   dispatch_reason?: string | null;
   dispatch_distance_km?: number | null;
@@ -1101,6 +1102,24 @@ export interface DispatchSessionState {
     shift_status?: string;
     simulation_clock_at_end?: number;
     shift_duration_minutes?: number;
+    new_orders_today?: number;
+    carried_over_in?: number;
+    total_orders_to_process?: number;
+    day_sla_rate?: number;
+    day_remaining?: number;
+    day_carried_over_out?: number;
+    cumulative_delivered?: number;
+    cumulative_total_released?: number;
+    cumulative_sla_rate?: number;
+    shipper_performance?: Array<{
+      shipper_id: string;
+      name: string;
+      assigned_count: number;
+      completed_count: number;
+      pending_count: number;
+      weight_kg: number;
+      distance_km: number;
+    }>;
   }>;
   recent_events: Array<{
     event_id: string;
@@ -1187,6 +1206,10 @@ export interface PlanPreviewResponse {
   session_revision: number;
   strategy_used: string;
   algorithm_used: string;
+  requested_strategy?: string;
+  requested_algorithm?: string;
+  is_fallback?: boolean;
+  fallback_reason?: string | null;
   candidate_kpi: CandidateKpi;
   baseline_kpi: BaselineKpi | null;
   deltas: KpiDeltas | null;

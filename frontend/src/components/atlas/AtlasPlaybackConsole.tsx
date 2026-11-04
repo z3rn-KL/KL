@@ -117,14 +117,14 @@ export function AtlasPlaybackConsole({ bus, totalStops = 0, className = "" }: At
           className="w-full accent-[#176B5B] dark:accent-[#72C5AC] cursor-pointer h-1.5 bg-muted rounded-lg"
           aria-label="Thanh trượt tiến độ lộ trình"
         />
-        <span className="font-mono tabular-nums text-[11px] text-muted-foreground w-9 text-right font-semibold">
+        <span className="font-mono tabular-nums text-xs text-muted-foreground w-9 text-right font-semibold">
           {pct}%
         </span>
       </div>
 
       {/* Stop counter if provided */}
       {currentStop !== null && (
-        <div className="hidden sm:flex items-center gap-1 font-mono text-[11px] px-2 py-0.5 rounded bg-muted text-foreground border border-border shrink-0">
+        <div className="hidden sm:flex items-center gap-1 font-mono text-xs px-2 py-0.5 rounded bg-muted text-foreground border border-border shrink-0">
           <span className="text-muted-foreground">Chặng:</span>
           <span className="font-semibold text-primary">
             {currentStop}/{totalStops}

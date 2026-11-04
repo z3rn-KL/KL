@@ -572,7 +572,7 @@ export default function Compare() {
             <div className="flex flex-col gap-2.5 xl:flex-row xl:items-center xl:justify-between">
               <div className="flex items-center gap-3 flex-wrap">
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap">
+                  <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap">
                     Tập dữ liệu:
                   </span>
                   <Tabs
@@ -590,7 +590,7 @@ export default function Compare() {
                 <Separator orientation="vertical" className="h-4 hidden sm:block" />
 
                 <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap">
+                  <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap">
                     Nhóm:
                   </span>
                   <Tabs value={mode} onValueChange={(m) => setMode(m as "primary" | "all")}>
@@ -621,7 +621,7 @@ export default function Compare() {
 
             {/* Algorithm Chips Pill Strip with clear disabled state and tooltips */}
             <div className="flex items-center gap-2.5 flex-wrap pt-2.5 border-t border-border/50">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap">
+              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap">
                 Lọc thuật toán:
               </span>
               <AlgorithmSelector
@@ -718,7 +718,7 @@ export default function Compare() {
                       <XAxis
                         dataKey="key"
                         tickFormatter={(k) => LOCAL_ALGO_LABEL[k] ?? k}
-                        tick={{ fontSize: 11 }}
+                        tick={{ fontSize: 12 }}
                       />
                       <YAxis tick={{ fontSize: 12 }} domain={["auto", "auto"]} unit=" km" />
                       <Tooltip formatter={(v: any) => [`${num(v, 2)} km`, "Quãng đường TB"]} />
@@ -749,7 +749,7 @@ export default function Compare() {
                       <XAxis
                         dataKey="key"
                         tickFormatter={(k) => LOCAL_ALGO_LABEL[k] ?? k}
-                        tick={{ fontSize: 11 }}
+                        tick={{ fontSize: 12 }}
                       />
                       <YAxis tick={{ fontSize: 12 }} domain={["auto", "auto"]} unit=" ph" />
                       <Tooltip formatter={(v: any) => [`${num(v, 2)} phút`, "Thời gian TB"]} />
@@ -782,7 +782,7 @@ export default function Compare() {
                     margin={{ top: 8, right: 12, bottom: 6, left: 0 }}
                   >
                     <CartesianGrid stroke="var(--grid-color)" strokeDasharray="3 3" vertical={false} />
-                    <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+                    <XAxis dataKey="name" tick={{ fontSize: 12 }} />
                     <YAxis tick={{ fontSize: 12 }} unit="%" />
                     <Tooltip
                       formatter={(v: any, name: any) => [
@@ -860,7 +860,7 @@ export default function Compare() {
                                 className="chip ai"
                                 style={{
                                   marginLeft: 6,
-                                  fontSize: 9.5,
+                                  fontSize: 12.5,
                                   padding: "1px 5px",
                                 }}
                               >
@@ -937,7 +937,7 @@ export default function Compare() {
                           }}
                         >
                           <span>{label}</span>
-                          <span style={{ fontSize: 10.5, color: "var(--muted)", fontWeight: 500 }}>
+                          <span style={{ fontSize: 12.5, color: "var(--muted)", fontWeight: 500 }}>
                             Điểm chuẩn hoá (0–100)
                           </span>
                         </div>
@@ -965,7 +965,7 @@ export default function Compare() {
                                 <span
                                   style={{
                                     width: 140,
-                                    fontSize: 11.5,
+                                    fontSize: 12.5,
                                     color: isSelected ? r.color : "var(--text)",
                                     fontWeight: isSelected || r.isProposed ? 700 : 500,
                                     textAlign: "right",
@@ -1004,7 +1004,7 @@ export default function Compare() {
                                 <span
                                   style={{
                                     width: 40,
-                                    fontSize: 11.5,
+                                    fontSize: 12.5,
                                     fontWeight: isBest ? 700 : 600,
                                     color: isBest ? "var(--good)" : "var(--text-secondary)",
                                     textAlign: "right",

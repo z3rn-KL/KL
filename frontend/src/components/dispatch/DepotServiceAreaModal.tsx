@@ -141,10 +141,10 @@ export function DepotServiceAreaModal({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base font-bold tracking-tight">
+                <h2 className="text-lg font-extrabold tracking-tight">
                   Quản Lý Kho Trung Tâm & Điểm Trực Ca Shipper
                 </h2>
-                <span className="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 text-[10px] font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                <span className="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400">
                   GIS Logistics Hub
                 </span>
               </div>
@@ -177,10 +177,10 @@ export function DepotServiceAreaModal({
                     <h3 className="font-bold text-sm text-foreground">
                       {session.depot.name}
                     </h3>
-                    <span className="rounded-md bg-sky-500/15 border border-sky-500/30 px-2 py-0.5 font-mono text-[10px] font-bold text-sky-700 dark:text-sky-300">
+                    <span className="rounded-md bg-sky-500/15 border border-sky-500/30 px-2.5 py-0.5 font-mono text-xs font-bold text-sky-700 dark:text-sky-300">
                       CENTRAL HUB (KHO CHÍNH)
                     </span>
-                    <span className="rounded-md bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 font-mono text-[10px] font-bold text-emerald-700 dark:text-emerald-300">
+                    <span className="rounded-md bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 font-mono text-xs font-bold text-emerald-700 dark:text-emerald-300">
                       HOẠT ĐỘNG
                     </span>
                   </div>
@@ -217,7 +217,7 @@ export function DepotServiceAreaModal({
             </div>
 
             {/* Note on logistics physics */}
-            <div className="mt-3 rounded-lg bg-muted/40 border border-border/60 p-2.5 text-[11px] text-muted-foreground flex items-center gap-2">
+            <div className="mt-3 rounded-lg bg-muted/40 border border-border/60 p-3 text-xs text-muted-foreground flex items-center gap-2.5">
               <Info className="size-4 text-sky-500 shrink-0" />
               <span>
                 <strong>Nguyên lý luân chuyển:</strong> Toàn bộ kiện hàng được tập kết tại Kho trung tâm Tân Bình. Shipper bắt đầu ca từ trạm trực ca ngoại vi (Mode B) bắt buộc phải di chuyển ghé Kho trung tâm nhận hàng trước khi tiến hành giao đến các điểm khách hàng.
@@ -231,7 +231,7 @@ export function DepotServiceAreaModal({
               <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                 Mạng Lưới Trạm Trực Ca Ngoại Vi TP.HCM ({stagingBases.length} Trạm)
               </h4>
-              <span className="text-[11px] text-muted-foreground">
+              <span className="text-xs text-muted-foreground">
                 Điểm tập kết nghiệp vụ • Không phải địa chỉ cá nhân
               </span>
             </div>
@@ -250,15 +250,15 @@ export function DepotServiceAreaModal({
                           <span className="size-2 rounded-full bg-purple-500" />
                           {base.name}
                         </span>
-                        <span className="rounded bg-muted px-1.5 py-0.5 font-mono text-[9px] text-muted-foreground">
+                        <span className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs text-muted-foreground">
                           {base.district}
                         </span>
                       </div>
-                      <div className="text-[11px] text-muted-foreground mt-1">
+                      <div className="text-xs text-muted-foreground mt-1">
                         Tọa độ: <span className="font-mono">{base.lat.toFixed(4)}, {base.lng.toFixed(4)}</span>
                       </div>
                       <div className="flex items-center gap-1 mt-1.5">
-                        <span className="text-[10px] text-muted-foreground">Cụm phụ trách:</span>
+                        <span className="text-xs text-muted-foreground">Cụm phụ trách:</span>
                         {base.primary_clusters.map((c) => (
                           <span
                             key={c}
@@ -270,7 +270,7 @@ export function DepotServiceAreaModal({
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between border-t border-border/40 pt-2 mt-2 text-[10px]">
+                    <div className="flex items-center justify-between border-t border-border/40 pt-2 mt-2 text-xs">
                       <span className="text-muted-foreground">
                         Trực thuộc: <strong>{assignedShippers.length} Shipper</strong>
                       </span>
@@ -295,7 +295,7 @@ export function DepotServiceAreaModal({
                 <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                   Cấu Hình Điểm Xuất Phát & Cụm Phụ Trách Shipper
                 </h4>
-                <p className="text-[11px] text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   Chọn shipper để điều chỉnh chế độ ca (Tại Kho vs Tại Trạm) và khu vực địa lý ưu tiên.
                 </p>
               </div>
@@ -331,7 +331,7 @@ export function DepotServiceAreaModal({
                       }`}
                     >
                       <div className="flex items-center gap-2">
-                        <span className="size-5 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-[10px]">
+                        <span className="size-5 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-xs">
                           {s.shipper_id.replace("shipper_", "")}
                         </span>
                         <span>{s.name}</span>
@@ -343,7 +343,7 @@ export function DepotServiceAreaModal({
                           style={{ backgroundColor: clusterColor(s.home_cluster_id) }}
                           title={`Cụm chính #${s.home_cluster_id}`}
                         />
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded font-mono ${s.shift_start_mode === "START_AT_BASE" ? "bg-purple-500/15 text-purple-700 dark:text-purple-300" : "bg-sky-500/15 text-sky-700 dark:text-sky-300"}`}>
+                        <span className={`text-xs px-2 py-0.5 rounded font-mono font-semibold ${s.shift_start_mode === "START_AT_BASE" ? "bg-purple-500/15 text-purple-700 dark:text-purple-300" : "bg-sky-500/15 text-sky-700 dark:text-sky-300"}`}>
                           {s.shift_start_mode === "START_AT_BASE" ? "Tại Trạm" : "Tại Kho"}
                         </span>
                       </div>
@@ -363,14 +363,14 @@ export function DepotServiceAreaModal({
                           {currentShipper.name} ({currentShipper.shipper_id})
                         </span>
                       </div>
-                      <span className="text-[11px] text-muted-foreground font-mono">
+                      <span className="text-xs text-muted-foreground font-mono">
                         Tải: {currentShipper.current_load_kg.toFixed(1)} / {currentShipper.capacity_kg} kg
                       </span>
                     </div>
 
                     {/* Start Mode Radio */}
                     <div className="space-y-1.5">
-                      <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                      <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                         Chế độ xuất phát đầu ca:
                       </label>
                       <div className="grid grid-cols-2 gap-2">
@@ -384,8 +384,8 @@ export function DepotServiceAreaModal({
                             className="mt-0.5"
                           />
                           <div>
-                            <div className="font-bold text-xs">Mode A: Tại Kho trung tâm</div>
-                            <div className="text-[10px] opacity-80">Nhận hàng và đi giao trực tiếp từ Tân Bình</div>
+                            <div className="font-bold text-sm text-foreground">Mode A: Tại Kho trung tâm</div>
+                            <div className="text-xs text-muted-foreground mt-0.5">Nhận hàng và đi giao trực tiếp từ Tân Bình</div>
                           </div>
                         </label>
 
@@ -399,8 +399,8 @@ export function DepotServiceAreaModal({
                             className="mt-0.5"
                           />
                           <div>
-                            <div className="font-bold text-xs">Mode B: Tại Trạm trực ca</div>
-                            <div className="text-[10px] opacity-80">Xuất phát từ Trạm $\rightarrow$ ghé Kho nhận hàng</div>
+                            <div className="font-bold text-sm text-foreground">Mode B: Tại Trạm trực ca</div>
+                            <div className="text-xs text-muted-foreground mt-0.5">Xuất phát từ Trạm → ghé Kho nhận hàng</div>
                           </div>
                         </label>
                       </div>
@@ -408,13 +408,13 @@ export function DepotServiceAreaModal({
 
                     {/* Staging Base Selector */}
                     <div className="space-y-1">
-                      <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                      <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                         Trạm trực ca phân công:
                       </label>
                       <select
                         value={editBaseId}
                         onChange={(e) => setEditBaseId(e.target.value)}
-                        className="w-full h-8 px-2.5 rounded-lg border border-border/80 bg-background text-xs font-medium focus:ring-1 focus:ring-primary cursor-pointer"
+                        className="w-full h-9 px-3 rounded-lg border border-border bg-background text-xs font-semibold text-foreground focus:ring-1 focus:ring-primary cursor-pointer"
                       >
                         {stagingBases.map((b) => (
                           <option key={b.base_id} value={b.base_id}>
@@ -426,13 +426,13 @@ export function DepotServiceAreaModal({
 
                     {/* Home Cluster Selector */}
                     <div className="space-y-1">
-                      <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                      <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                         Cụm địa lý ưu tiên chính:
                       </label>
                       <select
                         value={editHomeCluster}
                         onChange={(e) => setEditHomeCluster(parseInt(e.target.value, 10))}
-                        className="w-full h-8 px-2.5 rounded-lg border border-border/80 bg-background text-xs font-medium focus:ring-1 focus:ring-primary cursor-pointer"
+                        className="w-full h-9 px-3 rounded-lg border border-border bg-background text-xs font-semibold text-foreground focus:ring-1 focus:ring-primary cursor-pointer"
                       >
                         {Array.from({ length: 10 }).map((_, c) => (
                           <option key={c} value={c}>
@@ -467,7 +467,7 @@ export function DepotServiceAreaModal({
 
         {/* Modal Footer */}
         <div className="border-t border-border/80 bg-muted/30 px-5 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <ShieldCheck className="size-3.5 text-emerald-500" />
             <span>Mọi thay đổi vị trí chỉ áp dụng trong phiên mô phỏng hiện hành, bảo vệ 100% dữ liệu gốc của Leader.</span>
           </div>

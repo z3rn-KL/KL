@@ -121,7 +121,6 @@ export default function ResearchAnalytics() {
   const [topic, setTopic] = useState<ResearchTopic>("overview");
   const [benchmarkData, setBenchmarkData] = useState<AlgorithmSummary[]>([]);
   const [validationData, setValidationData] = useState<FinalValidation | null>(null);
-  const [ablationData, setAblationData] = useState<any>(null);
   const [clusteringQuality, setClusteringQuality] = useState<ClusteringQuality | null>(null);
   const [sensitivityData, setSensitivityData] = useState<Sensitivity | null>(null);
   const [stabilityData, setStabilityData] = useState<Stability | null>(null);
@@ -132,10 +131,9 @@ export default function ResearchAnalytics() {
     async function loadData() {
       try {
         setLoading(true);
-        const [bench, validation, ablation, clusterQ, sens, stab] = await Promise.allSettled([
+        const [bench, validation, clusterQ, sens, stab] = await Promise.allSettled([
           api.benchmarkSummary(),
           api.finalValidation(),
-          api.ablationStudy(),
           api.clusteringQuality(),
           api.sensitivity(),
           api.stability(),
@@ -145,9 +143,6 @@ export default function ResearchAnalytics() {
         }
         if (validation.status === "fulfilled" && validation.value) {
           setValidationData(validation.value);
-        }
-        if (ablation.status === "fulfilled" && ablation.value) {
-          setAblationData(ablation.value);
         }
         if (clusterQ.status === "fulfilled" && clusterQ.value) {
           setClusteringQuality(clusterQ.value);
@@ -267,9 +262,9 @@ export default function ResearchAnalytics() {
               <span style={{ fontWeight: 700, fontSize: "13px", color: "var(--text)" }}>
                 QUY TRÌNH KHOA HỌC 7 GIAI ĐOẠN (SCIENTIFIC RESEARCH PIPELINE)
               </span>
-              <span className="chip blue" style={{ fontSize: "10px" }}>KLTN_11</span>
+              <span className="chip blue" style={{ fontSize: "12px" }}>KLTN_11</span>
             </div>
-            <span style={{ fontSize: "11px", color: "var(--muted)" }}>
+            <span style={{ fontSize: "12px", color: "var(--muted)" }}>
               Nhấp vào giai đoạn để chuyển tab nghiên cứu tương ứng
             </span>
           </div>
@@ -303,9 +298,9 @@ export default function ResearchAnalytics() {
                 >
                   <span
                     style={{
-                      fontSize: "10px",
+                      fontSize: "12px",
                       fontWeight: 800,
-                      color: isActive ? "#3b82f6" : "var(--muted)",
+                      color: isActive ? "#2563eb" : "var(--text-secondary)",
                       marginBottom: "4px",
                     }}
                   >
@@ -313,7 +308,7 @@ export default function ResearchAnalytics() {
                   </span>
                   <strong
                     style={{
-                      fontSize: "11px",
+                      fontSize: "12px",
                       color: "var(--text)",
                       lineHeight: 1.3,
                       marginBottom: "4px",
@@ -323,8 +318,8 @@ export default function ResearchAnalytics() {
                   </strong>
                   <span
                     style={{
-                      fontSize: "10px",
-                      color: "var(--muted)",
+                      fontSize: "12px",
+                      color: "var(--text-secondary)",
                       lineHeight: 1.2,
                     }}
                   >
@@ -490,7 +485,7 @@ export default function ResearchAnalytics() {
                       <div className="tracking-row" style={{ marginBottom: "12px", flexWrap: "wrap", gap: "8px" }}>
                         <div>
                           <h3 style={{ margin: 0 }}>{getMetricLabel()}</h3>
-                          <span style={{ fontSize: "11px", color: "var(--ink-secondary)" }}>108 WORKLOADS BENCHMARK</span>
+                          <span style={{ fontSize: "12px", color: "var(--ink-secondary)" }}>108 WORKLOADS BENCHMARK</span>
                         </div>
                         <div style={{ display: "flex", gap: "4px" }}>
                           <button
@@ -529,13 +524,13 @@ export default function ResearchAnalytics() {
                           <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={chartBenchmarkData} margin={{ top: 15, right: 10, left: -15, bottom: 25 }}>
                               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--line-subtle)" strokeOpacity={0.7} />
-                              <XAxis dataKey="name" tick={{ fontSize: 10, fill: "var(--ink-secondary)" }} />
-                              <YAxis domain={getMetricDomain()} tick={{ fontSize: 10, fill: "var(--ink-secondary)" }} />
+                              <XAxis dataKey="name" tick={{ fontSize: 12, fill: "var(--ink-secondary)" }} />
+                              <YAxis domain={getMetricDomain()} tick={{ fontSize: 12, fill: "var(--ink-secondary)" }} />
                               <Tooltip
                                 formatter={formatTooltipValue}
                                 contentStyle={{
                                   borderRadius: "8px",
-                                  fontSize: "11px",
+                                  fontSize: "12px",
                                   backgroundColor: "var(--paper)",
                                   borderColor: "var(--line)",
                                   color: "var(--ink)",
@@ -558,7 +553,7 @@ export default function ResearchAnalytics() {
                         </div>
                       )}
 
-                      <p style={{ textAlign: "center", marginTop: "12px", fontSize: "11px", color: "var(--ink-secondary)" }}>
+                      <p style={{ textAlign: "center", marginTop: "12px", fontSize: "12px", color: "var(--ink-secondary)" }}>
                         Dữ liệu đo đạc thực tế từ 108 workloads (813 đơn hàng) trên mạng đường TP.HCM
                       </p>
                     </div>
@@ -681,7 +676,7 @@ export default function ResearchAnalytics() {
                         <div style={{ fontSize: "20px", fontWeight: 700 }}>294.4 km</div>
                         <div style={{ fontSize: "12px", color: "var(--ink-secondary)" }}>Chi phí: 1,648,409 VND</div>
                       </div>
-                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", color: "var(--ink-secondary)" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", color: "var(--ink-secondary)" }}>
                         <span>SLA: <b>100.0%</b> (0 trễ)</span>
                         <span>Nhảy cụm: <b style={{ color: "var(--amber, #f59e0b)" }}>13 lần</b></span>
                       </div>
@@ -697,7 +692,7 @@ export default function ResearchAnalytics() {
                         <div style={{ fontSize: "20px", fontWeight: 700 }}>352.7 km</div>
                         <div style={{ fontSize: "12px", color: "var(--ink-secondary)" }}>Chi phí: 1,975,119 VND</div>
                       </div>
-                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", color: "var(--ink-secondary)" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", color: "var(--ink-secondary)" }}>
                         <span>SLA: <b>100.0%</b> (0 trễ)</span>
                         <span>Nhảy cụm: <b style={{ color: "var(--success)" }}>0 lần</b></span>
                       </div>
@@ -713,7 +708,7 @@ export default function ResearchAnalytics() {
                         <div style={{ fontSize: "20px", fontWeight: 700 }}>293.5 km</div>
                         <div style={{ fontSize: "12px", color: "var(--ink-secondary)" }}>Chi phí: 1,643,294 VND</div>
                       </div>
-                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", color: "var(--ink-secondary)" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", color: "var(--ink-secondary)" }}>
                         <span>SLA: <b>100.0%</b> (0 trễ)</span>
                         <span>Nhảy cụm: <b style={{ color: "var(--amber, #f59e0b)" }}>13 lần</b></span>
                       </div>
@@ -729,7 +724,7 @@ export default function ResearchAnalytics() {
                         <div style={{ fontSize: "20px", fontWeight: 700, color: "var(--accent)" }}>356.3 km</div>
                         <div style={{ fontSize: "12px", color: "var(--ink-secondary)" }}>Chi phí: 1,995,270 VND</div>
                       </div>
-                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", color: "var(--ink-secondary)" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", color: "var(--ink-secondary)" }}>
                         <span>SLA: <b style={{ color: "var(--success)" }}>100.0%</b> (0 trễ)</span>
                         <span>Nhảy cụm: <b style={{ color: "var(--success)" }}>0 lần (Tuyệt đối)</b></span>
                       </div>
@@ -832,7 +827,7 @@ export default function ResearchAnalytics() {
                             <td>Nearest Neighbor</td>
                             <td>864.7 km</td>
                             <td>255 / 255</td>
-                            <td style={{ color: "var(--amber, #f59e0b)" }}>99.22% <small style={{ display: "block", fontSize: "10px" }}>(Ngày 2 &amp; 3: 98.8%)</small></td>
+                            <td style={{ color: "var(--amber, #f59e0b)" }}>99.22% <small style={{ display: "block", fontSize: "12px" }}>(Ngày 2 &amp; 3: 98.8%)</small></td>
                             <td style={{ color: "var(--amber, #f59e0b)", fontWeight: 600 }}>2 đơn trễ</td>
                           </tr>
                           <tr style={{ background: "rgba(16, 185, 129, 0.05)" }}>
@@ -850,7 +845,7 @@ export default function ResearchAnalytics() {
                             <td>Proposed RL</td>
                             <td>863.7 km</td>
                             <td>255 / 255</td>
-                            <td style={{ color: "var(--amber, #f59e0b)" }}>99.22% <small style={{ display: "block", fontSize: "10px" }}>(Ngày 2 &amp; 3: 98.8%)</small></td>
+                            <td style={{ color: "var(--amber, #f59e0b)" }}>99.22% <small style={{ display: "block", fontSize: "12px" }}>(Ngày 2 &amp; 3: 98.8%)</small></td>
                             <td style={{ color: "var(--amber, #f59e0b)", fontWeight: 600 }}>2 đơn trễ</td>
                           </tr>
                           <tr style={{ background: "rgba(16, 185, 129, 0.08)" }}>
@@ -868,7 +863,7 @@ export default function ResearchAnalytics() {
                             <td>Clarke-Wright</td>
                             <td>829.5 km</td>
                             <td>255 / 255</td>
-                            <td style={{ color: "var(--error, #ef4444)" }}>98.82% <small style={{ display: "block", fontSize: "10px" }}>(1 trễ/ngày)</small></td>
+                            <td style={{ color: "var(--error, #ef4444)" }}>98.82% <small style={{ display: "block", fontSize: "12px" }}>(1 trễ/ngày)</small></td>
                             <td style={{ color: "var(--error, #ef4444)", fontWeight: 600 }}>3 đơn trễ</td>
                           </tr>
                           <tr>
@@ -982,7 +977,7 @@ export default function ResearchAnalytics() {
                           <strong style={{ fontSize: "13px" }}>{c.cluster}</strong>
                           <span className="chip">{c.size} đơn</span>
                         </div>
-                        <p className="subline" style={{ marginTop: "4px", fontSize: "11px" }}>{c.label}</p>
+                        <p className="subline" style={{ marginTop: "4px", fontSize: "12px" }}>{c.label}</p>
                       </div>
                     ))}
                   </div>
@@ -1048,23 +1043,23 @@ export default function ResearchAnalytics() {
                     
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "10px" }}>
                       <div className="box" style={{ padding: "10px" }}>
-                        <span style={{ fontSize: "11px", color: "var(--ink-secondary)" }}>Trọng số Quãng đường</span>
+                        <span style={{ fontSize: "12px", color: "var(--ink-secondary)" }}>Trọng số Quãng đường</span>
                         <div style={{ fontSize: "16px", fontWeight: 700 }}>0.375</div>
                       </div>
                       <div className="box" style={{ padding: "10px" }}>
-                        <span style={{ fontSize: "11px", color: "var(--ink-secondary)" }}>Trọng số Thời gian</span>
+                        <span style={{ fontSize: "12px", color: "var(--ink-secondary)" }}>Trọng số Thời gian</span>
                         <div style={{ fontSize: "16px", fontWeight: 700 }}>0.375</div>
                       </div>
                       <div className="box" style={{ padding: "10px" }}>
-                        <span style={{ fontSize: "11px", color: "var(--ink-secondary)" }}>Phạt Đơn trễ SLA</span>
+                        <span style={{ fontSize: "12px", color: "var(--ink-secondary)" }}>Phạt Đơn trễ SLA</span>
                         <div style={{ fontSize: "16px", fontWeight: 700, color: "var(--amber, #f59e0b)" }}>0.100</div>
                       </div>
                       <div className="box" style={{ padding: "10px" }}>
-                        <span style={{ fontSize: "11px", color: "var(--ink-secondary)" }}>Phạt Phút trễ hạn</span>
+                        <span style={{ fontSize: "12px", color: "var(--ink-secondary)" }}>Phạt Phút trễ hạn</span>
                         <div style={{ fontSize: "16px", fontWeight: 700, color: "var(--amber, #f59e0b)" }}>0.100</div>
                       </div>
                       <div className="box" style={{ padding: "10px" }}>
-                        <span style={{ fontSize: "11px", color: "var(--ink-secondary)" }}>Phạt Nhảy cụm</span>
+                        <span style={{ fontSize: "12px", color: "var(--ink-secondary)" }}>Phạt Nhảy cụm</span>
                         <div style={{ fontSize: "16px", fontWeight: 700, color: "var(--accent)" }}>0.050</div>
                       </div>
                     </div>

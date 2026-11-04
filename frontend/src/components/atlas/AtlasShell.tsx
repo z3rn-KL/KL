@@ -285,7 +285,7 @@ export function AtlasShell({ children }: { children: React.ReactNode }) {
                   <span className="font-mono text-xs font-bold tracking-wider uppercase text-foreground leading-none">
                     NEXUS DELIVERY
                   </span>
-                  <span className="text-[9px] font-mono font-semibold tracking-widest uppercase text-muted-foreground leading-none mt-0.5">
+                  <span className="text-xs font-mono font-semibold tracking-widest uppercase text-muted-foreground leading-none mt-0.5">
                     INTELLIGENCE
                   </span>
                 </div>
@@ -345,7 +345,7 @@ export function AtlasShell({ children }: { children: React.ReactNode }) {
                     <div className="space-y-3">
                       {SPECIALIZED_MODULE_GROUPS.map((group) => (
                         <div key={group.id} className="space-y-1">
-                          <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider px-2">
+                          <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-2">
                             {group.label}
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
@@ -391,7 +391,7 @@ export function AtlasShell({ children }: { children: React.ReactNode }) {
               >
                 <Search className="size-3.5" />
                 <span className="hidden xl:inline font-medium">Đi đến trang hoặc lệnh…</span>
-                <kbd className="hidden lg:inline-flex items-center rounded border border-border bg-muted/60 px-1.5 py-0.2 font-mono text-[10px] font-semibold text-muted-foreground">
+                <kbd className="hidden lg:inline-flex items-center rounded border border-border bg-muted/60 px-1.5 py-0.2 font-mono text-xs font-semibold text-muted-foreground">
                   Ctrl K
                 </kbd>
               </button>
@@ -416,7 +416,7 @@ export function AtlasShell({ children }: { children: React.ReactNode }) {
                       : "bg-rose-500"
                   }`}
                 />
-                <span className="text-[11px] font-medium text-foreground/80">
+                <span className="text-xs font-medium text-foreground/80">
                   {isConnecting ? "Kiểm tra…" : isHealthy ? "Backend sẵn sàng" : "Chế độ Offline"}
                 </span>
               </div>
@@ -457,7 +457,7 @@ export function AtlasShell({ children }: { children: React.ReactNode }) {
           <span className="font-mono text-xs font-semibold text-primary">
             {activeWorkspace.title}
           </span>
-          <span className="text-[11px] text-muted-foreground">| Phím mũi tên ← → chuyển trang</span>
+          <span className="text-xs text-muted-foreground">| Phím mũi tên ← → chuyển trang</span>
           <button
             type="button"
             onClick={() => setIsPresentation(false)}

@@ -66,7 +66,7 @@ import {
   Info,
 } from "lucide-react";
 
-const AXIS_TICK_STYLE = { fontSize: 11 };
+const AXIS_TICK_STYLE = { fontSize: 12 };
 const CHART_MARGIN = { top: 10, right: 10, bottom: 6, left: 0 };
 const TOOLTIP_CURSOR = { fill: "rgba(0, 0, 0, 0.05)" };
 
@@ -297,7 +297,7 @@ export default function Overview() {
                   <CardTitle className="text-sm font-bold tracking-tight">
                     Bản đồ Giám sát Tuyến Thực địa & Phân bố Không gian
                   </CardTitle>
-                  <Badge variant="outline" className="text-[10px] font-mono border-primary/30 text-primary">
+                  <Badge variant="outline" className="text-xs font-mono font-semibold border-primary/30 text-primary">
                     OpenFreeMap Vector Positron
                   </Badge>
                 </div>
@@ -363,27 +363,27 @@ export default function Overview() {
 
               {/* Floating Map HUD */}
               <div className="absolute top-3 right-3 z-[400] max-w-[260px] rounded-lg border border-border/80 bg-card/90 p-3 shadow-md backdrop-blur-md">
-                <div className="flex items-center justify-between text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                <div className="flex items-center justify-between text-xs font-bold text-muted-foreground uppercase tracking-wider tracking-wider mb-2">
                   <span>Mô phỏng đợt giao mẫu</span>
-                  <Badge variant="secondary" className="text-[9px] font-mono px-1 py-0">
+                  <Badge variant="secondary" className="text-xs font-mono font-semibold px-2 py-0.5">
                     WL #65
                   </Badge>
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div className="p-2 rounded bg-muted/30 border border-border/50">
-                    <span className="text-[10px] text-muted-foreground block">Cự ly tuyến</span>
+                    <span className="text-xs text-muted-foreground block font-medium">Cự ly tuyến</span>
                     <span className="font-mono font-bold text-foreground">
                       {num(sampleRoute.data?.evaluation?.total_distance_km ?? 73.34, 2)} km
                     </span>
                   </div>
                   <div className="p-2 rounded bg-muted/30 border border-border/50">
-                    <span className="text-[10px] text-muted-foreground block">Thời gian</span>
+                    <span className="text-xs text-muted-foreground block font-medium">Thời gian</span>
                     <span className="font-mono font-bold text-foreground">
                       {num(sampleRoute.data?.evaluation?.total_travel_time_minutes ?? 184.2, 0)} ph
                     </span>
                   </div>
                 </div>
-                <div className="mt-2 text-[10px] text-muted-foreground flex items-center justify-between">
+                <div className="mt-2 text-xs text-muted-foreground flex items-center justify-between">
                   <span title="Chỉ số gom cụm đo lường trên tập 12 Validation Workloads">Gom cụm (12 WL): -6,83% đổi vùng</span>
                   <span className="text-primary font-semibold">100% SLA</span>
                 </div>
@@ -393,7 +393,7 @@ export default function Overview() {
             {/* Quick Cluster Selector Strip Below Map */}
             <div className="p-3 bg-muted/20 border-t border-border/60 flex items-center justify-between text-xs">
               <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-                <span className="text-[11px] font-semibold text-muted-foreground whitespace-nowrap">
+                <span className="text-xs font-bold text-muted-foreground whitespace-nowrap">
                   10 Cụm địa lý:
                 </span>
                 {Array.from({ length: 10 }).map((_, idx) => (
@@ -401,7 +401,7 @@ export default function Overview() {
                     key={idx}
                     type="button"
                     onClick={() => navigate(`/phan-cum?cluster=${idx}`)}
-                    className="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-medium border border-border/60 bg-card hover:border-primary transition-colors cursor-pointer"
+                    className="flex items-center gap-1 px-2 py-0.5 rounded text-xs font-mono font-semibold border border-border/60 bg-card hover:border-primary transition-colors cursor-pointer"
                   >
                     <span
                       className="size-2 rounded-full"
@@ -437,7 +437,7 @@ export default function Overview() {
                     108 Workload cơ sở: Dương (+) = tiết kiệm hơn NN; Âm (−) = dài hơn NN
                   </CardDescription>
                 </div>
-                <Badge variant="outline" className="font-mono text-[10px]">
+                <Badge variant="outline" className="font-mono text-xs font-semibold">
                   108 WL
                 </Badge>
               </div>
@@ -477,7 +477,7 @@ export default function Overview() {
                   </BarChart>
                 </ResponsiveContainer>
               </div>
-              <div className="mt-2 flex items-center justify-between text-[11px] text-muted-foreground border-t border-border/40 pt-2 font-mono">
+              <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground border-t border-border/40 pt-2 font-mono">
                 <span>Baseline NN: {num(nnDist, 2)} km</span>
                 <span className="text-primary font-semibold">Clarke-Wright tiết kiệm nhất</span>
               </div>
@@ -535,13 +535,13 @@ export default function Overview() {
                             {i === 0 && (
                               <Badge
                                 variant="secondary"
-                                className="text-[9px] px-1 py-0 font-bold text-emerald-700 dark:text-emerald-400"
+                                className="text-xs px-2 py-0.5 font-bold text-emerald-700 dark:text-emerald-400"
                               >
                                 Ngắn nhất
                               </Badge>
                             )}
                           </div>
-                          <div className="flex items-center gap-3 font-mono text-[11px]">
+                          <div className="flex items-center gap-3 font-mono text-xs font-semibold">
                             <span className="font-bold text-foreground">
                               {num(r.mean_distance_km, 2)} km
                             </span>
@@ -568,10 +568,10 @@ export default function Overview() {
         <Card className="border-border/80 shadow-xs flex flex-col justify-between">
           <CardHeader className="p-4 sm:p-5 pb-2">
             <div className="flex items-center justify-between">
-              <Badge variant="secondary" className="text-[10px] font-semibold uppercase">
+              <Badge variant="secondary" className="text-xs font-bold uppercase tracking-wider">
                 Đóng góp 1
               </Badge>
-              <Badge variant="outline" className="font-mono text-[10px] border-primary/30 text-primary">
+              <Badge variant="outline" className="font-mono text-xs font-semibold border-primary/30 text-primary">
                 λ = 0,50
               </Badge>
             </div>
@@ -604,10 +604,10 @@ export default function Overview() {
         <Card className="border-border/80 shadow-xs flex flex-col justify-between">
           <CardHeader className="p-4 sm:p-5 pb-2">
             <div className="flex items-center justify-between">
-              <Badge variant="secondary" className="text-[10px] font-semibold uppercase">
+              <Badge variant="secondary" className="text-xs font-bold uppercase tracking-wider">
                 Đánh đổi
               </Badge>
-              <Badge variant="outline" className="font-mono text-[10px] text-emerald-700 dark:text-emerald-400">
+              <Badge variant="outline" className="font-mono text-xs font-semibold text-emerald-700 dark:text-emerald-400">
                 12 WL Kiểm chứng
               </Badge>
             </div>
@@ -619,15 +619,15 @@ export default function Overview() {
           <CardContent className="p-4 sm:p-5 pt-0 space-y-2">
             <div className="grid grid-cols-3 gap-1.5 text-center">
               <div className="p-2 rounded bg-muted/30 border border-border/40">
-                <div className="text-[10px] text-muted-foreground font-semibold">ĐỔI CỤM</div>
+                <div className="text-xs text-muted-foreground font-bold tracking-wider">ĐỔI CỤM</div>
                 <div className="text-xs font-bold text-emerald-700 dark:text-emerald-400 font-mono">-6,83%</div>
               </div>
               <div className="p-2 rounded bg-muted/30 border border-border/40">
-                <div className="text-[10px] text-muted-foreground font-semibold">CỰ LY</div>
+                <div className="text-xs text-muted-foreground font-bold tracking-wider">CỰ LY</div>
                 <div className="text-xs font-bold text-amber-700 dark:text-amber-400 font-mono">+1,76%</div>
               </div>
               <div className="p-2 rounded bg-muted/30 border border-border/40">
-                <div className="text-[10px] text-muted-foreground font-semibold">SLA</div>
+                <div className="text-xs text-muted-foreground font-bold tracking-wider">SLA</div>
                 <div className="text-xs font-bold text-emerald-700 dark:text-emerald-400 font-mono">100%</div>
               </div>
             </div>
@@ -651,10 +651,10 @@ export default function Overview() {
         <Card className="border-border/80 shadow-xs flex flex-col justify-between">
           <CardHeader className="p-4 sm:p-5 pb-2">
             <div className="flex items-center justify-between">
-              <Badge variant="secondary" className="text-[10px] font-semibold uppercase">
+              <Badge variant="secondary" className="text-xs font-bold uppercase tracking-wider">
                 Đóng góp 2
               </Badge>
-              <Badge variant="outline" className="font-mono text-[10px] text-blue-700 dark:text-blue-400">
+              <Badge variant="outline" className="font-mono text-xs font-semibold text-blue-700 dark:text-blue-400">
                 16 WL Held-out
               </Badge>
             </div>
@@ -664,7 +664,7 @@ export default function Overview() {
             </CardDescription>
           </CardHeader>
           <CardContent className="p-4 sm:p-5 pt-0 space-y-2">
-            <div className="rounded-md bg-muted/30 p-2 font-mono text-[11px] font-semibold text-foreground border border-border/50 truncate">
+            <div className="rounded-md bg-muted/30 p-2 font-mono text-xs font-semibold font-semibold text-foreground border border-border/50 truncate">
               J(π) = 0,375D̄ + 0,375T̄ + 0,1M̄ + 0,1L̄
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">

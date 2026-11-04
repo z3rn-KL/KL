@@ -149,12 +149,12 @@ export function RouteTransitionInspector({
                 Thanh tra Chuỗi Giao hàng Thực tế
               </CardTitle>
               {algorithmLabel && (
-                <Badge variant="outline" className="text-[10px] font-mono">
+                <Badge variant="outline" className="text-xs font-mono">
                   {algorithmLabel}
                 </Badge>
               )}
               {workloadId !== undefined && (
-                <Badge variant="secondary" className="text-[10px] font-mono">
+                <Badge variant="secondary" className="text-xs font-mono">
                   WL #{workloadId}
                 </Badge>
               )}
@@ -185,7 +185,7 @@ export function RouteTransitionInspector({
             )}
 
             {onTimeRate !== null && onTimeRate !== undefined && (
-              <Badge variant="outline" className="text-[10px] text-emerald-600 dark:text-emerald-400 border-emerald-500/30">
+              <Badge variant="outline" className="text-xs text-emerald-600 dark:text-emerald-400 border-emerald-500/30">
                 SLA {pct(onTimeRate, 0)}
               </Badge>
             )}
@@ -198,7 +198,7 @@ export function RouteTransitionInspector({
         <div className="max-h-[380px] overflow-y-auto">
           <Table className="tbl">
             <TableHeader>
-              <TableRow className="bg-muted/40 text-[11px] border-b border-border/60 hover:bg-transparent">
+              <TableRow className="bg-muted/40 text-xs border-b border-border/60 hover:bg-transparent">
                 <TableHead className="w-[50px] text-center font-bold">Trạm</TableHead>
                 <TableHead className="font-bold">Mã vận đơn & Kiện</TableHead>
                 <TableHead className="font-bold">Cụm K-Means</TableHead>
@@ -223,7 +223,7 @@ export function RouteTransitionInspector({
                   >
                     {/* Step Number */}
                     <TableCell className="text-center font-mono font-bold text-foreground py-2">
-                      <span className="inline-flex size-5 items-center justify-center rounded-full bg-muted border border-border text-[11px]">
+                      <span className="inline-flex size-5 items-center justify-center rounded-full bg-muted border border-border text-xs">
                         {item.stopIndex}
                       </span>
                     </TableCell>
@@ -233,7 +233,7 @@ export function RouteTransitionInspector({
                       <div className="font-mono font-semibold text-foreground">
                         {item.deliveryId.slice(-8)}
                       </div>
-                      <div className="text-[11px] text-muted-foreground truncate max-w-[180px]">
+                      <div className="text-xs text-muted-foreground truncate max-w-[180px]">
                         {item.package_name ?? item.address ?? "Kiện hàng"}
                       </div>
                     </TableCell>
@@ -243,7 +243,7 @@ export function RouteTransitionInspector({
                       {typeof item.clusterId === "number" ? (
                         <Badge
                           variant="outline"
-                          className="font-mono text-[10px] px-1.5 py-0"
+                          className="font-mono text-xs px-1.5 py-0"
                           style={{
                             borderColor: `${cColor}66`,
                             backgroundColor: `${cColor}15`,
@@ -253,46 +253,46 @@ export function RouteTransitionInspector({
                           Cụm #{item.clusterId}
                         </Badge>
                       ) : (
-                        <span className="text-muted-foreground text-[11px]">Chưa có dữ liệu</span>
+                        <span className="text-muted-foreground text-xs">Chưa có dữ liệu</span>
                       )}
                     </TableCell>
 
                     {/* Transition Indicator */}
                     <TableCell className="py-2">
                       {item.isClusterSwitch ? (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-600 dark:text-amber-400">
+                        <span className="inline-flex items-center gap-1 text-xs font-bold text-amber-600 dark:text-amber-400">
                           <Zap className="size-3" />
                           <span>#{item.prevClusterId} → #{item.clusterId}</span>
                         </span>
                       ) : item.stopIndex > 1 && typeof item.clusterId === "number" ? (
-                        <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+                        <span className="text-xs text-muted-foreground flex items-center gap-1">
                           <CheckCircle2 className="size-2.5 text-emerald-500" />
                           <span>Cùng cụm #{item.clusterId}</span>
                         </span>
                       ) : (
-                        <span className="text-[11px] text-muted-foreground">–</span>
+                        <span className="text-xs text-muted-foreground">–</span>
                       )}
                     </TableCell>
 
                     {/* Expected SLA Deadline */}
-                    <TableCell className="py-2 font-mono text-[11px]">
+                    <TableCell className="py-2 font-mono text-xs">
                       {item.expectedDeliveryTime ? (
                         <span className="text-muted-foreground">
                           {dateTime(item.expectedDeliveryTime)}
                         </span>
                       ) : (
-                        <span className="text-muted-foreground text-[10px]">Linh hoạt</span>
+                        <span className="text-muted-foreground text-xs">Linh hoạt</span>
                       )}
                     </TableCell>
 
                     {/* Haversine distance with explicit indicator */}
-                    <TableCell className="py-2 text-right font-mono text-[11px]">
+                    <TableCell className="py-2 text-right font-mono text-xs">
                       {item.haversineLegKm !== null ? (
                         <span className="text-muted-foreground" title="Khoảng cách đường chim bay (Haversine)">
                           +{num(item.haversineLegKm, 2)} km*
                         </span>
                       ) : (
-                        <span className="text-muted-foreground text-[10px]">Xuất phát</span>
+                        <span className="text-muted-foreground text-xs">Xuất phát</span>
                       )}
                     </TableCell>
                   </TableRow>
@@ -304,14 +304,14 @@ export function RouteTransitionInspector({
       </CardContent>
 
       {/* Scientific Methodology Disclaimer Footer */}
-      <CardFooter className="p-3 px-4 sm:px-5 border-t border-border/60 bg-muted/20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-[11px] text-muted-foreground">
+      <CardFooter className="p-3 px-4 sm:px-5 border-t border-border/60 bg-muted/20 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-muted-foreground">
         <div className="flex items-center gap-1.5">
           <Info className="size-3.5 text-primary shrink-0" />
           <span>
             <b>*Ghi chú khoa học:</b> Cự ly chặng đánh dấu (*) là <i>khoảng cách đường chim bay (Haversine)</i> giữa 2 tọa độ liên tiếp, không phải khoảng cách mạng đường bộ OpenStreetMap.
           </span>
         </div>
-        <div className="text-[10px] font-mono text-muted-foreground/80 shrink-0">
+        <div className="text-xs font-mono text-muted-foreground/80 shrink-0">
           Chuyển cụm = 𝕀(c_t ≠ c_&#123;t-1&#125;)
         </div>
       </CardFooter>

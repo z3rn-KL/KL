@@ -49,9 +49,9 @@
     --primary: #176B5B;
     --primary-foreground: #FFFFFF;
     --secondary: #EDECE7;
-    --secondary-foreground: #1C292D;
-    --muted: #EDECE7;
-    --muted-foreground: #58686D;
+    --secondary-foreground: #102227;
+    --muted: #EBF1F2;
+    --muted-foreground: #2C434B;
     --accent: #E8F3F0;
     --accent-foreground: #176B5B;
     --destructive: #DC2626;
@@ -62,11 +62,11 @@
     --radius: 0.5rem;
 
     --sidebar: #F5F4F0;
-    --sidebar-foreground: #1C292D;
+    --sidebar-foreground: #102227;
     --sidebar-primary: #176B5B;
     --sidebar-primary-foreground: #FFFFFF;
     --sidebar-accent: #EDECE7;
-    --sidebar-accent-foreground: #1C292D;
+    --sidebar-accent-foreground: #102227;
     --sidebar-border: #D7DEDC;
     --sidebar-ring: #176B5B;
 
@@ -85,9 +85,9 @@
     --studio-surface: #FFFFFF;
     --studio-surface-elevated: #EDECE7;
     --studio-border: #D7DEDC;
-    --studio-text: #1C292D;
-    --studio-text-secondary: #58686D;
-    --studio-text-muted: #849499;
+    --studio-text: #102227;
+    --studio-text-secondary: #2C434B;
+    --studio-text-muted: #476069;
     --studio-accent: #176B5B;
     --studio-accent-soft: #E8F3F0;
   }
@@ -95,17 +95,17 @@
   [data-theme="dark"], .dark {
     /* Civic Atlas - Dark (Deep Obsidian & Mint Jade) */
     --background: #10191B;
-    --foreground: #EBF0EC;
+    --foreground: #F1F7F6;
     --card: #182326;
-    --card-foreground: #EBF0EC;
+    --card-foreground: #F1F7F6;
     --popover: #182326;
-    --popover-foreground: #EBF0EC;
+    --popover-foreground: #F1F7F6;
     --primary: #72C5AC;
     --primary-foreground: #10191B;
     --secondary: #1F2C30;
-    --secondary-foreground: #EBF0EC;
-    --muted: #1F2C30;
-    --muted-foreground: #ACBAB8;
+    --secondary-foreground: #F1F7F6;
+    --muted: #1B2B30;
+    --muted-foreground: #CAD7D9;
     --accent: rgba(114, 197, 172, 0.12);
     --accent-foreground: #72C5AC;
     --destructive: #EF4444;
@@ -115,11 +115,11 @@
     --ring: #72C5AC;
 
     --sidebar: #10191B;
-    --sidebar-foreground: #EBF0EC;
+    --sidebar-foreground: #F1F7F6;
     --sidebar-primary: #72C5AC;
     --sidebar-primary-foreground: #10191B;
     --sidebar-accent: #1F2C30;
-    --sidebar-accent-foreground: #EBF0EC;
+    --sidebar-accent-foreground: #F1F7F6;
     --sidebar-border: #344145;
     --sidebar-ring: #72C5AC;
 
@@ -138,9 +138,9 @@
     --studio-surface: #182326;
     --studio-surface-elevated: #1F2C30;
     --studio-border: #344145;
-    --studio-text: #EBF0EC;
-    --studio-text-secondary: #ACBAB8;
-    --studio-text-muted: #7A8C89;
+    --studio-text: #F1F7F6;
+    --studio-text-secondary: #CAD7D9;
+    --studio-text-muted: #A0B6BC;
     --studio-accent: #72C5AC;
     --studio-accent-soft: rgba(114, 197, 172, 0.12);
   }

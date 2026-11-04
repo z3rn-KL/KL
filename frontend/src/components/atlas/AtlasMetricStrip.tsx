@@ -55,7 +55,7 @@ export function AtlasMetricStrip({ metrics, className = "", scope }: AtlasMetric
                 {m.label}
               </span>
               {m.badge && (
-                <span className="rounded bg-primary/10 px-1 py-0.2 font-mono text-[9px] font-semibold text-primary border border-primary/20 shrink-0">
+                <span className="rounded bg-primary/10 px-1 py-0.2 font-mono text-xs font-semibold text-primary border border-primary/20 shrink-0">
                   {m.badge}
                 </span>
               )}
@@ -66,11 +66,11 @@ export function AtlasMetricStrip({ metrics, className = "", scope }: AtlasMetric
               <span className={`text-base font-bold font-mono tracking-tight tabular-nums ${colorClass}`}>
                 {m.value}
               </span>
-              {m.unit && <span className="text-[11px] text-muted-foreground font-medium">{m.unit}</span>}
+              {m.unit && <span className="text-xs text-muted-foreground font-medium">{m.unit}</span>}
             </div>
 
             {(m.hint || m.sub) && (
-              <span className="text-[10px] text-muted-foreground/80 truncate mt-0.5">
+              <span className="text-xs text-muted-foreground/80 truncate mt-0.5">
                 {m.hint || m.sub}
               </span>
             )}

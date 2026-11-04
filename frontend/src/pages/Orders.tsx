@@ -396,13 +396,13 @@ export default function Orders() {
                         {row.package_name ? String(row.package_name) : "–"}
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline" className="text-[10px] font-normal">
+                        <Badge variant="outline" className="text-xs font-medium">
                           {SERVICE_LABEL[rowService] ?? rowService}
                         </Badge>
                       </TableCell>
                       <TableCell>
                         <span
-                          className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-mono font-semibold"
+                          className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-mono font-semibold"
                           style={{
                             backgroundColor: `${clr}18`,
                             color: clr,
@@ -416,19 +416,19 @@ export default function Orders() {
                           Cụm #{rowClusterId}
                         </span>
                       </TableCell>
-                      <TableCell className="font-mono text-[11px] text-muted-foreground">
+                      <TableCell className="font-mono text-xs text-muted-foreground">
                         {row.expectedDeliveryTime ? dateTime(String(row.expectedDeliveryTime)) : "Linh hoạt"}
                       </TableCell>
-                      <TableCell className="text-right font-mono text-[11px]">
+                      <TableCell className="text-right font-mono text-xs">
                         {row.weight ? `${num(Number(row.weight), 2)} kg` : "–"}
                       </TableCell>
-                      <TableCell className="text-right font-mono text-[11px] text-foreground font-semibold">
+                      <TableCell className="text-right font-mono text-xs text-foreground font-semibold">
                         {row.haversineDistanceKm ? `${num(Number(row.haversineDistanceKm), 2)} km` : "–"}
                       </TableCell>
                       <TableCell className="text-center">
                         <Badge
                           variant={row.isLate ? "destructive" : "secondary"}
-                          className="text-[10px] font-mono px-1.5 py-0"
+                          className="text-xs font-mono font-semibold px-2 py-0.5"
                         >
                           {row.isLate ? "Trễ hạn" : "Đúng hạn"}
                         </Badge>
@@ -535,7 +535,7 @@ export default function Orders() {
 
             {/* Core Specifications Grid */}
             <div className="space-y-2">
-              <h4 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                 Thông tin chi tiết kiện hàng
               </h4>
               <div className="divide-y divide-border/40 rounded-lg border border-border/60 bg-muted/10 text-xs">
@@ -543,7 +543,7 @@ export default function Orders() {
                   const val = sel[key];
                   return (
                     <div key={key} className="flex items-center justify-between p-2.5">
-                      <span className="text-muted-foreground text-[11px]">{label}</span>
+                      <span className="text-muted-foreground text-xs">{label}</span>
                       <span className="font-mono font-medium text-foreground text-right max-w-[240px] truncate">
                         {formatDetailValue(key, val)}
                       </span>
@@ -555,7 +555,7 @@ export default function Orders() {
           </div>
 
           <div className="p-3 border-t border-border/60 bg-muted/20 flex items-center justify-between">
-            <span className="text-[11px] text-muted-foreground font-mono">
+            <span className="text-xs text-muted-foreground font-mono">
               GPS: {String(sel.receiverLat ?? "").slice(0, 7)}, {String(sel.receiverLng ?? "").slice(0, 7)}
             </span>
             <Button

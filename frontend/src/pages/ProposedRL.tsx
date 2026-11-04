@@ -114,7 +114,7 @@ export default function ProposedRL() {
                     margin={{ top: 8, right: 8, bottom: 6, left: 0 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                    <XAxis dataKey="algorithm" tick={{ fontSize: 11 }} />
+                    <XAxis dataKey="algorithm" tick={{ fontSize: 12 }} />
                     <YAxis
                       tick={{ fontSize: 12 }}
                       width={52}
@@ -157,7 +157,7 @@ export default function ProposedRL() {
                           {r.algorithm === PROPOSED && (
                             <Badge
                               variant="outline"
-                              className="ml-2 text-[10px] px-1.5 py-0"
+                              className="ml-2 text-xs px-1.5 py-0"
                             >
                               đề xuất
                             </Badge>
@@ -268,7 +268,7 @@ export default function ProposedRL() {
                       <TableCell className="font-medium">
                         {m.label}
                         {m.kind === "rl" && (
-                          <Badge variant="outline" className="ml-2 text-[10px] px-1.5 py-0">
+                          <Badge variant="outline" className="ml-2 text-xs px-1.5 py-0">
                             RL
                           </Badge>
                         )}

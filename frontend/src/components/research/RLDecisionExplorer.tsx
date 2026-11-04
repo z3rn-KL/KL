@@ -18,7 +18,6 @@ export const RlDecisionExplorer: React.FC<Props> = ({ sessionId, shipperId }) =>
     setLoading(true);
     setError(null);
     try {
-      // If no session passed, we can create a temporary session or use an active one
       let targetSession = sessionId;
       if (!targetSession) {
         const sRes = await api.createDispatchSession({
@@ -69,18 +68,18 @@ export const RlDecisionExplorer: React.FC<Props> = ({ sessionId, shipperId }) =>
 
   if (loading) {
     return (
-      <div style={{ padding: "2rem", textAlign: "center", color: "#64748b" }}>
-        <div style={{ display: "inline-block", width: 24, height: 24, border: "3px solid #cbd5e1", borderTopColor: "#0f766e", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
-        <p style={{ marginTop: "0.5rem" }}>Đang nạp trace suy luận từ mô hình PyTorch Proposed RL...</p>
+      <div style={{ padding: "2.5rem", textAlign: "center", color: "var(--text-secondary)" }}>
+        <div style={{ display: "inline-block", width: 28, height: 28, border: "3px solid var(--border)", borderTopColor: "#0f766e", borderRadius: "50%", animation: "spin 1s linear infinite" }} />
+        <p style={{ marginTop: "0.75rem", fontSize: 14 }}>Đang nạp trace suy luận từ mô hình PyTorch Proposed RL...</p>
       </div>
     );
   }
 
   if (error || !traceData || traceData.decision_trace.length === 0) {
     return (
-      <div style={{ padding: "1.5rem", background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 8, color: "#991b1b" }}>
+      <div style={{ padding: "1.5rem", background: "rgba(239, 68, 68, 0.08)", border: "1px solid rgba(239, 68, 68, 0.25)", borderRadius: 10, color: "#ef4444", fontSize: 14 }}>
         <strong>Không thể mở RL Decision Explorer:</strong> {error || "Chưa có dữ liệu bước đi."}
-        <button onClick={fetchTrace} style={{ marginLeft: "1rem", padding: "0.25rem 0.75rem", borderRadius: 4, background: "#dc2626", color: "#fff", border: "none", cursor: "pointer" }}>Thử lại</button>
+        <button onClick={fetchTrace} className="btn small primary" style={{ marginLeft: "1rem", fontSize: 13 }}>Thử lại</button>
       </div>
     );
   }
@@ -89,102 +88,110 @@ export const RlDecisionExplorer: React.FC<Props> = ({ sessionId, shipperId }) =>
   const currentStep: DecisionTraceStep = steps[currentStepIndex];
 
   return (
-    <div style={{ background: "#ffffff", borderRadius: 12, border: "1px solid #e2e8f0", padding: "1.5rem", boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)" }}>
+    <div className="card" style={{ background: "var(--panel-bg)", borderRadius: 12, border: "1px solid var(--border)", padding: "22px 26px", marginBottom: 28 }}>
       {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: "1px solid #f1f5f9", paddingBottom: "1rem", marginBottom: "1rem" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", borderBottom: "1px solid var(--border)", paddingBottom: "1rem", marginBottom: "1.25rem", flexWrap: "wrap", gap: 12 }}>
         <div>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <span style={{ background: "#ccfbf1", color: "#0f766e", padding: "0.2rem 0.5rem", borderRadius: 4, fontSize: "0.75rem", fontWeight: 700 }}>EXPLAINABLE RL</span>
-            <h3 style={{ margin: 0, fontSize: "1.15rem", color: "#0f172a" }}>RL Decision Explorer (Truy Vết Quyết Định Từng Bước)</h3>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", flexWrap: "wrap" }}>
+            <span style={{ background: "rgba(15, 118, 110, 0.15)", color: "#0f766e", padding: "3px 10px", borderRadius: 6, fontSize: "0.8rem", fontWeight: 700 }}>
+              EXPLAINABLE RL
+            </span>
+            <h3 style={{ margin: 0, fontSize: "1.25rem", fontWeight: 700, color: "var(--text)" }}>
+              RL Decision Explorer (Truy Vết Quyết Định Từng Bước)
+            </h3>
           </div>
-          <p style={{ margin: "0.25rem 0 0", fontSize: "0.85rem", color: "#64748b" }}>
+          <p style={{ margin: "0.35rem 0 0", fontSize: "0.9rem", color: "var(--text-secondary)", lineHeight: 1.5 }}>
             Quan sát trực tiếp cách mạng nơ-ron <code>CandidateQNetwork</code> chấm điểm Q-Score và chọn hành động tối ưu cho shipper.
           </p>
         </div>
-        <div style={{ textAlign: "right", fontSize: "0.8rem", color: "#64748b" }}>
-          <div>Mô hình: <strong>{traceData.model_type}</strong></div>
-          <div>Checkpoint: <span style={{ fontFamily: "monospace", color: "#0f766e" }}>{traceData.checkpoint.split("/").pop()}</span></div>
+        <div style={{ textAlign: "right", fontSize: "0.85rem", color: "var(--text-secondary)" }}>
+          <div>Mô hình: <strong style={{ color: "var(--text)" }}>{traceData.model_type}</strong></div>
+          <div style={{ marginTop: 2 }}>Checkpoint: <span style={{ fontFamily: "monospace", color: "#0f766e", fontWeight: 600 }}>{traceData.checkpoint.split("/").pop()}</span></div>
         </div>
       </div>
 
       {/* Control Toolbar */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#f8fafc", padding: "0.75rem 1rem", borderRadius: 8, marginBottom: "1.5rem" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "var(--surface)", padding: "10px 16px", borderRadius: 10, border: "1px solid var(--border)", marginBottom: "1.5rem", flexWrap: "wrap", gap: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
           <button
             onClick={() => setCurrentStepIndex(0)}
             disabled={currentStepIndex === 0}
-            style={{ padding: "0.4rem 0.8rem", borderRadius: 6, border: "1px solid #cbd5e1", background: "#fff", cursor: currentStepIndex === 0 ? "not-allowed" : "pointer" }}
+            className="btn small outline"
+            style={{ fontSize: 13, padding: "5px 10px" }}
           >
             ⏮ Đầu
           </button>
           <button
             onClick={() => setCurrentStepIndex((p) => Math.max(0, p - 1))}
             disabled={currentStepIndex === 0}
-            style={{ padding: "0.4rem 0.8rem", borderRadius: 6, border: "1px solid #cbd5e1", background: "#fff", cursor: currentStepIndex === 0 ? "not-allowed" : "pointer" }}
+            className="btn small outline"
+            style={{ fontSize: 13, padding: "5px 10px" }}
           >
             ◀ Lùi 1 Bước
           </button>
           <button
             onClick={() => setIsPlaying(!isPlaying)}
-            style={{ padding: "0.4rem 1.2rem", borderRadius: 6, border: "none", background: isPlaying ? "#ea580c" : "#0f766e", color: "#fff", fontWeight: 600, cursor: "pointer" }}
+            style={{ padding: "6px 16px", borderRadius: 6, border: "none", background: isPlaying ? "#ea580c" : "#0f766e", color: "#fff", fontWeight: 700, cursor: "pointer", fontSize: 13 }}
           >
             {isPlaying ? "⏸ Tạm Dừng" : "▶ Tự Động Chạy"}
           </button>
           <button
             onClick={() => setCurrentStepIndex((p) => Math.min(steps.length - 1, p + 1))}
             disabled={currentStepIndex >= steps.length - 1}
-            style={{ padding: "0.4rem 0.8rem", borderRadius: 6, border: "1px solid #cbd5e1", background: "#fff", cursor: currentStepIndex >= steps.length - 1 ? "not-allowed" : "pointer" }}
+            className="btn small outline"
+            style={{ fontSize: 13, padding: "5px 10px" }}
           >
             Tiếp 1 Bước ▶
           </button>
           <button
             onClick={() => setCurrentStepIndex(steps.length - 1)}
             disabled={currentStepIndex >= steps.length - 1}
-            style={{ padding: "0.4rem 0.8rem", borderRadius: 6, border: "1px solid #cbd5e1", background: "#fff", cursor: currentStepIndex >= steps.length - 1 ? "not-allowed" : "pointer" }}
+            className="btn small outline"
+            style={{ fontSize: 13, padding: "5px 10px" }}
           >
             Cuối ⏭
           </button>
         </div>
-        <div style={{ fontWeight: 600, color: "#334155" }}>
-          Bước <span style={{ color: "#0f766e", fontSize: "1.1rem" }}>{currentStepIndex + 1}</span> / {steps.length}
+        <div style={{ fontWeight: 600, color: "var(--text)", fontSize: 14 }}>
+          Bước <span style={{ color: "#0f766e", fontSize: "1.2rem", fontWeight: 800 }}>{currentStepIndex + 1}</span> / {steps.length}
         </div>
       </div>
 
       {/* Main Grid: Step Decision Details & Candidates */}
-      <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: "1.5rem" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(360px, 1fr))", gap: "1.5rem" }}>
         {/* Left: Step Context & Candidate Evaluations */}
         <div>
-          <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", padding: "1rem", borderRadius: 8, marginBottom: "1rem" }}>
-            <div style={{ fontSize: "0.85rem", color: "#166534", fontWeight: 600 }}>QUYẾT ĐỊNH TẠI BƯỚC #{currentStep.step_index}:</div>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginTop: "0.5rem" }}>
-              <span style={{ background: "#dcfce7", color: "#15803d", padding: "0.25rem 0.6rem", borderRadius: 4, fontWeight: 700 }}>
+          <div style={{ background: "rgba(16, 185, 129, 0.08)", border: "1px solid rgba(16, 185, 129, 0.3)", padding: "14px 16px", borderRadius: 10, marginBottom: "1rem" }}>
+            <div style={{ fontSize: "0.85rem", color: "#059669", fontWeight: 700 }}>QUYẾT ĐỊNH TẠI BƯỚC #{currentStep.step_index}:</div>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginTop: "0.5rem", flexWrap: "wrap" }}>
+              <span style={{ background: "rgba(16, 185, 129, 0.15)", color: "var(--text)", padding: "4px 10px", borderRadius: 6, fontWeight: 700, fontSize: 13 }}>
                 {currentStep.current_node === "DEPOT" ? "🏢 Kho Tân Bình" : `📦 ${currentStep.current_node.slice(0, 8)}...`}
               </span>
-              <span style={{ color: "#16a34a", fontSize: "1.2rem", fontWeight: 900 }}>➔</span>
-              <span style={{ background: "#0f766e", color: "#fff", padding: "0.25rem 0.6rem", borderRadius: 4, fontWeight: 700 }}>
+              <span style={{ color: "#10b981", fontSize: "1.2rem", fontWeight: 900 }}>➔</span>
+              <span style={{ background: "#0f766e", color: "#fff", padding: "4px 10px", borderRadius: 6, fontWeight: 700, fontSize: 13 }}>
                 ⭐ Chọn: {currentStep.chosen_delivery_id.slice(0, 8)}...
               </span>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "0.5rem", marginTop: "0.75rem", fontSize: "0.85rem" }}>
-              <div>Q-Score Chọn: <strong>{currentStep.chosen_q_score.toFixed(4)}</strong></div>
-              <div>Phần Thưởng Step ($r_t$): <strong>{currentStep.step_reward.toFixed(4)}</strong></div>
-              <div>Số Ứng Viên Xét: <strong>{currentStep.candidates_evaluated.length}</strong></div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "0.75rem", marginTop: "0.75rem", fontSize: "0.85rem" }}>
+              <div>Q-Score Chọn: <strong style={{ color: "var(--text)", fontSize: 14 }}>{currentStep.chosen_q_score.toFixed(4)}</strong></div>
+              <div>Phần Thưởng Step ($r_t$): <strong style={{ color: "var(--text)", fontSize: 14 }}>{currentStep.step_reward.toFixed(4)}</strong></div>
+              <div>Số Ứng Viên Xét: <strong style={{ color: "var(--text)", fontSize: 14 }}>{currentStep.candidates_evaluated.length}</strong></div>
             </div>
           </div>
 
-          <h4 style={{ margin: "0 0 0.5rem", fontSize: "0.95rem", color: "#334155" }}>
+          <h4 style={{ margin: "0 0 0.6rem", fontSize: "1rem", fontWeight: 700, color: "var(--text)" }}>
             Bảng Chấm Điểm Ứng Viên (Candidate Scoring):
           </h4>
-          <div style={{ maxHeight: 340, overflowY: "auto", border: "1px solid #e2e8f0", borderRadius: 8 }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.8rem", textAlign: "left" }}>
-              <thead style={{ background: "#f8fafc", position: "sticky", top: 0, borderBottom: "1px solid #cbd5e1" }}>
+          <div style={{ maxHeight: 360, overflowX: "auto", overflowY: "auto", border: "1px solid var(--border)", borderRadius: 10, scrollbarWidth: "thin" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem", textAlign: "left" }}>
+              <thead style={{ background: "var(--surface)", position: "sticky", top: 0, borderBottom: "1.5px solid var(--border)", zIndex: 1 }}>
                 <tr>
-                  <th style={{ padding: "0.5rem" }}>Ứng Viên</th>
-                  <th style={{ padding: "0.5rem" }}>Cụm</th>
-                  <th style={{ padding: "0.5rem" }}>Q-Score Mạng Nơ-ron</th>
-                  <th style={{ padding: "0.5rem" }}>Khoảng Cách</th>
-                  <th style={{ padding: "0.5rem" }}>Gấp Rút</th>
-                  <th style={{ padding: "0.5rem" }}>Trạng Thái</th>
+                  <th style={{ padding: "8px 10px", color: "var(--text)", fontWeight: 700, minWidth: 140, whiteSpace: "nowrap" }}>Ứng Viên</th>
+                  <th style={{ padding: "8px 10px", color: "var(--text)", fontWeight: 700, minWidth: 80, whiteSpace: "nowrap" }}>Cụm</th>
+                  <th style={{ padding: "8px 10px", color: "var(--text)", fontWeight: 700, minWidth: 140, whiteSpace: "nowrap" }}>Q-Score Mạng Nơ-ron</th>
+                  <th style={{ padding: "8px 10px", color: "var(--text)", fontWeight: 700, minWidth: 95, whiteSpace: "nowrap" }}>Khoảng Cách</th>
+                  <th style={{ padding: "8px 10px", color: "var(--text)", fontWeight: 700, minWidth: 80, whiteSpace: "nowrap" }}>Gấp Rút</th>
+                  <th style={{ padding: "8px 10px", color: "var(--text)", fontWeight: 700, minWidth: 120, whiteSpace: "nowrap" }}>Trạng Thái</th>
                 </tr>
               </thead>
               <tbody>
@@ -194,28 +201,43 @@ export const RlDecisionExplorer: React.FC<Props> = ({ sessionId, shipperId }) =>
                     <tr
                       key={cand.delivery_id}
                       style={{
-                        background: isSelected ? "#f0fdf4" : cIdx % 2 === 0 ? "#ffffff" : "#fcfcfc",
-                        borderBottom: "1px solid #f1f5f9",
+                        background: isSelected ? "rgba(16, 185, 129, 0.12)" : cIdx % 2 === 0 ? "var(--panel-bg)" : "var(--surface)",
+                        borderBottom: "1px solid var(--border)",
                         fontWeight: isSelected ? 700 : 400,
                       }}
                     >
-                      <td style={{ padding: "0.5rem" }}>
-                        <code>{cand.delivery_id.slice(0, 8)}...</code>
-                        {cand.order_code && <span style={{ color: "#64748b", marginLeft: 4 }}>({cand.order_code})</span>}
+                      <td style={{ padding: "8px 10px", minWidth: 140, whiteSpace: "nowrap" }}>
+                        <code style={{ fontSize: 13, color: "var(--text)" }}>{cand.delivery_id.slice(0, 8)}...</code>
+                        {cand.order_code && <span style={{ color: "var(--text-secondary)", marginLeft: 6, fontWeight: 500 }}>({cand.order_code})</span>}
                       </td>
-                      <td style={{ padding: "0.5rem" }}>Cụm #{cand.cluster_id ?? "-"}</td>
-                      <td style={{ padding: "0.5rem", color: isSelected ? "#0f766e" : "#334155" }}>
-                        <strong>{cand.q_score.toFixed(4)}</strong>
+                      <td style={{ padding: "8px 10px", color: "var(--text)", minWidth: 80, whiteSpace: "nowrap" }}>Cụm #{cand.cluster_id ?? "-"}</td>
+                      <td style={{ padding: "8px 10px", color: isSelected ? "#0f766e" : "var(--text)", minWidth: 140, whiteSpace: "nowrap" }}>
+                        <strong style={{ fontSize: 14 }}>{cand.q_score.toFixed(4)}</strong>
                       </td>
-                      <td style={{ padding: "0.5rem" }}>{cand.feature_dict.norm_distance ?? "-"}</td>
-                      <td style={{ padding: "0.5rem" }}>{cand.feature_dict.deadline_tightness ?? "-"}</td>
-                      <td style={{ padding: "0.5rem" }}>
+                      <td style={{ padding: "8px 10px", color: "var(--text-secondary)", minWidth: 95, whiteSpace: "nowrap" }}>{cand.feature_dict.norm_distance ?? "-"}</td>
+                      <td style={{ padding: "8px 10px", color: "var(--text-secondary)", minWidth: 80, whiteSpace: "nowrap" }}>{cand.feature_dict.deadline_tightness ?? "-"}</td>
+                      <td style={{ padding: "8px 10px", minWidth: 120, whiteSpace: "nowrap" }}>
                         {isSelected ? (
-                          <span style={{ background: "#0f766e", color: "#fff", padding: "0.15rem 0.4rem", borderRadius: 4, fontSize: "0.7rem" }}>
+                          <span
+                            style={{
+                              background: "#0f766e",
+                              color: "#fff",
+                              padding: "3px 10px",
+                              borderRadius: 4,
+                              fontSize: "0.75rem",
+                              fontWeight: 700,
+                              whiteSpace: "nowrap",
+                              display: "inline-flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              flexShrink: 0,
+                              letterSpacing: "0.02em",
+                            }}
+                          >
                             ĐƯỢC CHỌN
                           </span>
                         ) : (
-                          <span style={{ color: "#94a3b8" }}>Hạng #{cIdx + 1}</span>
+                          <span style={{ color: "var(--text-secondary)", fontWeight: 500, whiteSpace: "nowrap" }}>Hạng #{cIdx + 1}</span>
                         )}
                       </td>
                     </tr>
@@ -228,48 +250,56 @@ export const RlDecisionExplorer: React.FC<Props> = ({ sessionId, shipperId }) =>
 
         {/* Right: Cumulative Route Metrics & 8 Invariant State Features */}
         <div>
-          <div style={{ background: "#f8fafc", padding: "1rem", borderRadius: 8, border: "1px solid #e2e8f0", marginBottom: "1rem" }}>
-            <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "#334155", marginBottom: "0.5rem" }}>LŨY KẾ TIẾN TRÌNH TUYẾN:</div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", fontSize: "0.85rem" }}>
-              <div style={{ background: "#fff", padding: "0.5rem", borderRadius: 6, border: "1px solid #e2e8f0" }}>
-                <span style={{ color: "#64748b", fontSize: "0.75rem" }}>Quãng đường:</span>
-                <div style={{ fontSize: "1.1rem", fontWeight: 700, color: "#0f172a" }}>{currentStep.cumulative_distance_km} km</div>
+          <div style={{ background: "var(--surface)", padding: "16px 18px", borderRadius: 10, border: "1px solid var(--border)", marginBottom: "1.25rem" }}>
+            <div style={{ fontSize: "0.9rem", fontWeight: 700, color: "var(--text)", marginBottom: "0.75rem" }}>LŨY KẾ TIẾN TRÌNH TUYẾN:</div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+              <div style={{ background: "var(--panel-bg)", padding: "10px 14px", borderRadius: 8, border: "1px solid var(--border)" }}>
+                <span style={{ color: "var(--text-secondary)", fontSize: "0.8rem", fontWeight: 500 }}>Quãng đường:</span>
+                <div style={{ fontSize: "1.2rem", fontWeight: 700, color: "var(--text)", marginTop: 2 }}>{currentStep.cumulative_distance_km} km</div>
               </div>
-              <div style={{ background: "#fff", padding: "0.5rem", borderRadius: 6, border: "1px solid #e2e8f0" }}>
-                <span style={{ color: "#64748b", fontSize: "0.75rem" }}>Thời gian di chuyển:</span>
-                <div style={{ fontSize: "1.1rem", fontWeight: 700, color: "#0f172a" }}>{currentStep.cumulative_time_minutes} min</div>
+              <div style={{ background: "var(--panel-bg)", padding: "10px 14px", borderRadius: 8, border: "1px solid var(--border)" }}>
+                <span style={{ color: "var(--text-secondary)", fontSize: "0.8rem", fontWeight: 500 }}>Thời gian di chuyển:</span>
+                <div style={{ fontSize: "1.2rem", fontWeight: 700, color: "var(--text)", marginTop: 2 }}>{currentStep.cumulative_time_minutes} min</div>
               </div>
-              <div style={{ background: "#fff", padding: "0.5rem", borderRadius: 6, border: "1px solid #e2e8f0" }}>
-                <span style={{ color: "#64748b", fontSize: "0.75rem" }}>Số lần đổi cụm:</span>
-                <div style={{ fontSize: "1.1rem", fontWeight: 700, color: "#0f172a" }}>{currentStep.cluster_switches} lần</div>
+              <div style={{ background: "var(--panel-bg)", padding: "10px 14px", borderRadius: 8, border: "1px solid var(--border)" }}>
+                <span style={{ color: "var(--text-secondary)", fontSize: "0.8rem", fontWeight: 500 }}>Số lần đổi cụm:</span>
+                <div style={{ fontSize: "1.2rem", fontWeight: 700, color: "var(--text)", marginTop: 2 }}>{currentStep.cluster_switches} lần</div>
               </div>
-              <div style={{ background: "#fff", padding: "0.5rem", borderRadius: 6, border: "1px solid #e2e8f0" }}>
-                <span style={{ color: "#64748b", fontSize: "0.75rem" }}>Tổng phút trễ:</span>
-                <div style={{ fontSize: "1.1rem", fontWeight: 700, color: currentStep.lateness_minutes > 0 ? "#dc2626" : "#16a34a" }}>
+              <div style={{ background: "var(--panel-bg)", padding: "10px 14px", borderRadius: 8, border: "1px solid var(--border)" }}>
+                <span style={{ color: "var(--text-secondary)", fontSize: "0.8rem", fontWeight: 500 }}>Tổng phút trễ:</span>
+                <div style={{ fontSize: "1.2rem", fontWeight: 700, color: currentStep.lateness_minutes > 0 ? "#ef4444" : "#10b981", marginTop: 2 }}>
                   {currentStep.lateness_minutes} min
                 </div>
               </div>
             </div>
           </div>
 
-          <div style={{ background: "#fff", padding: "1rem", borderRadius: 8, border: "1px solid #e2e8f0" }}>
-            <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "#334155", marginBottom: "0.5rem" }}>
+          <div style={{ background: "var(--panel-bg)", padding: "16px 18px", borderRadius: 10, border: "1px solid var(--border)" }}>
+            <div style={{ fontSize: "0.9rem", fontWeight: 700, color: "var(--text)", marginBottom: "0.75rem" }}>
               8 ĐẶC TRƯNG TRẠNG THÁI (INVARIANT FEATURES):
             </div>
             {(() => {
               const selectedCand = currentStep.candidates_evaluated.find((c) => c.delivery_id === currentStep.chosen_delivery_id);
               if (!selectedCand) return null;
               const f = selectedCand.feature_dict;
+              const featList = [
+                { label: "1. Khoảng cách (d_norm)", val: f.norm_distance },
+                { label: "2. Thời gian chạy (t_norm)", val: f.norm_travel_time },
+                { label: "3. Gấp rút deadline", val: f.deadline_tightness },
+                { label: "4. Thời gian chùng (slack)", val: f.slack_ratio },
+                { label: "5. Góc rẽ lệch (detour)", val: f.detour_penalty },
+                { label: "6. Trùng cụm (cluster)", val: f.cluster_alignment },
+                { label: "7. Hướng về Depot", val: f.return_depot_impact },
+                { label: "8. Mật độ lân cận", val: f.candidate_density },
+              ];
               return (
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.4rem", fontSize: "0.75rem" }}>
-                  <div>1. Khoảng cách: <strong>{f.norm_distance}</strong></div>
-                  <div>2. Thời gian chạy: <strong>{f.norm_travel_time}</strong></div>
-                  <div>3. Gấp rút deadline: <strong>{f.deadline_tightness}</strong></div>
-                  <div>4. Thời gian chùng: <strong>{f.slack_ratio}</strong></div>
-                  <div>5. Góc rẽ lệch (Detour): <strong>{f.detour_penalty}</strong></div>
-                  <div>6. Trùng cụm: <strong>{f.cluster_alignment}</strong></div>
-                  <div>7. Hướng về Depot: <strong>{f.return_depot_impact}</strong></div>
-                  <div>8. Mật độ lân cận: <strong>{f.candidate_density}</strong></div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.6rem", fontSize: "0.85rem" }}>
+                  {featList.map((item, idx) => (
+                    <div key={idx} style={{ background: "var(--surface)", padding: "8px 12px", borderRadius: 6, border: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <span style={{ color: "var(--text-secondary)", fontSize: 13 }}>{item.label}:</span>
+                      <strong style={{ color: "var(--text)", fontSize: 13.5 }}>{item.val !== undefined && item.val !== null ? item.val : "-"}</strong>
+                    </div>
+                  ))}
                 </div>
               );
             })()}

@@ -1296,8 +1296,11 @@ class DispatchSession:
         # Return leg to depot
         return_dist = haversine_distance_km(prev_lat, prev_lng, self.depot["lat"], self.depot["lng"])
         total_dist += return_dist
-        curr_time += (return_dist / self.average_speed_kmh) * 60.0
+        return_time = (return_dist / self.average_speed_kmh) * 60.0
+        return_arrival = curr_time + return_time
         geom.append([self.depot["lng"], self.depot["lat"]])
+
+        curr_time = return_arrival
 
         return {
             "route_sequence": ordered_ids,
@@ -1551,13 +1554,27 @@ class DispatchSession:
                 },
             }
 
+            used_algos = list({s["algorithm_used"] for s in shipper_previews if s["order_count"] > 0})
+            is_fallback = any("fallback" in s["algorithm_used"] for s in shipper_previews)
+            actual_algo = algo
+            fallback_reason = None
+            if is_fallback:
+                actual_algo = "nearest_neighbor_fallback"
+                fallback_reason = "Proposed RL solver tự động chuyển dự phòng (fallback) sang Nearest Neighbor cho các tour phức tạp."
+            elif used_algos:
+                actual_algo = used_algos[0] if len(used_algos) == 1 else "hybrid"
+
             return {
                 "success": True,
                 "preview_id": preview_id,
                 "session_id": self.session_id,
                 "session_revision": self.session_revision,
+                "requested_strategy": strat,
+                "requested_algorithm": algo,
                 "strategy_used": strat,
-                "algorithm_used": algo,
+                "algorithm_used": actual_algo,
+                "is_fallback": is_fallback,
+                "fallback_reason": fallback_reason,
                 "distance_model": "haversine",
                 "speed_assumption": f"{self.average_speed_kmh} km/h (Mô phỏng đường chim bay)",
                 "candidate_kpi": {
@@ -1674,6 +1691,7 @@ class DispatchSession:
                 active_stop = None
                 for stop in shipper.timeline_stops:
                     is_pickup = (stop.get("stop_type") == "DEPOT_PICKUP" or stop.get("order_id") == "depot_pickup")
+                    is_return = (stop.get("stop_type") == "RETURN_DEPOT" or stop.get("order_id") == "return_to_depot")
 
                     if is_pickup:
                         if self.simulation_clock >= stop["departure_minute"]:
@@ -1693,6 +1711,23 @@ class DispatchSession:
                             active_stop = stop
                             shipper.status = "IN_TRANSIT"
                             shipper.current_order_id = "depot_pickup"
+                            shipper.location_source = "SIMULATION"
+                            shipper.last_location_update_minute = self.simulation_clock
+                            leg_duration = max(0.1, stop["arrival_minute"] - prev_dep_time)
+                            progress = max(0.0, min(1.0, (self.simulation_clock - prev_dep_time) / leg_duration))
+                            shipper.current_lat = prev_lat + progress * (stop["lat"] - prev_lat)
+                            shipper.current_lng = prev_lng + progress * (stop["lng"] - prev_lng)
+                            break
+
+                    elif is_return:
+                        if self.simulation_clock >= stop["arrival_minute"]:
+                            prev_lat, prev_lng = stop["lat"], stop["lng"]
+                            prev_dep_time = stop["arrival_minute"]
+                            continue
+                        else:
+                            active_stop = stop
+                            shipper.status = "RETURNING"
+                            shipper.current_order_id = "return_to_depot"
                             shipper.location_source = "SIMULATION"
                             shipper.last_location_update_minute = self.simulation_clock
                             leg_duration = max(0.1, stop["arrival_minute"] - prev_dep_time)
@@ -1761,16 +1796,28 @@ class DispatchSession:
                         shipper.current_lng = prev_lng + progress * (stop["lng"] - prev_lng)
                         break
 
-                if not active_stop and all(
-                    self.orders[s["order_id"]].delivery_status == "DELIVERED"
-                    for s in shipper.timeline_stops if s["order_id"] in self.orders
+                if not active_stop and shipper.assigned_order_ids and all(
+                    self.orders[oid].delivery_status == "DELIVERED"
+                    for oid in shipper.assigned_order_ids if oid in self.orders
                 ):
-                    shipper.status = "IDLE"
-                    shipper.current_order_id = None
-                    shipper.current_lat = self.depot["lat"]
-                    shipper.current_lng = self.depot["lng"]
-                    shipper.location_source = "DEPOT"
-                    shipper.last_location_update_minute = self.simulation_clock
+                    return_dist = haversine_distance_km(prev_lat, prev_lng, self.depot["lat"], self.depot["lng"])
+                    return_arrival = prev_dep_time + (return_dist / self.average_speed_kmh) * 60.0
+                    if self.simulation_clock < return_arrival:
+                        shipper.status = "RETURNING"
+                        shipper.current_order_id = "return_to_depot"
+                        shipper.location_source = "SIMULATION"
+                        shipper.last_location_update_minute = self.simulation_clock
+                        leg_duration = max(0.1, return_arrival - prev_dep_time)
+                        progress = max(0.0, min(1.0, (self.simulation_clock - prev_dep_time) / leg_duration))
+                        shipper.current_lat = prev_lat + progress * (self.depot["lat"] - prev_lat)
+                        shipper.current_lng = prev_lng + progress * (self.depot["lng"] - prev_lng)
+                    else:
+                        shipper.status = "IDLE"
+                        shipper.current_order_id = None
+                        shipper.current_lat = self.depot["lat"]
+                        shipper.current_lng = self.depot["lng"]
+                        shipper.location_source = "DEPOT"
+                        shipper.last_location_update_minute = self.simulation_clock
 
             # Update SLA for all remaining uncompleted orders
             for o in self.orders.values():
@@ -1808,6 +1855,48 @@ class DispatchSession:
 
         # Orders not delivered become carry-over
         undelivered = [o for o in today_orders if o.delivery_status != "DELIVERED"]
+        new_orders_today = [o for o in today_orders if o.release_day == self.current_day]
+        carried_in = [o for o in today_orders if o.release_day < self.current_day]
+
+        # Daily delivered orders for this shift
+        day_deliv = [o for o in self.orders.values() if o.delivered_day == self.current_day]
+        day_ontime = [o for o in day_deliv if o.sla_status == "ON_TIME"]
+        day_overdue = [o for o in day_deliv if o.sla_status == "OVERDUE"]
+        day_sla_pct = round(len(day_ontime) / max(1, len(day_deliv)), 3) if day_deliv else 0.0
+
+        # Cumulative delivered metrics up to current_day
+        cum_released = [o for o in self.orders.values() if o.release_day <= self.current_day]
+        cum_delivered = [o for o in cum_released if o.delivery_status == "DELIVERED"]
+        cum_ontime = [o for o in cum_delivered if o.sla_status == "ON_TIME"]
+        cum_overdue = [o for o in cum_delivered if o.sla_status == "OVERDUE"]
+        cum_sla_pct = round(len(cum_ontime) / max(1, len(cum_delivered)), 3) if cum_delivered else 0.0
+
+        # Capture snapshot of shipper performance for this specific shift BEFORE resetting shipper assignments
+        shipper_perf = []
+        for s in self.shippers.values():
+            # Orders completed today by this shipper
+            s_completed = [
+                o.order_id for o in day_deliv
+                if o.assigned_shipper_id == s.shipper_id or o.order_id in s.completed_order_ids
+            ]
+            # Orders assigned to this shipper today that were not completed (pending carryover)
+            s_pending = [
+                o.order_id for o in undelivered
+                if o.assigned_shipper_id == s.shipper_id or (o.order_id in s.assigned_order_ids and o.delivery_status != "DELIVERED")
+            ]
+            s_all_today = list(dict.fromkeys(s_completed + s_pending))
+            s_weight = sum(self.orders[o_id].weight_kg for o_id in s_all_today if o_id in self.orders)
+
+            shipper_perf.append({
+                "shipper_id": s.shipper_id,
+                "name": s.name,
+                "assigned_count": len(s_all_today),
+                "completed_count": len(s_completed),
+                "pending_count": len(s_pending),
+                "weight_kg": round(s_weight, 1),
+                "distance_km": round(s.distance_travelled_km, 2),
+            })
+
         for o in undelivered:
             o.delivery_status = "CARRIED_OVER"
             o.carryover_count += 1
@@ -1820,23 +1909,32 @@ class DispatchSession:
             s.current_order_id = None
             s.assigned_order_ids.clear()
             s.timeline_stops.clear()
-        day_deliv = [o for o in self.orders.values() if o.delivered_day == self.current_day]
-        day_ontime = [o for o in day_deliv if o.sla_status == "ON_TIME"]
-        day_overdue = [o for o in day_deliv if o.sla_status == "OVERDUE"]
 
         metrics = {
             "day": self.current_day,
+            # Daily breakdown
+            "new_orders_today": len(new_orders_today),
+            "carried_over_in": len(carried_in),
+            "total_orders_to_process": len(today_orders),
             "day_delivered": len(day_deliv),
             "day_delivered_on_time": len(day_ontime),
             "day_delivered_overdue": len(day_overdue),
-            "day_on_time_rate": round(len(day_ontime) / max(1, len(day_deliv)), 3) if day_deliv else 0.0,
-            "total_orders": len(today_orders),
-            "delivered": len(delivered),
-            "delivered_on_time": len(on_time),
-            "delivered_overdue": len(overdue),
+            "day_on_time_rate": day_sla_pct,
+            "day_sla_rate": day_sla_pct,
+            "day_remaining": len(undelivered),
+            "day_carried_over_out": len(undelivered),
             "carried_over_out": len(undelivered),
-            "on_time_rate": round(len(on_time) / max(1, len(delivered)), 3),
-            "delivery_completion_rate": round(len(delivered) / max(1, len(today_orders)), 3),
+            # Cumulative breakdown
+            "total_orders": len(cum_released),
+            "cumulative_total_released": len(cum_released),
+            "delivered": len(cum_delivered),
+            "cumulative_delivered": len(cum_delivered),
+            "delivered_on_time": len(cum_ontime),
+            "delivered_overdue": len(cum_overdue),
+            "on_time_rate": cum_sla_pct,
+            "cumulative_sla_rate": cum_sla_pct,
+            "delivery_completion_rate": round(len(cum_delivered) / max(1, len(cum_released)), 3) if cum_released else 0.0,
+            # Fleet stats
             "shippers_active": 16,
             "total_distance_km": round(sum(s.distance_travelled_km for s in self.shippers.values()), 2),
             "total_work_minutes": round(sum(s.working_minutes for s in self.shippers.values()), 1),
@@ -1844,6 +1942,7 @@ class DispatchSession:
             "shift_status": "EARLY_CUT" if self.simulation_clock < self.shift_minutes else ("FULL_SHIFT" if self.simulation_clock <= self.shift_minutes else "OVERTIME"),
             "simulation_clock_at_end": round(self.simulation_clock, 1),
             "shift_duration_minutes": self.shift_minutes,
+            "shipper_performance": shipper_perf,
         }
         self.daily_metrics.append(metrics)
 
@@ -1913,6 +2012,9 @@ class DispatchSession:
                 s.current_load_kg = 0.0
                 s.working_minutes = 0.0
                 s.overtime_minutes = 0.0
+                s.distance_travelled_km = 0.0
+                s.completed_order_ids.clear()
+                s.assigned_order_ids.clear()
                 s.route_sequence.clear()
                 s.route_geometry = [[self.depot["lng"], self.depot["lat"]]]
                 s.timeline_stops.clear()

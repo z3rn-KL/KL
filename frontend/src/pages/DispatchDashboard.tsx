@@ -5,11 +5,15 @@ import {
   RotateCcw,
   RefreshCw,
   ServerOff,
+  AlertTriangle,
+  Check,
+  X,
 } from "lucide-react";
 import {
   api,
   DispatchSessionState,
   NearbyOrderItem,
+  PlanPreviewResponse,
 } from "@/lib/api";
 import { PlanningDesk } from "@/components/dispatch/PlanningDesk";
 import { LiveOperations } from "@/components/dispatch/LiveOperations";
@@ -27,6 +31,7 @@ export default function DispatchDashboard() {
   const [session, setSession] = useState<DispatchSessionState | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [connectionError, setConnectionError] = useState<string | null>(null);
+  const [sessionNotFoundError, setSessionNotFoundError] = useState<string | null>(null);
   const [activeWorkspace, setActiveWorkspace] = useState<DispatchWorkspace>(initialWs);
 
   const switchWorkspace = (ws: DispatchWorkspace, sid?: string) => {
@@ -45,6 +50,7 @@ export default function DispatchDashboard() {
   // Operational Context
   const [selectedShipperId, setSelectedShipperId] = useState<string>("shipper_01");
   const [nearbyOrders, setNearbyOrders] = useState<NearbyOrderItem[]>([]);
+  const [activePreviewPlan, setActivePreviewPlan] = useState<PlanPreviewResponse | null>(null);
 
   // Simulation State
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
@@ -55,11 +61,23 @@ export default function DispatchDashboard() {
 
   const playTimerRef = useRef<any>(null);
 
+  // Auto-dismiss notification toasts so they never linger during active operations
+  useEffect(() => {
+    if (actionSuccess || actionError) {
+      const timer = setTimeout(() => {
+        setActionSuccess(null);
+        setActionError(null);
+      }, 4500);
+      return () => clearTimeout(timer);
+    }
+  }, [actionSuccess, actionError]);
+
   // Initialize or reload dispatch session
   const initSession = async (forceNew = false) => {
     try {
       setLoading(true);
       setConnectionError(null);
+      setSessionNotFoundError(null);
       setActionError(null);
 
       const querySessId = searchParams.get("session_id");
@@ -70,12 +88,20 @@ export default function DispatchDashboard() {
       if (targetSessId) {
         try {
           sess = await api.getDispatchSession(targetSessId);
-        } catch {
-          console.warn("Phiên cũ không còn hợp lệ, tạo phiên mới");
+        } catch (err: any) {
+          // Rule 6: Do not auto-create a new session when old session does not exist without explicit user action
+          console.warn("Phiên làm việc không tồn tại hoặc đã hết hạn:", targetSessId);
+          if (typeof window !== "undefined") {
+            localStorage.removeItem("nexus_active_session_id");
+          }
+          setSessionNotFoundError(targetSessId);
+          setLoading(false);
+          return;
         }
       }
 
       if (!sess) {
+        // Only auto-create when user navigated fresh to /dieu-phoi without any session requested
         sess = await api.createDispatchSession({
           scenario_id: "simulated_stress_day1_to_3",
           routing_algorithm: "proposed_rl",
@@ -273,7 +299,15 @@ export default function DispatchDashboard() {
 
   const handlePreviewDispatch = async (strategy: string, algorithm: string) => {
     if (!session) throw new Error("Chưa có phiên làm việc.");
-    return await api.previewDispatch(session.session_id, strategy as any, algorithm as any);
+    try {
+      setActionError(null);
+      const plan = await api.previewDispatch(session.session_id, strategy as any, algorithm as any);
+      setActivePreviewPlan(plan);
+      return plan;
+    } catch (err: any) {
+      setActionError(err.message || "Không thể tải trước phương án điều phối.");
+      throw err;
+    }
   };
 
   const handleConfirmPreview = async (previewId: string) => {
@@ -285,12 +319,14 @@ export default function DispatchDashboard() {
       const res = await api.confirmPreview(session.session_id, previewId);
       const updated = await api.getDispatchSession(session.session_id);
       setSession(updated);
+      setActivePreviewPlan(null);
       await refreshNearby(selectedShipperId, session.session_id);
       setActionSuccess(
         `Đã áp dụng chính thức kế hoạch (${previewId}): Phân công thành công ${res.dispatched_orders} đơn hàng!`
       );
     } catch (err: any) {
       setActionError(err.message || "Không thể áp dụng bản xem trước kế hoạch.");
+      throw err;
     } finally {
       setActionLoading(false);
     }
@@ -302,9 +338,11 @@ export default function DispatchDashboard() {
       await api.cancelPreview(session.session_id);
       const updated = await api.getDispatchSession(session.session_id);
       setSession(updated);
+      setActivePreviewPlan(null);
       setActionSuccess("Đã hủy bản xem trước. Kế hoạch hiện tại được giữ nguyên.");
     } catch (err: any) {
       console.warn("Could not cancel preview", err);
+      setActivePreviewPlan(null);
     }
   };
 
@@ -402,6 +440,37 @@ export default function DispatchDashboard() {
     );
   }
 
+  // Session Not Found state (Rule 6 compliant)
+  if (sessionNotFoundError && !session) {
+    return (
+      <div className="wrap" style={{ minHeight: "60vh", display: "grid", placeItems: "center", padding: "40px 20px" }}>
+        <div className="box" style={{ maxWidth: "520px", padding: "32px", textAlign: "center" }}>
+          <div style={{ width: "52px", height: "52px", borderRadius: "50%", background: "rgba(245, 158, 11, 0.15)", color: "#f59e0b", display: "grid", placeItems: "center", margin: "0 auto 16px", border: "1px solid rgba(245, 158, 11, 0.3)" }}>
+            <AlertTriangle className="icons" style={{ width: "26px", height: "26px" }} />
+          </div>
+          <h2 style={{ fontSize: "1.25rem", fontWeight: 700, marginBottom: "8px" }}>Không tìm thấy phiên điều phối</h2>
+          <p className="subline" style={{ margin: "10px 0 20px", fontSize: "0.875rem", lineHeight: "1.5" }}>
+            Phiên làm việc <code style={{ padding: "2px 6px", borderRadius: "4px", background: "var(--muted)", fontWeight: 600 }}>{sessionNotFoundError}</code> không tồn tại trên hệ thống hoặc đã hết hạn (có thể do Backend đã khởi động lại).
+          </p>
+          <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
+            <button
+              type="button"
+              id="btnCreateNewSessionExplicit"
+              onClick={() => {
+                setSessionNotFoundError(null);
+                initSession(true);
+              }}
+              className="btn primary"
+              style={{ fontWeight: 600, padding: "8px 20px" }}
+            >
+              Khởi tạo phiên điều phối mới
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Connection Error state
   if (connectionError && !session) {
     return (
@@ -452,12 +521,13 @@ export default function DispatchDashboard() {
 
           <div className="hero-right">
             <div className="date-pill">
-              <Calendar className="icons smico" /> Ngày <span>{pad(session.current_day)}</span> / {pad(session.total_days)} <span style={{ opacity: 0.7, fontSize: "10px", marginLeft: "4px" }}>• Haversine 25km/h</span>
+              <Calendar className="icons smico" /> Ngày <span>{pad(session.current_day)}</span> / {pad(session.total_days)} <span style={{ opacity: 0.7, fontSize: "12px", marginLeft: "4px" }}>• Haversine 25km/h</span>
             </div>
 
             <div className="view-tabs" role="tablist" aria-label="Chế độ điều phối">
               <button
                 type="button"
+                id="tabPlanning"
                 className={`tabbtn ${activeWorkspace === "planning" ? "active" : ""}`}
                 onClick={() => switchWorkspace("planning")}
               >
@@ -465,6 +535,7 @@ export default function DispatchDashboard() {
               </button>
               <button
                 type="button"
+                id="tabLive"
                 className={`tabbtn ${activeWorkspace === "live" ? "active" : ""}`}
                 onClick={() => switchWorkspace("live")}
               >
@@ -472,6 +543,7 @@ export default function DispatchDashboard() {
               </button>
               <button
                 type="button"
+                id="tabReport"
                 className={`tabbtn ${activeWorkspace === "report" ? "active" : ""}`}
                 onClick={() => switchWorkspace("report")}
               >
@@ -493,15 +565,60 @@ export default function DispatchDashboard() {
           </div>
         </div>
 
-        {/* Global Toast for Action Success/Error */}
+        {/* Global Toast for Action Success/Error — Positioned Top-Right to Never Block Controls */}
         {(actionSuccess || actionError) && (
           <div
-            className="toast show"
+            id="nexusGlobalToast"
+            role="status"
+            aria-live="polite"
             style={{
-              background: actionError ? "#5a1b21" : "#113f3b",
+              position: "fixed",
+              top: "76px",
+              right: "24px",
+              zIndex: 1000,
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              background: actionError ? "#7f1d1d" : "#064e3b",
+              color: "#ffffff",
+              padding: "10px 16px",
+              borderRadius: "8px",
+              boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3)",
+              border: actionError ? "1px solid #b91c1c" : "1px solid #059669",
+              fontSize: "13px",
+              fontWeight: 600,
+              maxWidth: "420px",
             }}
           >
-            {actionError || actionSuccess}
+            {actionError ? (
+              <AlertTriangle className="size-4 shrink-0 text-red-300" />
+            ) : (
+              <Check className="size-4 shrink-0 text-emerald-300" />
+            )}
+            <span style={{ flex: 1, lineHeight: 1.4 }}>{actionError || actionSuccess}</span>
+            <button
+              type="button"
+              id="btnCloseToast"
+              onClick={() => {
+                setActionSuccess(null);
+                setActionError(null);
+              }}
+              style={{
+                background: "transparent",
+                border: "none",
+                color: "rgba(255, 255, 255, 0.8)",
+                cursor: "pointer",
+                padding: "2px",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                borderRadius: "4px",
+              }}
+              title="Đóng thông báo"
+              aria-label="Đóng thông báo"
+            >
+              <X className="size-4" />
+            </button>
           </div>
         )}
 
@@ -519,6 +636,8 @@ export default function DispatchDashboard() {
               onPreviewPlan={handlePreviewDispatch}
               onConfirmPreview={handleConfirmPreview}
               onCancelPreview={handleCancelPreview}
+              previewPlan={activePreviewPlan}
+              onSetPreviewPlan={setActivePreviewPlan}
               onSwitchToLive={() => switchWorkspace("live")}
               onSelectAlgorithm={handleSelectAlgorithm}
               actionLoading={actionLoading}

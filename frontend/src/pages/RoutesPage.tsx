@@ -410,7 +410,7 @@ export default function RoutesPage() {
           <div className="p-2.5 bg-muted/20 border border-border/80 rounded-lg flex flex-wrap items-center justify-between gap-2.5 text-xs">
             {/* Algorithm selector */}
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap">
+              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap">
                 Thuật toán:
               </span>
               <AlgorithmSelector
@@ -436,7 +436,7 @@ export default function RoutesPage() {
             {/* Workload and Toggles */}
             <div className="flex items-center gap-2.5 ml-auto">
               <div className="flex items-center gap-1.5">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap">
+                <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap">
                   WL:
                 </span>
                 <Select
@@ -463,7 +463,7 @@ export default function RoutesPage() {
                     onCheckedChange={setShowClusters}
                     id="toggle-clusters"
                   />
-                  <label htmlFor="toggle-clusters" className="cursor-pointer text-muted-foreground select-none text-[11px]">
+                  <label htmlFor="toggle-clusters" className="cursor-pointer text-muted-foreground select-none text-xs font-medium">
                     Cụm
                   </label>
                 </div>
@@ -477,7 +477,7 @@ export default function RoutesPage() {
                         onCheckedChange={setShowCompareVanilla}
                         id="toggle-vanilla"
                       />
-                      <label htmlFor="toggle-vanilla" className="cursor-pointer text-muted-foreground select-none text-[11px]">
+                      <label htmlFor="toggle-vanilla" className="cursor-pointer text-muted-foreground select-none text-xs font-medium">
                         Vanilla
                       </label>
                     </div>
@@ -541,7 +541,7 @@ export default function RoutesPage() {
                         {rec?.route_type === "validated_recovered" && (
                           <>
                             <Separator orientation="vertical" className="h-3.5" />
-                            <Badge variant="secondary" className="text-[10px] px-1.5 py-0 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30">
+                            <Badge variant="secondary" className="text-xs px-2 py-0.5 font-semibold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30">
                               ✓ Tuyến khôi phục đã kiểm chứng
                             </Badge>
                           </>
@@ -549,7 +549,7 @@ export default function RoutesPage() {
                         {rec?.route_type === "original_precomputed" && (
                           <>
                             <Separator orientation="vertical" className="h-3.5" />
-                            <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-muted-foreground font-mono">
+                            <Badge variant="outline" className="text-xs px-2 py-0.5 text-muted-foreground font-mono font-semibold">
                               Tuyến gốc lưu sẵn
                             </Badge>
                           </>
@@ -557,7 +557,7 @@ export default function RoutesPage() {
                         {rec?.source === "evaluated_thesis_baseline_sequence" && (
                           <>
                             <Separator orientation="vertical" className="h-3.5" />
-                            <Badge variant="outline" className="text-[10px] px-1.5 py-0 text-sky-600 dark:text-sky-400 font-mono">
+                            <Badge variant="outline" className="text-xs px-2 py-0.5 text-sky-600 font-mono font-semibold dark:text-sky-400 font-mono">
                               Thứ tự DQN đánh giá OSM độc lập
                             </Badge>
                           </>
@@ -565,7 +565,7 @@ export default function RoutesPage() {
                         {switchCount > 0 && (
                           <>
                             <Separator orientation="vertical" className="h-3.5" />
-                            <Badge variant="outline" className="text-[10px] px-1 py-0 text-amber-600 dark:text-amber-400 font-mono">
+                            <Badge variant="outline" className="text-xs px-2 py-0.5 text-amber-600 font-mono font-semibold dark:text-amber-400 font-mono">
                               ⚡ {switchCount} lần đổi cụm
                             </Badge>
                           </>
@@ -629,14 +629,14 @@ export default function RoutesPage() {
                             <div className="flex items-center justify-between font-semibold">
                               <span>Trạm #{i + 1}</span>
                               {typeof d.cluster_id === "number" && (
-                                <Badge variant="outline" className="text-[9px] px-1 py-0">
+                                <Badge variant="outline" className="text-xs px-2 py-0.5 font-semibold">
                                   Cụm #{d.cluster_id}
                                 </Badge>
                               )}
                             </div>
                             <div className="font-medium text-foreground">{String(d.package_name ?? "Đơn hàng")}</div>
-                            <div className="text-[11px] text-muted-foreground">{String(d.receiverAddress ?? "")}</div>
-                            <div className="text-[11px] text-muted-foreground">Hạn: {dateTime(d.expectedDeliveryTime)}</div>
+                            <div className="text-xs text-muted-foreground">{String(d.receiverAddress ?? "")}</div>
+                            <div className="text-xs text-muted-foreground">Hạn: {dateTime(d.expectedDeliveryTime)}</div>
                           </div>
                         </Popup>
                       </Marker>
@@ -661,17 +661,17 @@ export default function RoutesPage() {
           {/* Telemetry Summary Strip */}
           <div className="p-3 rounded-lg border border-border/80 bg-card/80 flex items-center justify-between text-xs font-mono">
             <div>
-              <span className="text-[10px] text-muted-foreground block uppercase font-sans">Chi phí ước tính</span>
+              <span className="text-xs text-muted-foreground block uppercase font-sans font-bold tracking-wider">Chi phí ước tính</span>
               <span className="font-bold text-foreground">{vnd(cost?.total_estimated_cost ?? rec?.evaluation?.estimated_operating_cost)}</span>
             </div>
             <Separator orientation="vertical" className="h-6" />
             <div>
-              <span className="text-[10px] text-muted-foreground block uppercase font-sans">Đúng hạn</span>
+              <span className="text-xs text-muted-foreground block uppercase font-sans font-bold tracking-wider">Đúng hạn</span>
               <span className="font-bold text-emerald-700 dark:text-emerald-400">{num(metric(rec, "on_time_deliveries"), 0)} / {stopRecs.length} trạm</span>
             </div>
             <Separator orientation="vertical" className="h-6" />
             <div>
-              <span className="text-[10px] text-muted-foreground block uppercase font-sans">Trễ hạn</span>
+              <span className="text-xs text-muted-foreground block uppercase font-sans font-bold tracking-wider">Trễ hạn</span>
               <span className="font-bold text-muted-foreground">{num(metric(rec, "late_deliveries"), 0)} trạm</span>
             </div>
           </div>
@@ -686,19 +686,19 @@ export default function RoutesPage() {
                       Trình tự Ghé thăm ({stopRecs.length} trạm)
                     </CardTitle>
                     {rec?.route_type === "validated_recovered" && (
-                      <Badge variant="secondary" className="text-[9px] px-1.5 py-0 bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30">
+                      <Badge variant="secondary" className="text-xs px-2 py-0.5 font-semibold bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30">
                         Tuyến khôi phục đã kiểm chứng
                       </Badge>
                     )}
                     {rec?.route_type === "original_precomputed" && (
-                      <Badge variant="outline" className="text-[9px] px-1.5 py-0 text-muted-foreground">
+                      <Badge variant="outline" className="text-xs px-2 py-0.5 font-semibold text-muted-foreground">
                         Tuyến gốc lưu sẵn
                       </Badge>
                     )}
                   </div>
                   <CardDescription className="text-xs mt-0.5">
                     {rec?.provenance ? (
-                      <span className="block text-[11px] text-muted-foreground leading-normal" title={rec.provenance}>
+                      <span className="block text-xs text-muted-foreground leading-normal" title={rec.provenance}>
                         Nguồn: {rec.provenance}
                       </span>
                     ) : (
@@ -736,7 +736,7 @@ export default function RoutesPage() {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <span
-                            className="size-5 rounded-full flex items-center justify-center font-bold text-white text-[10px]"
+                            className="size-6 rounded-full flex items-center justify-center font-bold text-white text-xs"
                             style={{ backgroundColor: mainColor }}
                           >
                             {i + 1}
@@ -748,7 +748,7 @@ export default function RoutesPage() {
                         {typeof d.cluster_id === "number" && (
                           <Badge
                             variant="outline"
-                            className="text-[10px] px-1 py-0 font-mono"
+                            className="text-xs px-2 py-0.5 font-mono font-semibold"
                             style={{ color: clusterColor(d.cluster_id) }}
                           >
                             Cụm #{d.cluster_id}
@@ -756,11 +756,11 @@ export default function RoutesPage() {
                         )}
                       </div>
 
-                      <div className="text-[11px] text-muted-foreground truncate pl-7">
+                      <div className="text-xs text-muted-foreground truncate pl-7">
                         {String(d.receiverAddress ?? "–").split(",").slice(0, 3).join(",")}
                       </div>
 
-                      <div className="flex items-center justify-between pl-7 text-[10px] text-muted-foreground">
+                      <div className="flex items-center justify-between pl-7 text-xs text-muted-foreground">
                         <span>Hạn: {dateTime(d.expectedDeliveryTime)}</span>
                         {hasClusterSwitch && (
                           <span className="text-amber-600 dark:text-amber-400 font-bold">

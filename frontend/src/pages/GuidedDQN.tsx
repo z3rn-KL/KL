@@ -219,7 +219,7 @@ function DivergeBar({
           />
         </div>
       </div>
-      <div style={{ fontSize: 11.5, color: "var(--muted)", marginTop: 2 }}>{hint}</div>
+      <div style={{ fontSize: 12.5, color: "var(--muted)", marginTop: 2 }}>{hint}</div>
     </div>
   );
 }
@@ -730,7 +730,7 @@ export default function GuidedDQN() {
                     <span style={{ fontWeight: 700, fontSize: 13.5, color: "var(--text)" }}>
                       {PART_EXPLANATIONS[activePart].title}
                     </span>
-                    <span className="chip" style={{ background: "rgba(139, 140, 248, 0.12)", color: GUIDED_COLOR, fontSize: 11 }}>
+                    <span className="chip" style={{ background: "rgba(139, 140, 248, 0.12)", color: GUIDED_COLOR, fontSize: 12 }}>
                       {PART_EXPLANATIONS[activePart].badge}
                     </span>
                   </div>
@@ -796,26 +796,26 @@ export default function GuidedDQN() {
                   <div className="rounded-lg border border-border/70 bg-card p-3.5 space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-foreground">1. Môi trường MDP Cơ sở (RoutingState)</span>
-                      <Badge variant="outline" className="text-[10px] font-mono">3 trường dữ liệu</Badge>
+                      <Badge variant="outline" className="text-xs font-mono">3 trường dữ liệu</Badge>
                     </div>
-                    <p className="text-[11px] text-muted-foreground leading-relaxed">
+                    <p className="text-xs text-muted-foreground leading-relaxed">
                       Sử dụng cho các mô hình RL truyền thống (Q-Learning, SARSA, Vanilla DQN). Trạng thái được mô hình hóa theo tiến trình rời rạc:
                     </p>
-                    <div className="space-y-1.5 font-mono text-[11px]">
+                    <div className="space-y-1.5 font-mono text-xs">
                       <div className="p-1.5 rounded bg-muted/40 border border-border/40 flex items-center justify-between">
                         <span className="text-primary font-bold">current_index</span>
-                        <span className="text-muted-foreground text-[10px]">Vị trí trạm hiện tại (hoặc 0 = Depot)</span>
+                        <span className="text-muted-foreground text-xs">Vị trí trạm hiện tại (hoặc 0 = Depot)</span>
                       </div>
                       <div className="p-1.5 rounded bg-muted/40 border border-border/40 flex items-center justify-between">
                         <span className="text-primary font-bold">visited_mask</span>
-                        <span className="text-muted-foreground text-[10px]">Bitmask nhị phân các điểm đã giao</span>
+                        <span className="text-muted-foreground text-xs">Bitmask nhị phân các điểm đã giao</span>
                       </div>
                       <div className="p-1.5 rounded bg-muted/40 border border-border/40 flex items-center justify-between">
                         <span className="text-primary font-bold">elapsed_time_bucket</span>
-                        <span className="text-muted-foreground text-[10px]">Phân đoạn thời gian hành trình đã trôi qua</span>
+                        <span className="text-muted-foreground text-xs">Phân đoạn thời gian hành trình đã trôi qua</span>
                       </div>
                     </div>
-                    <div className="text-[10px] text-muted-foreground italic border-t border-border/40 pt-1.5">
+                    <div className="text-xs text-muted-foreground italic border-t border-border/40 pt-1.5">
                       * Khẳng định khoa học: RoutingState không chứa tải trọng còn lại hay tọa độ GPS thô làm trường trạng thái trực tiếp.
                     </div>
                   </div>
@@ -824,12 +824,12 @@ export default function GuidedDQN() {
                   <div className="rounded-lg border border-border/70 bg-card p-3.5 space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-foreground">2. Bộ Mã hóa Ứng viên (Candidate Encoder)</span>
-                      <Badge variant="outline" className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 border-emerald-500/30">8 Đặc trưng Chuẩn hóa</Badge>
+                      <Badge variant="outline" className="text-xs font-mono text-emerald-600 dark:text-emerald-400 border-emerald-500/30">8 Đặc trưng Chuẩn hóa</Badge>
                     </div>
-                    <p className="text-[11px] text-muted-foreground leading-relaxed">
+                    <p className="text-xs text-muted-foreground leading-relaxed">
                       Sử dụng cho Proposed RL. Mã hóa vector đặc trưng 8D tương đối cho từng đơn hàng ứng viên khả thi a_i ∈ U_t:
                     </p>
-                    <div className="grid grid-cols-2 gap-1.5 font-mono text-[10px]">
+                    <div className="grid grid-cols-2 gap-1.5 font-mono text-xs">
                       <div className="p-1 rounded bg-muted/30 border border-border/40">1. elapsed_ratio</div>
                       <div className="p-1 rounded bg-muted/30 border border-border/40">2. remaining_ratio</div>
                       <div className="p-1 rounded bg-muted/30 border border-border/40">3. distance_ratio</div>
@@ -839,7 +839,7 @@ export default function GuidedDQN() {
                       <div className="p-1 rounded bg-muted/30 border border-border/40">7. lateness_ratio</div>
                       <div className="p-1 rounded bg-muted/30 border border-border/40">8. cluster_switch</div>
                     </div>
-                    <div className="text-[10px] text-muted-foreground italic border-t border-border/40 pt-1.5">
+                    <div className="text-xs text-muted-foreground italic border-t border-border/40 pt-1.5">
                       * Tính bất biến quy mô: Giúp mạng Q xử lý linh hoạt mọi số lượng đơn hàng N mà không bị gò bó output cố định.
                     </div>
                   </div>
@@ -975,7 +975,7 @@ export default function GuidedDQN() {
                       <td className="num" style={{ fontWeight: r.cluster_switch_penalty === sens.data!.selected_lambda ? 800 : 400 }}>
                         {num(r.cluster_switch_penalty, 2)}
                         {r.cluster_switch_penalty === sens.data!.selected_lambda && (
-                          <span style={{ marginLeft: 6, fontSize: 10, color: GUIDED_COLOR }}>✓ chọn</span>
+                          <span style={{ marginLeft: 6, fontSize: 12, color: GUIDED_COLOR }}>✓ chọn</span>
                         )}
                       </td>
                       <td className="num">{num(r.runs, 0)}</td>
@@ -1034,19 +1034,19 @@ export default function GuidedDQN() {
                 </div>
                 <div style={{ display: "flex", height: 22, borderRadius: 6, overflow: "hidden", gap: 2 }}>
                   <div
-                    style={{ width: `${betterPct}%`, background: "var(--good)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 11, fontWeight: 700 }}
+                    style={{ width: `${betterPct}%`, background: "var(--good)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 12, fontWeight: 700 }}
                     title={`Ngắn hơn (tốt hơn về km): ${betterCount}/${totalCount} (${num(betterPct, 1)}%)`}
                   >
                     {betterCount > 0 ? `${betterCount} ngắn (${num(betterPct, 1)}%)` : ""}
                   </div>
                   <div
-                    style={{ width: `${tiePct}%`, background: "var(--algo-cw)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 11, fontWeight: 700 }}
+                    style={{ width: `${tiePct}%`, background: "var(--algo-cw)", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: 12, fontWeight: 700 }}
                     title={`Bằng nhau (trùng tuyến): ${tieCount}/${totalCount} (${num(tiePct, 1)}%)`}
                   >
                     {tieCount > 0 ? `${tieCount} giống hệt (${num(tiePct, 1)}%)` : ""}
                   </div>
                   <div
-                    style={{ width: `${worsePct}%`, background: "var(--algo-tradeoff)", display: "flex", alignItems: "center", justifyContent: "center", color: "#000", fontSize: 11, fontWeight: 700 }}
+                    style={{ width: `${worsePct}%`, background: "var(--algo-tradeoff)", display: "flex", alignItems: "center", justifyContent: "center", color: "#000", fontSize: 12, fontWeight: 700 }}
                     title={`Dài hơn (đánh đổi gom cụm): ${worseCount}/${totalCount} (${num(worsePct, 1)}%)`}
                   >
                     {worseCount > 0 ? `${worseCount} dài (${num(worsePct, 1)}%)` : ""}
@@ -1092,7 +1092,7 @@ export default function GuidedDQN() {
                       <td className="num">{num(n(s.mean_guided_distance_km), 2)}</td>
                       <td className="num" style={{ color: "var(--algo-tradeoff)", fontWeight: 700 }}>
                         {signedPct(distDelta !== null ? -distDelta : null, 2)}
-                        <span style={{ marginLeft: 4, fontSize: 10 }}>↑ đánh đổi nhẹ</span>
+                        <span style={{ marginLeft: 4, fontSize: 12 }}>↑ đánh đổi nhẹ</span>
                       </td>
                     </tr>
                     <tr>
@@ -1101,7 +1101,7 @@ export default function GuidedDQN() {
                       <td className="num">{num(n(s.mean_guided_travel_time_minutes), 2)}</td>
                       <td className="num" style={{ color: "var(--algo-tradeoff)", fontWeight: 700 }}>
                         {signedPct(timeDelta !== null ? -timeDelta : null, 2)}
-                        <span style={{ marginLeft: 4, fontSize: 10 }}>↑ đánh đổi nhẹ</span>
+                        <span style={{ marginLeft: 4, fontSize: 12 }}>↑ đánh đổi nhẹ</span>
                       </td>
                     </tr>
                     <tr>
@@ -1114,7 +1114,7 @@ export default function GuidedDQN() {
                       <td>
                         Tỷ lệ đổi cụm
                         <span className="glossary" data-tip="Chỉ tính trên 6 workload có lưu tuyến DQN thường. Tỷ lệ = số lần chuyển cụm / (số điểm giao - 1).">i</span>
-                        <span style={{ fontSize: 11, color: "var(--muted)", marginLeft: 4 }}>
+                        <span style={{ fontSize: 12, color: "var(--muted)", marginLeft: 4 }}>
                           ({num(n(s.switch_comparison_workloads), 0)} WL đối sánh)
                         </span>
                       </td>
@@ -1124,7 +1124,7 @@ export default function GuidedDQN() {
                       </td>
                       <td className="num" style={{ color: "var(--good)", fontWeight: 700 }}>
                         {signedPct(switchReduction !== null ? -switchReduction : null, 1)}
-                        <span style={{ marginLeft: 4, fontSize: 10 }}>↓ giảm đổi cụm</span>
+                        <span style={{ marginLeft: 4, fontSize: 12 }}>↓ giảm đổi cụm</span>
                       </td>
                     </tr>
                   </tbody>
@@ -1170,7 +1170,7 @@ export default function GuidedDQN() {
 
                     {vanillaSeq ? (
                       <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-                        <span style={{ padding: "3px 8px", borderRadius: 6, background: "var(--surface)", border: "1px solid var(--border)", fontSize: 11.5, fontWeight: 700 }}>
+                        <span style={{ padding: "3px 8px", borderRadius: 6, background: "var(--surface)", border: "1px solid var(--border)", fontSize: 12.5, fontWeight: 700 }}>
                           Depot
                         </span>
                         {vanillaSeq.map((cId, idx) => {
@@ -1191,13 +1191,13 @@ export default function GuidedDQN() {
                               >
                                 <span className="swatch" style={{ background: clusterColor(cId), width: 9, height: 9, borderRadius: 2 }} />
                                 <span style={{ fontSize: 12 }}>Cụm {cId}</span>
-                                {isSwitched && <span style={{ fontSize: 10, color: "var(--muted)" }}>⚡</span>}
+                                {isSwitched && <span style={{ fontSize: 12, color: "var(--muted)" }}>⚡</span>}
                               </span>
                             </span>
                           );
                         })}
                         <span style={{ color: "var(--muted)", fontSize: 12 }}>→</span>
-                        <span style={{ padding: "3px 8px", borderRadius: 6, background: "var(--surface)", border: "1px solid var(--border)", fontSize: 11.5, fontWeight: 700 }}>
+                        <span style={{ padding: "3px 8px", borderRadius: 6, background: "var(--surface)", border: "1px solid var(--border)", fontSize: 12.5, fontWeight: 700 }}>
                           Depot
                         </span>
                       </div>
@@ -1220,7 +1220,7 @@ export default function GuidedDQN() {
                     </div>
 
                     <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-                      <span style={{ padding: "3px 8px", borderRadius: 6, background: "var(--surface)", border: "1px solid var(--border)", fontSize: 11.5, fontWeight: 700 }}>
+                      <span style={{ padding: "3px 8px", borderRadius: 6, background: "var(--surface)", border: "1px solid var(--border)", fontSize: 12.5, fontWeight: 700 }}>
                         Depot
                       </span>
                       {guidedSeq.map((cId, idx) => {
@@ -1243,14 +1243,14 @@ export default function GuidedDQN() {
                               <span className="swatch" style={{ background: clusterColor(cId), width: 9, height: 9, borderRadius: 2 }} />
                               <b style={{ fontSize: 12 }}>Cụm {cId}</b>
                               {isSwitched && (
-                                <span style={{ fontSize: 10, color: "var(--algo-tradeoff)", fontWeight: 700 }}>⚡ Đổi</span>
+                                <span style={{ fontSize: 12, color: "var(--algo-tradeoff)", fontWeight: 700 }}>⚡ Đổi</span>
                               )}
                             </span>
                           </span>
                         );
                       })}
                       <span style={{ color: "var(--muted)", fontSize: 12 }}>→</span>
-                      <span style={{ padding: "3px 8px", borderRadius: 6, background: "var(--surface)", border: "1px solid var(--border)", fontSize: 11.5, fontWeight: 700 }}>
+                      <span style={{ padding: "3px 8px", borderRadius: 6, background: "var(--surface)", border: "1px solid var(--border)", fontSize: 12.5, fontWeight: 700 }}>
                         Depot
                       </span>
                     </div>
@@ -1433,7 +1433,7 @@ export default function GuidedDQN() {
                                   <div style={{ fontSize: 12, color: "var(--muted)", marginBottom: 4 }}>
                                     {String(st.receiverAddress ?? "")}
                                   </div>
-                                  <div style={{ fontSize: 11.5 }}>
+                                  <div style={{ fontSize: 12.5 }}>
                                     Cụm K-Means: <b style={{ color: clusterColor(cluster) }}>Cụm {cluster}</b>
                                   </div>
                                 </div>
@@ -1547,7 +1547,7 @@ export default function GuidedDQN() {
             <div className="rounded-xl border border-border/70 bg-card p-5 sm:p-6 shadow-2xs">
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 14 }}>
                 <div style={{ maxWidth: 860 }}>
-                  <div style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 11.5, fontWeight: 700, color: "var(--accent)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>
+                  <div style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12.5, fontWeight: 700, color: "var(--accent)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>
                     <span style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--accent)" }} />
                     Mô hình Reinforcement Learning Đa mục tiêu Đề xuất mới
                   </div>
@@ -1559,10 +1559,10 @@ export default function GuidedDQN() {
                   </p>
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "flex-end" }}>
-                  <span className="chip good" style={{ fontSize: 11.5, fontWeight: 700, padding: "4px 10px" }}>
+                  <span className="chip good" style={{ fontSize: 12.5, fontWeight: 700, padding: "4px 10px" }}>
                     ✓ Đánh giá độc lập trên 16 WL Test
                   </span>
-                  <span className="chip" style={{ fontSize: 11, background: "var(--surface-2)", color: "var(--muted)" }}>
+                  <span className="chip" style={{ fontSize: 12, background: "var(--surface-2)", color: "var(--muted)" }}>
                     Checkpoint Epoch 30 · Lock Objective
                   </span>
                 </div>
@@ -1600,18 +1600,18 @@ export default function GuidedDQN() {
                         }}
                       >
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                          <span style={{ fontSize: 10, fontWeight: 700, color: isAct ? "var(--accent)" : "var(--muted)", textTransform: "uppercase" }}>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: isAct ? "var(--accent)" : "var(--muted)", textTransform: "uppercase" }}>
                             {node.step}
                           </span>
-                          <span className="badge" style={{ fontSize: 9.5 }}>#{idx + 1}</span>
+                          <span className="badge" style={{ fontSize: 12.5 }}>#{idx + 1}</span>
                         </div>
                         <div style={{ fontWeight: 700, fontSize: 13, color: isAct ? "var(--accent)" : "var(--text)" }}>
                           {node.name}
                         </div>
-                        <div style={{ fontSize: 11, color: "var(--text-secondary)", marginTop: 2, marginBottom: 8 }}>
+                        <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2, marginBottom: 8 }}>
                           {node.subtitle}
                         </div>
-                        <div style={{ marginTop: "auto", padding: "4px 6px", background: "var(--surface-2)", borderRadius: 4, fontFamily: "ui-monospace, monospace", fontSize: 10.5, color: "var(--text-secondary)", textAlign: "center", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        <div style={{ marginTop: "auto", padding: "4px 6px", background: "var(--surface-2)", borderRadius: 4, fontFamily: "ui-monospace, monospace", fontSize: 12.5, color: "var(--text-secondary)", textAlign: "center", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                           {node.shape}
                         </div>
                       </div>
@@ -1630,14 +1630,14 @@ export default function GuidedDQN() {
                   <div className="rl-detail-inspector">
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10, marginBottom: 10 }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                        <span className="badge" style={{ fontSize: 11, fontWeight: 700, background: "var(--accent-soft)", color: "var(--accent)" }}>
+                        <span className="badge" style={{ fontSize: 12, fontWeight: 700, background: "var(--accent-soft)", color: "var(--accent)" }}>
                           {activeNode.step}: {activeNode.name}
                         </span>
                         <code style={{ fontSize: 12, fontWeight: 700, color: "var(--text)" }}>
                           {activeNode.formula}
                         </code>
                       </div>
-                      <span style={{ fontSize: 11.5, color: "var(--muted)" }}>
+                      <span style={{ fontSize: 12.5, color: "var(--muted)" }}>
                         Mã nguồn: <code>{activeNode.codeFile}</code> ({activeNode.codeSymbol})
                       </span>
                     </div>
@@ -1668,9 +1668,9 @@ export default function GuidedDQN() {
                   <div key={feat.name} className="weight-card">
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
                       <code style={{ fontSize: 12.5, color: "var(--accent)", fontWeight: 700 }}>{feat.name}</code>
-                      <span className="badge" style={{ fontSize: 10 }}>#{feat.idx}</span>
+                      <span className="badge" style={{ fontSize: 12 }}>#{feat.idx}</span>
                     </div>
-                    <div style={{ fontFamily: "ui-monospace, monospace", fontSize: 11, color: "var(--text)", padding: "3px 6px", background: "var(--surface-2)", borderRadius: 4, marginBottom: 6, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    <div style={{ fontFamily: "ui-monospace, monospace", fontSize: 12, color: "var(--text)", padding: "3px 6px", background: "var(--surface-2)", borderRadius: 4, marginBottom: 6, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {feat.math}
                     </div>
                     <div style={{ fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.45 }}>
@@ -1711,9 +1711,9 @@ export default function GuidedDQN() {
                   { weight: "w_s = 5,0%", name: "Đổi cụm (S̄)", ref: "Tỷ lệ đổi cụm K-Means", color: "var(--algo-guided)", desc: "Khuyến khích hoàn tất đơn cùng cụm trước khi chuyển vùng." },
                 ].map((wItem) => (
                   <div key={wItem.name} className="weight-card">
-                    <div style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>{wItem.weight}</div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>{wItem.weight}</div>
                     <div style={{ fontWeight: 700, fontSize: 13.5, color: wItem.color, marginTop: 4 }}>{wItem.name}</div>
-                    <div style={{ fontSize: 11, color: "var(--muted)", marginTop: 2 }}>{wItem.ref}</div>
+                    <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 2 }}>{wItem.ref}</div>
                     <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 6, lineHeight: 1.4 }}>{wItem.desc}</div>
                   </div>
                 ))}
@@ -1732,8 +1732,8 @@ export default function GuidedDQN() {
               <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
                 <div style={{ padding: 16, background: "var(--surface-2)", borderRadius: 8, border: "1px solid var(--border)" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Tập Huấn luyện (Train)</span>
-                    <span className="chip" style={{ fontSize: 10.5 }}>76 Workloads</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Tập Huấn luyện (Train)</span>
+                    <span className="chip" style={{ fontSize: 12.5 }}>76 Workloads</span>
                   </div>
                   <div style={{ fontSize: 20, fontWeight: 800, color: "var(--text)", margin: "8px 0 4px" }}>
                     3.040 Episodes
@@ -1745,8 +1745,8 @@ export default function GuidedDQN() {
 
                 <div style={{ padding: 16, background: "var(--surface-2)", borderRadius: 8, border: "1px solid var(--border)" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Tập Kiểm chuẩn (Validation)</span>
-                    <span className="chip" style={{ fontSize: 10.5 }}>16 Workloads</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>Tập Kiểm chuẩn (Validation)</span>
+                    <span className="chip" style={{ fontSize: 12.5 }}>16 Workloads</span>
                   </div>
                   <div style={{ fontSize: 20, fontWeight: 800, color: "var(--text)", margin: "8px 0 4px" }}>
                     Checkpoint Epoch 30
@@ -1758,8 +1758,8 @@ export default function GuidedDQN() {
 
                 <div style={{ padding: 16, background: "var(--surface-2)", borderRadius: 8, border: "1px solid var(--border)" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: "var(--good)", textTransform: "uppercase" }}>Tập Kiểm chứng Ẩn (Test)</span>
-                    <span className="chip good" style={{ fontSize: 10.5 }}>16 Workloads</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: "var(--good)", textTransform: "uppercase" }}>Tập Kiểm chứng Ẩn (Test)</span>
+                    <span className="chip good" style={{ fontSize: 12.5 }}>16 Workloads</span>
                   </div>
                   <div style={{ fontSize: 20, fontWeight: 800, color: "var(--text)", margin: "8px 0 4px" }}>
                     131 Đơn hàng
@@ -1803,7 +1803,7 @@ export default function GuidedDQN() {
                               <span className="swatch" style={{ background: b.color }} />
                               <b style={{ color: isProposed ? "var(--accent)" : "var(--text)" }}>{b.name}</b>
                               {isProposed && (
-                                <span className="chip" style={{ fontSize: 10, padding: "1px 5px", background: "var(--accent-soft)", color: "var(--accent)" }}>
+                                <span className="chip" style={{ fontSize: 12, padding: "1px 5px", background: "var(--accent-soft)", color: "var(--accent)" }}>
                                   Proposed
                                 </span>
                               )}
@@ -1839,7 +1839,7 @@ export default function GuidedDQN() {
                 <div style={{ padding: 14, background: "var(--surface-2)", borderRadius: 8, border: "1px solid var(--border)" }}>
                   <div style={{ fontSize: 12.5, fontWeight: 700, color: "var(--text)", marginBottom: 8, display: "flex", justifyContent: "space-between" }}>
                     <span>Quãng đường trung bình (km) — Ngắn hơn là tốt hơn</span>
-                    <span style={{ fontSize: 11, color: "var(--muted)" }}>Clarke–Wright tốt nhất (55,58 km)</span>
+                    <span style={{ fontSize: 12, color: "var(--muted)" }}>Clarke–Wright tốt nhất (55,58 km)</span>
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                     {PROPOSED_TEST_BENCHMARK.map((b) => (
@@ -1869,7 +1869,7 @@ export default function GuidedDQN() {
                 <div style={{ padding: 14, background: "var(--surface-2)", borderRadius: 8, border: "1px solid var(--border)" }}>
                   <div style={{ fontSize: 12.5, fontWeight: 700, color: "var(--text)", marginBottom: 8, display: "flex", justifyContent: "space-between" }}>
                     <span>Số lần đổi cụm trung bình — Ít hơn là tốt hơn</span>
-                    <span style={{ fontSize: 11, color: "var(--accent)" }}>Proposed RL thấp nhất (4,00 lần)</span>
+                    <span style={{ fontSize: 12, color: "var(--accent)" }}>Proposed RL thấp nhất (4,00 lần)</span>
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                     {PROPOSED_TEST_BENCHMARK.map((b) => (

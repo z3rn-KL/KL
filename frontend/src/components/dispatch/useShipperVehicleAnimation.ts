@@ -9,6 +9,8 @@ export interface ShipperPose {
   status: "IDLE" | "AT_BASE" | "MOVING_TO_DEPOT" | "PICKING_UP" | "IN_TRANSIT" | "DELIVERING" | "RETURNING" | "COMPLETED";
   statusText: string;
   currentStopIndex: number;
+  fromStopIndex: number;
+  toStopIndex: number;
   totalStops: number;
   currentStopName?: string;
   nextStopName?: string;
@@ -95,16 +97,18 @@ export function useShipperVehicleAnimation({
       if (isPlaying) {
         // Simulation speed: 15 sim minutes per (1500ms / simSpeed) = 10 * simSpeed sim minutes per real second
         const simRate = 10 * simSpeed;
-        const newClock = clockRef.current + deltaSec * simRate;
-
-        // Keep presentation clock advancing smoothly up to slightly ahead of backend tick
-        clockRef.current = newClock;
-        setPresentationClock(newClock);
+        // Bound presentation clock so it smoothly stays bounded to targetClockRef + 15
+        const maxAhead = targetClockRef.current + 15;
+        if (clockRef.current < maxAhead) {
+          const newClock = Math.min(maxAhead, clockRef.current + deltaSec * simRate);
+          clockRef.current = newClock;
+          setPresentationClock(newClock);
+        }
       } else {
-        // When paused or stepping, smoothly slide to targetClockRef if there's a difference
+        // When paused or stepping, smoothly glide to targetClockRef without teleporting
         const diff = targetClockRef.current - clockRef.current;
         if (Math.abs(diff) > 0.05) {
-          const step = diff * Math.min(1, deltaSec * 8); // smooth catch-up
+          const step = diff * Math.min(1, deltaSec * 8);
           clockRef.current += step;
           setPresentationClock(clockRef.current);
         } else {
@@ -144,6 +148,8 @@ export function useShipperVehicleAnimation({
           status: isModeB ? "AT_BASE" : "IDLE",
           statusText: isModeB ? `Tại trạm: ${s.base_name || "Vệ tinh"}` : "Sẵn sàng tại Kho chính",
           currentStopIndex: 0,
+          fromStopIndex: 0,
+          toStopIndex: 0,
           totalStops: 0,
           legProgress: 0,
         };
@@ -163,31 +169,36 @@ export function useShipperVehicleAnimation({
       ];
 
       for (const st of s.timeline_stops) {
+        const isReturn = (st as any).stop_type === "RETURN_DEPOT" || st.order_id === "return_to_depot";
+        const isPickup = (st as any).stop_type === "DEPOT_PICKUP" || (st as any).is_depot_pickup || st.order_id === "depot_pickup" || st.order_id === "DEPOT_PICKUP";
         waypoints.push({
           lat: st.lat,
           lng: st.lng,
           arrMin: st.arrival_minute,
           depMin: st.departure_minute,
-          type: ((st as any).stop_type === "DEPOT_PICKUP" || (st as any).is_depot_pickup || st.order_id === "depot_pickup" || st.order_id === "DEPOT_PICKUP") ? "DEPOT_PICKUP" : "STOP",
+          type: isReturn ? "RETURN_DEPOT" : (isPickup ? "DEPOT_PICKUP" : "STOP"),
           name: st.package_name || st.order_code || st.order_id,
           orderId: st.order_id,
         });
       }
 
-      // Final return leg to Central Depot
-      const lastWp = waypoints[waypoints.length - 1];
-      const returnDist = Math.hypot(depot.lat - lastWp.lat, depot.lng - lastWp.lng) * 111.0;
-      const returnMin = (returnDist / 25.0) * 60.0;
-      const returnArrMin = lastWp.depMin + Math.max(1.0, returnMin);
+      // Final return leg to Central Depot (if not already present from backend)
+      const hasReturnInStops = waypoints.some((w) => w.type === "RETURN_DEPOT");
+      if (!hasReturnInStops && waypoints.length > 1) {
+        const lastWp = waypoints[waypoints.length - 1];
+        const returnDist = Math.hypot(depot.lat - lastWp.lat, depot.lng - lastWp.lng) * 111.0;
+        const returnMin = (returnDist / 25.0) * 60.0;
+        const returnArrMin = lastWp.depMin + Math.max(1.0, returnMin);
 
-      waypoints.push({
-        lat: depot.lat,
-        lng: depot.lng,
-        arrMin: returnArrMin,
-        depMin: returnArrMin + 60,
-        type: "RETURN_DEPOT",
-        name: `Về ${depot.name || "Kho trung tâm"}`,
-      });
+        waypoints.push({
+          lat: depot.lat,
+          lng: depot.lng,
+          arrMin: returnArrMin,
+          depMin: returnArrMin + 60,
+          type: "RETURN_DEPOT",
+          name: `Về ${depot.name || "Kho trung tâm"}`,
+        });
+      }
 
       // Find current position between waypoints
       let currLat = startLat;
@@ -196,6 +207,8 @@ export function useShipperVehicleAnimation({
       let status: ShipperPose["status"] = "IDLE";
       let statusText = "Khởi động ca";
       let currentStopIndex = 0;
+      let fromStopIndex = 0;
+      let toStopIndex = Math.min(1, waypoints.length - 1);
       let currentStopName = "";
       let nextStopName = "";
       let legProgress = 0;
@@ -205,6 +218,8 @@ export function useShipperVehicleAnimation({
         currLng = startLng;
         status = isModeB ? "AT_BASE" : "IDLE";
         statusText = isModeB ? `Tại ${s.base_name || "Trạm trực ca"}` : "Tại Kho trung tâm";
+        fromStopIndex = 0;
+        toStopIndex = Math.min(1, waypoints.length - 1);
         nextStopName = waypoints[1]?.name || "";
       } else {
         let found = false;
@@ -213,17 +228,22 @@ export function useShipperVehicleAnimation({
           const wCurrent = waypoints[i];
           const wNext = waypoints[i + 1];
 
-          // 1. Staying at wCurrent (loading/delivering)
+          // 1. Staying at wCurrent (loading/delivering/waiting)
           if (t >= wCurrent.arrMin && t <= wCurrent.depMin && i > 0) {
             currLat = wCurrent.lat;
             currLng = wCurrent.lng;
             currHeading = calculateBearing(waypoints[i - 1].lat, waypoints[i - 1].lng, wCurrent.lat, wCurrent.lng);
             currentStopIndex = i;
+            fromStopIndex = i;
+            toStopIndex = Math.min(waypoints.length - 1, i + 1);
             currentStopName = wCurrent.name;
             nextStopName = wNext.name;
             legProgress = 1.0;
 
-            if (wCurrent.type === "DEPOT_PICKUP") {
+            if (wCurrent.type === "RETURN_DEPOT") {
+              status = "COMPLETED";
+              statusText = `Đã về đến ${depot.name || "Kho trung tâm"}`;
+            } else if (wCurrent.type === "DEPOT_PICKUP") {
               status = "PICKING_UP";
               statusText = "Đang lấy hàng tại Kho trung tâm";
             } else {
@@ -234,7 +254,7 @@ export function useShipperVehicleAnimation({
             break;
           }
 
-          // 2. Traveling between wCurrent and wNext
+          // 2. Traveling forward between wCurrent (i) and wNext (i + 1)
           if (t > wCurrent.depMin && t < wNext.arrMin) {
             const legDuration = Math.max(0.1, wNext.arrMin - wCurrent.depMin);
             legProgress = Math.max(0, Math.min(1, (t - wCurrent.depMin) / legDuration));
@@ -242,7 +262,9 @@ export function useShipperVehicleAnimation({
             currLat = wCurrent.lat + legProgress * (wNext.lat - wCurrent.lat);
             currLng = wCurrent.lng + legProgress * (wNext.lng - wCurrent.lng);
             currHeading = calculateBearing(wCurrent.lat, wCurrent.lng, wNext.lat, wNext.lng);
-            currentStopIndex = i + 1;
+            currentStopIndex = i;
+            fromStopIndex = i;
+            toStopIndex = i + 1;
             nextStopName = wNext.name;
 
             if (wNext.type === "DEPOT_PICKUP") {
@@ -250,7 +272,7 @@ export function useShipperVehicleAnimation({
               statusText = "Di chuyển đến Kho trung tâm nhận kiện";
             } else if (wNext.type === "RETURN_DEPOT") {
               status = "RETURNING";
-              statusText = "Đang trở về Kho trung tâm";
+              statusText = `Đang trở về ${depot.name || "Kho trung tâm"}`;
             } else {
               status = "IN_TRANSIT";
               statusText = `Đang di chuyển đến: ${wNext.name}`;
@@ -268,6 +290,8 @@ export function useShipperVehicleAnimation({
           status = "COMPLETED";
           statusText = "Đã hoàn thành ca giao và về Kho";
           currentStopIndex = s.timeline_stops.length;
+          fromStopIndex = waypoints.length - 1;
+          toStopIndex = waypoints.length - 1;
           legProgress = 1.0;
         }
       }
@@ -280,6 +304,8 @@ export function useShipperVehicleAnimation({
         status,
         statusText,
         currentStopIndex,
+        fromStopIndex,
+        toStopIndex,
         totalStops: s.timeline_stops.length,
         currentStopName,
         nextStopName,

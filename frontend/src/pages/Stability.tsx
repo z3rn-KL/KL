@@ -116,17 +116,17 @@ export default function Stability() {
                     >
                       <div className="flex items-center justify-between mb-1.5">
                         <span className="font-bold text-xs text-foreground">Seed #{r.seed}</span>
-                        <Badge variant="outline" className="text-[10px] px-1 py-0 font-semibold bg-emerald-500/10 text-emerald-600 border-emerald-500/30">
+                        <Badge variant="outline" className="text-xs px-1 py-0 font-semibold bg-emerald-500/10 text-emerald-600 border-emerald-500/30">
                           ✓ Tối ưu
                         </Badge>
                       </div>
-                      <div className="text-[11px] text-muted-foreground">
+                      <div className="text-xs text-muted-foreground">
                         Reward TB (100 ep): <b className="text-foreground">{num(r.mean_last_100_reward, 2)}</b>
                       </div>
-                      <div className="text-[10px] text-muted-foreground/80 mt-0.5">
+                      <div className="text-xs text-muted-foreground/80 mt-0.5">
                         ±Std: {num(r.std_last_100_reward, 2)} · Q-table: {num(r.q_table_size, 0)}
                       </div>
-                      <div className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold mt-1">
+                      <div className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold mt-1">
                         Reward Gap: 0,00%
                       </div>
                     </div>
@@ -167,7 +167,7 @@ export default function Stability() {
                           <td className="num">{num(r.greedy_distance_km, 2)} km</td>
                           <td className="num" style={{ color: "var(--good)", fontWeight: 700 }}>0,00%</td>
                           <td>
-                            <span className="chip good" style={{ fontSize: 11 }}>
+                            <span className="chip good" style={{ fontSize: 12 }}>
                               ✓ Khớp hoàn toàn (120 hoán vị)
                             </span>
                           </td>
@@ -194,7 +194,7 @@ export default function Stability() {
                       <CartesianGrid stroke="var(--grid-color)" strokeDasharray="3 3" vertical={false} />
                       <XAxis
                         dataKey="configuration"
-                        tick={{ fontSize: 10, fill: "var(--muted)" }}
+                        tick={{ fontSize: 12, fill: "var(--muted)" }}
                         interval={0}
                         angle={-25}
                         textAnchor="end"
@@ -287,7 +287,7 @@ export default function Stability() {
                 <div>
                   • <b className="text-foreground">13/13 Cấu hình Siêu tham số:</b> 100% tổ hợp (α, γ, ε, episodes) đều tìm thấy nghiệm tối ưu toàn cục (Rank #1/120 hoán vị).
                 </div>
-                <div className="mt-3 pt-2.5 border-t border-border/60 text-[11px] text-amber-600 dark:text-amber-400">
+                <div className="mt-3 pt-2.5 border-t border-border/60 text-xs text-amber-600 dark:text-amber-400">
                   <b>⚠️ Lưu ý Giới hạn Phương pháp luận:</b> Kết luận tính tối ưu toàn cục chỉ áp dụng trên duy nhất 1 workload 5 đơn hàng chuẩn nhờ duyệt vét cạn 120 hoán vị. Khi N ≥ 15 (N! &gt; 1.000 tỷ), phương pháp vét cạn không khả thi; mô hình Proposed RL quy mô lớn được đánh giá theo giao thức Train/Val/Test độc lập, không ngoại suy tính tối ưu toàn cục sang bài toán tổng quát.
                 </div>
               </div>
@@ -313,7 +313,7 @@ export default function Stability() {
                         <XAxis
                           dataKey="k"
                           tick={{ fontSize: 12, fill: "var(--muted)" }}
-                          label={{ value: "Số cụm K", position: "insideBottomRight", offset: -4, fontSize: 11, fill: "var(--muted)" }}
+                          label={{ value: "Số cụm K", position: "insideBottomRight", offset: -4, fontSize: 12, fill: "var(--muted)" }}
                         />
                         <YAxis
                           tick={{ fontSize: 12, fill: "var(--muted)" }}
@@ -326,7 +326,7 @@ export default function Stability() {
                           x={cq.data.selected.kmeans_k}
                           stroke="var(--accent)"
                           strokeDasharray="4 4"
-                          label={{ value: "K=10 (Tối ưu)", fill: "var(--accent)", fontSize: 11 }}
+                          label={{ value: "K=10 (Tối ưu)", fill: "var(--accent)", fontSize: 12 }}
                         />
                         <Line
                           dataKey="silhouette_score"
@@ -361,7 +361,7 @@ export default function Stability() {
                           x={cq.data.selected.kmeans_k}
                           stroke="#10B981"
                           strokeDasharray="4 4"
-                          label={{ value: "Điểm Elbow", fill: "#10B981", fontSize: 11 }}
+                          label={{ value: "Điểm Elbow", fill: "#10B981", fontSize: 12 }}
                         />
                         <Line
                           dataKey="inertia"
@@ -416,11 +416,11 @@ export default function Stability() {
                           <td className="num" style={{ fontWeight: 600 }}>{num(r.imbalance_ratio, 1)}×</td>
                           <td>
                             {isSel ? (
-                              <span className="chip good" style={{ fontSize: 11 }}>
+                              <span className="chip good" style={{ fontSize: 12 }}>
                                 Cấu hình chuẩn luận văn: Tách cụm tối ưu
                               </span>
                             ) : r.min_cluster_size < 10 ? (
-                              <span className="chip warn" style={{ fontSize: 11 }}>
+                              <span className="chip warn" style={{ fontSize: 12 }}>
                                 Cụm quá nhỏ ({r.min_cluster_size} đơn) gây phân mảnh
                               </span>
                             ) : (
@@ -534,11 +534,11 @@ export default function Stability() {
                           <td className="num">{num(r.max_cluster_size, 0)}</td>
                           <td style={{ fontSize: 12 }}>
                             {chosen ? (
-                              <span className="chip good" style={{ fontSize: 11 }}>
+                              <span className="chip good" style={{ fontSize: 12 }}>
                                 Cấu hình chọn: Ít nhiễu nhất (0,8%), gom cụm toàn diện
                               </span>
                             ) : r.noise_ratio > 0.4 ? (
-                              <span className="chip bad" style={{ fontSize: 11 }}>
+                              <span className="chip bad" style={{ fontSize: 12 }}>
                                 Quá nhiều nhiễu ({pct(r.noise_ratio, 0)}) bị bỏ sót
                               </span>
                             ) : (

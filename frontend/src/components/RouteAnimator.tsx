@@ -356,7 +356,7 @@ export function AnimControls({ bus }: { bus: AnimBus }) {
             key={v}
             className={s.speed === v ? "on" : ""}
             onClick={() => bus.set({ speed: v })}
-            style={{ padding: "4px 8px", fontSize: "11.5px" }}
+            style={{ padding: "4px 8px", fontSize: "12px" }}
           >
             {v}x
           </button>

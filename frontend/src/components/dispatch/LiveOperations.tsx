@@ -247,11 +247,11 @@ export function LiveOperations({
     return null;
   }, [selectedShipper]);
 
-  // Compute Full Route Segments for Selected Shipper
+  // Compute Full Route Segments for Selected Shipper (including Return-to-Depot leg)
   const routeSegments = useMemo(() => {
     if (!selectedShipper) return { completed: [], active: [], remaining: [] };
 
-    // Build ordered list of coordinates: Origin -> Stops
+    // Build ordered list of coordinates: Origin -> Stops -> Central Depot
     const isModeB = selectedShipper.shift_start_mode === "START_AT_BASE";
     const origin: [number, number] = isModeB && selectedShipper.base_lat && selectedShipper.base_lng
       ? [selectedShipper.base_lat, selectedShipper.base_lng]
@@ -260,26 +260,44 @@ export function LiveOperations({
     const stops = selectedShipper.timeline_stops || [];
     if (stops.length === 0) return { completed: [], active: [], remaining: [] };
 
-    const waypoints: [number, number][] = [origin, ...stops.map((st) => [st.lat, st.lng] as [number, number])];
+    const rawWaypoints: [number, number][] = [origin, ...stops.map((st) => [st.lat, st.lng] as [number, number])];
+    const hasReturnInStops = stops.some((st) => (st as any).stop_type === "RETURN_DEPOT" || st.order_id === "return_to_depot");
+    if (!hasReturnInStops) {
+      rawWaypoints.push([session.depot.lat, session.depot.lng]);
+    }
+    const waypoints = rawWaypoints;
 
-    const currentIdx = selectedShipperPose?.currentStopIndex ?? 0;
-    const completedIdx = Math.max(0, Math.min(currentIdx, stops.length));
+    const totalLegs = waypoints.length - 1;
+    const isCompleted = selectedShipperPose?.status === "COMPLETED";
 
-    // Completed: from origin through stops already delivered
-    const completedLegs: [number, number][] = waypoints.slice(0, completedIdx + 1);
-
-    // Active leg: from previous stop to current moving vehicle position
-    const activeLegs: [number, number][] = [];
-    if (selectedShipperPose && completedIdx < stops.length) {
-      const prevPt = waypoints[completedIdx];
-      const currPt: [number, number] = [selectedShipperPose.lat, selectedShipperPose.lng];
-      const nextPt = waypoints[completedIdx + 1];
-      activeLegs.push(prevPt, currPt);
-      if (nextPt) activeLegs.push(nextPt);
+    if (isCompleted) {
+      return {
+        completed: waypoints,
+        active: [],
+        remaining: [],
+      };
     }
 
-    // Remaining: from current stop to the remaining stops
-    const remainingLegs: [number, number][] = waypoints.slice(completedIdx);
+    const fromIdx = Math.max(0, Math.min(selectedShipperPose?.fromStopIndex ?? 0, totalLegs));
+    const toIdx = Math.max(0, Math.min(selectedShipperPose?.toStopIndex ?? 1, totalLegs));
+    const isMoving = selectedShipperPose?.status === "IN_TRANSIT" ||
+                     selectedShipperPose?.status === "MOVING_TO_DEPOT" ||
+                     selectedShipperPose?.status === "RETURNING";
+
+    // Completed: from origin through departed waypoint (fromIdx)
+    const completedLegs: [number, number][] = waypoints.slice(0, fromIdx + 1);
+
+    // Active leg: strictly forward from departure point through current vehicle position to destination
+    const activeLegs: [number, number][] = [];
+    if (selectedShipperPose && isMoving && fromIdx < toIdx) {
+      const prevPt = waypoints[fromIdx];
+      const currPt: [number, number] = [selectedShipperPose.lat, selectedShipperPose.lng];
+      const nextPt = waypoints[toIdx];
+      activeLegs.push(prevPt, currPt, nextPt);
+    }
+
+    // Remaining: from destination (toIdx) through remaining stops to depot
+    const remainingLegs: [number, number][] = waypoints.slice(isMoving ? toIdx : fromIdx + 1);
 
     return {
       completed: completedLegs.length > 1 ? completedLegs : [],
@@ -422,9 +440,10 @@ export function LiveOperations({
           >
             <button
               type="button"
+              id="viewModeFocus"
               className={`btn sm ${viewMode === "FOCUS" ? "primary" : ""}`}
               style={{
-                fontSize: "11px",
+                fontSize: "12px",
                 padding: "4px 8px",
                 height: "26px",
                 borderRadius: "6px",
@@ -440,7 +459,7 @@ export function LiveOperations({
               type="button"
               className={`btn sm ${viewMode === "FLEET" ? "primary" : ""}`}
               style={{
-                fontSize: "11px",
+                fontSize: "12px",
                 padding: "4px 8px",
                 height: "26px",
                 borderRadius: "6px",
@@ -458,7 +477,7 @@ export function LiveOperations({
             type="button"
             className="btn sm"
             style={{
-              fontSize: "11px",
+              fontSize: "12px",
               height: "28px",
               display: "flex",
               alignItems: "center",
@@ -492,7 +511,7 @@ export function LiveOperations({
                 <div style={{ fontSize: "12px", padding: "4px" }}>
                   <strong>{session.depot.name}</strong>
                   <div style={{ color: "#71818a" }}>Kho trung tâm điều phối NEXUS</div>
-                  <div style={{ fontSize: "11px", color: "#0d9488", marginTop: "3px" }}>
+                  <div style={{ fontSize: "12px", color: "#0d9488", marginTop: "3px" }}>
                     Tọa độ: {session.depot.lat.toFixed(4)}, {session.depot.lng.toFixed(4)}
                   </div>
                 </div>
@@ -615,6 +634,7 @@ export function LiveOperations({
               .filter((s) => viewMode === "FLEET" || s.shipper_id === selectedShipperId)
               .map((s) => {
                 const isSelected = s.shipper_id === selectedShipperId;
+                const isDimmed = viewMode === "FLEET" && !isSelected;
                 const pose: ShipperPose | undefined = poses[s.shipper_id];
                 const lat = pose ? pose.lat : s.current_lat;
                 const lng = pose ? pose.lng : s.current_lng;
@@ -625,7 +645,7 @@ export function LiveOperations({
                   <Marker
                     key={s.shipper_id}
                     position={[lat, lng]}
-                    icon={createVehicleMarkerIcon(s.shipper_id, heading, status, isSelected)}
+                    icon={createVehicleMarkerIcon(s.shipper_id, heading, status, isSelected, isDimmed)}
                     eventHandlers={{
                       click: () => onSelectShipper(s.shipper_id),
                     }}
@@ -636,10 +656,10 @@ export function LiveOperations({
                         <div style={{ color: "#0f766e", fontWeight: 600 }}>
                           {pose?.statusText || s.status}
                         </div>
-                        <div style={{ fontSize: "11px", color: "#64748b" }}>
+                        <div style={{ fontSize: "12px", color: "#64748b" }}>
                           Hướng di chuyển: {Math.round(heading)}° · Tải: {s.current_load_kg.toFixed(1)} / {s.capacity_kg} kg
                         </div>
-                        <div style={{ fontSize: "11px", color: "#64748b" }}>
+                        <div style={{ fontSize: "12px", color: "#64748b" }}>
                           Số đơn nhận: {s.assigned_order_ids.length}
                         </div>
                       </div>
@@ -674,6 +694,7 @@ export function LiveOperations({
           >
             <button
               type="button"
+              id="autoFollowToggle"
               className={`btn sm ${autoFollow ? "primary" : ""}`}
               onClick={() => setAutoFollow(!autoFollow)}
               style={{
@@ -685,7 +706,7 @@ export function LiveOperations({
                 border: "1px solid rgba(0,0,0,0.15)",
                 borderRadius: "6px",
                 padding: "6px 10px",
-                fontSize: "11px",
+                fontSize: "12px",
                 fontWeight: 600,
                 boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
                 cursor: "pointer",
@@ -711,7 +732,7 @@ export function LiveOperations({
               borderRadius: "10px",
               padding: "10px 12px",
               boxShadow: "0 4px 14px rgba(0,0,0,0.15)",
-              fontSize: "11px",
+              fontSize: "12px",
             }}
           >
             <div
@@ -788,8 +809,8 @@ export function LiveOperations({
             <div className="tracking-row">
               <div>
                 <span className="captioncaps">FLEET TRACKING · THỜI GIAN THỰC</span>
-                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "4px" }}>
-                  <h2 id="trackingShipper" style={{ margin: 0 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "4px", flexWrap: "wrap" }}>
+                  <h2 id="trackingShipper" style={{ margin: 0, whiteSpace: "nowrap" }}>
                     Shipper #{selectedShipper?.shipper_id.replace("shipper_", "")}
                   </h2>
                   <span
@@ -804,10 +825,12 @@ export function LiveOperations({
                           ? "#0369a1"
                           : "#15803d",
                       border: "1px solid currentColor",
-                      fontSize: "10px",
-                      padding: "2px 6px",
+                      fontSize: "12px",
+                      padding: "2px 8px",
                       borderRadius: "4px",
                       fontWeight: 700,
+                      whiteSpace: "nowrap",
+                      flexShrink: 0,
                     }}
                   >
                     {selectedShipper?.shift_start_mode === "START_AT_BASE"
@@ -850,7 +873,7 @@ export function LiveOperations({
               }}
             >
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <span style={{ fontSize: "11px", fontWeight: 700, color: "#0f766e" }}>
+                <span style={{ fontSize: "12px", fontWeight: 700, color: "#0f766e" }}>
                   TRẠNG THÁI CHUYỂN ĐỘNG
                 </span>
                 <span
@@ -858,7 +881,7 @@ export function LiveOperations({
                     display: "flex",
                     alignItems: "center",
                     gap: "4px",
-                    fontSize: "11px",
+                    fontSize: "12px",
                     fontWeight: 600,
                     color: "#475569",
                   }}
@@ -871,7 +894,7 @@ export function LiveOperations({
                 {currentPose?.statusText || "Chờ lệnh xuất phát"}
               </div>
               {currentPose?.nextStopName && (
-                <div style={{ fontSize: "11px", color: "#64748b" }}>
+                <div style={{ fontSize: "12px", color: "#64748b" }}>
                   Mục tiêu tiếp theo: <strong>{currentPose.nextStopName}</strong>
                 </div>
               )}
@@ -946,7 +969,7 @@ export function LiveOperations({
                         <strong>
                           {isDepotPickup ? "Lấy hàng tại Kho trung tâm" : (ord?.order_code || stop.order_id)}
                         </strong>
-                        <span style={{ fontSize: "10px", color: "#64748b" }}>
+                        <span style={{ fontSize: "12px", color: "#64748b" }}>
                           {stop.arrival_minute}m - {stop.departure_minute}m
                         </span>
                       </div>
@@ -985,10 +1008,10 @@ export function LiveOperations({
         </aside>
       </div>
 
-      {/* Floating 3-Column Simulation Bar */}
-      <div className="simbar" style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center", gap: "16px" }}>
+      {/* Floating Simulation Bar — Responsive 3-Column Flex */}
+      <div className="simbar" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "16px", flexWrap: "wrap" }}>
         {/* COLUMN 1: LEFT — SIMULATION STATUS */}
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap", minWidth: "220px" }}>
           <div>
             <div className="simtime" id="simulationTime" style={{ fontFamily: "monospace", fontWeight: 800 }}>
               {displayClock}
@@ -1017,7 +1040,7 @@ export function LiveOperations({
                   ? "#b91c1c"
                   : "#475569",
                 border: "1px solid currentColor",
-                fontSize: "10px",
+                fontSize: "12px",
                 fontWeight: 700,
                 padding: "2px 8px",
                 borderRadius: "6px",
@@ -1039,7 +1062,7 @@ export function LiveOperations({
         </div>
 
         {/* COLUMN 2: CENTER — PLAYBACK CONTROLS */}
-        <div className="sim-controls" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+        <div className="sim-controls" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", flexWrap: "wrap" }}>
           {/* Play/Pause: NEVER disabled when isPlaying is true! */}
           <button
             type="button"
@@ -1094,11 +1117,11 @@ export function LiveOperations({
         </div>
 
         {/* COLUMN 3: RIGHT — ACTIONS */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "8px" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "8px", flexWrap: "wrap", minWidth: "220px" }}>
           <button
             type="button"
             className="btn"
-            style={{ fontSize: "11px", height: "34px", borderColor: "#0d9488", color: "#0f766e" }}
+            style={{ fontSize: "12px", height: "34px", borderColor: "#0d9488", color: "#0f766e" }}
             onClick={() => setIsRlModalOpen(true)}
             title="Mở bảng phân tích vết quyết định RL"
           >
@@ -1115,7 +1138,7 @@ export function LiveOperations({
               color: "#f9cbc6",
               background: "#503735",
               height: "34px",
-              fontSize: "11px",
+              fontSize: "12px",
             }}
             onClick={onEndDay}
             disabled={actionLoading}

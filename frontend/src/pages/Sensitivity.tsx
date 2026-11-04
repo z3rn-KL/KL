@@ -148,18 +148,18 @@ export default function Sensitivity() {
                       {isChosenOptimal ? (
                         <Badge
                           variant="outline"
-                          className="text-[10px] px-1 py-0 font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30"
+                          className="text-xs px-1 py-0 font-semibold bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30"
                         >
                           ★ Chọn
                         </Badge>
                       ) : (
-                        <span className="text-[10px] text-muted-foreground">{r.runs} lượt</span>
+                        <span className="text-xs text-muted-foreground">{r.runs} lượt</span>
                       )}
                     </div>
-                    <div className="text-[11px] text-muted-foreground mt-1 truncate">
+                    <div className="text-xs text-muted-foreground mt-1 truncate">
                       Đổi cụm: <b>{num(r.mean_cluster_switches, 2)}</b> ({pct(r.mean_cluster_switch_rate, 1)})
                     </div>
-                    <div className="text-[10px] text-muted-foreground/80 mt-0.5 truncate font-mono">
+                    <div className="text-xs text-muted-foreground/80 mt-0.5 truncate font-mono">
                       {num(r.mean_distance_km, 1)} km · SLA {pct(r.overall_on_time_rate, 0)}
                     </div>
                   </button>
@@ -200,13 +200,13 @@ export default function Sensitivity() {
                             <div style={{ fontWeight: 700, marginBottom: 4, color: "var(--accent)" }}>Hệ số λ = {num(d.cluster_switch_penalty, 2)}</div>
                             <div>Quãng đường: <b>{num(d.mean_distance_km, 2)} km</b></div>
                             <div>Thời gian: <b>{num(d.mean_travel_time_minutes, 2)} phút</b></div>
-                            <div style={{ color: "var(--muted)", fontSize: 11, marginTop: 4 }}>Huấn luyện: {num(d.mean_training_runtime_seconds, 1)}s</div>
+                            <div style={{ color: "var(--muted)", fontSize: 12, marginTop: 4 }}>Huấn luyện: {num(d.mean_training_runtime_seconds, 1)}s</div>
                           </div>
                         );
                       }}
                     />
                     <Legend wrapperStyle={{ fontSize: 12, paddingTop: 6 }} />
-                    <ReferenceLine x={0.5} stroke="var(--accent)" strokeDasharray="4 4" label={{ value: "λ*=0,50", fill: "var(--accent)", fontSize: 11 }} />
+                    <ReferenceLine x={0.5} stroke="var(--accent)" strokeDasharray="4 4" label={{ value: "λ*=0,50", fill: "var(--accent)", fontSize: 12 }} />
                     <Line
                       type="monotone"
                       dataKey="mean_distance_km"
@@ -263,13 +263,13 @@ export default function Sensitivity() {
                             <div style={{ fontWeight: 700, marginBottom: 4, color: "var(--algo-guided)" }}>Hệ số λ = {num(d.cluster_switch_penalty, 2)}</div>
                             <div>Đổi cụm TB: <b>{num(d.mean_cluster_switches, 2)} lần</b></div>
                             <div>Tỷ lệ đổi cụm: <b>{pct(d.mean_cluster_switch_rate, 1)}</b></div>
-                            <div style={{ color: "var(--good)", fontSize: 11, marginTop: 4 }}>SLA: {pct(d.overall_on_time_rate, 0)} (100% đúng hẹn)</div>
+                            <div style={{ color: "var(--good)", fontSize: 12, marginTop: 4 }}>SLA: {pct(d.overall_on_time_rate, 0)} (100% đúng hẹn)</div>
                           </div>
                         );
                       }}
                     />
                     <Legend wrapperStyle={{ fontSize: 12, paddingTop: 6 }} />
-                    <ReferenceLine x={0.5} stroke="var(--good)" strokeDasharray="4 4" label={{ value: "Giảm 6,83%", fill: "var(--good)", fontSize: 11 }} />
+                    <ReferenceLine x={0.5} stroke="var(--good)" strokeDasharray="4 4" label={{ value: "Giảm 6,83%", fill: "var(--good)", fontSize: 12 }} />
                     <Line
                       type="monotone"
                       dataKey="mean_cluster_switches"
@@ -339,11 +339,11 @@ export default function Sensitivity() {
                       <td className="num">{num(r.mean_training_runtime_seconds, 1)}s</td>
                       <td style={{ fontSize: 12 }}>
                         {isBest ? (
-                          <span className="chip good" style={{ fontSize: 11 }}>
+                          <span className="chip good" style={{ fontSize: 12 }}>
                             Cân bằng thực nghiệm: Giảm -6,83% đổi cụm
                           </span>
                         ) : r.cluster_switch_penalty === 0.0 ? (
-                          <span className="chip" style={{ fontSize: 11 }}>
+                          <span className="chip" style={{ fontSize: 12 }}>
                             Vanilla DQN (Không phạt cụm)
                           </span>
                         ) : (
@@ -482,15 +482,15 @@ export default function Sensitivity() {
                         </td>
                         <td>
                           {isShorter ? (
-                            <span className="chip good" style={{ fontSize: 11 }}>
+                            <span className="chip good" style={{ fontSize: 12 }}>
                               ✓ Ngắn hơn (-{num(Math.abs(deltaDist!), 2)}%)
                             </span>
                           ) : isEqual ? (
-                            <span className="chip" style={{ fontSize: 11 }}>
+                            <span className="chip" style={{ fontSize: 12 }}>
                               = Tương đương (0,00%)
                             </span>
                           ) : (
-                            <span className="chip warn" style={{ fontSize: 11 }}>
+                            <span className="chip warn" style={{ fontSize: 12 }}>
                               Đánh đổi (+{num(deltaDist!, 2)}%)
                             </span>
                           )}
@@ -555,7 +555,7 @@ export default function Sensitivity() {
                 <span style={{ fontWeight: 700, fontSize: 13, color: "var(--text)" }}>
                   1. Guided DQN: Reward Shaping Mềm
                 </span>
-                <span className="chip" style={{ fontSize: 10.5, background: "rgba(139, 140, 248, 0.15)", color: "var(--algo-guided)" }}>
+                <span className="chip" style={{ fontSize: 12.5, background: "rgba(139, 140, 248, 0.15)", color: "var(--algo-guided)" }}>
                   Kiểm chứng 12 WL
                 </span>
               </div>
@@ -582,7 +582,7 @@ export default function Sensitivity() {
                 <span style={{ fontWeight: 700, fontSize: 13, color: "var(--text)" }}>
                   2. Proposed RL: Mạng Đa Tiêu chí
                 </span>
-                <span className="chip" style={{ fontSize: 10.5, background: "rgba(54, 181, 197, 0.15)", color: "var(--accent)" }}>
+                <span className="chip" style={{ fontSize: 12.5, background: "rgba(54, 181, 197, 0.15)", color: "var(--accent)" }}>
                   Held-out Test 16 WL
                 </span>
               </div>

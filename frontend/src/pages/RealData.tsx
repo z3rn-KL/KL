@@ -180,7 +180,7 @@ export default function RealData() {
                     <XAxis
                       dataKey="method"
                       tickFormatter={(k: RealReplayMethod["method"]) => METHOD_LABEL[k] ?? k}
-                      tick={{ fontSize: 11 }}
+                      tick={{ fontSize: 12 }}
                     />
                     <YAxis
                       tick={{ fontSize: 12 }}

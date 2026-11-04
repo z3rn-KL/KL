@@ -224,7 +224,7 @@ export function CommandPalette({
             onChange={(e) => setSearch(e.target.value)}
             aria-label="Tìm kiếm lệnh"
           />
-          <kbd className="hidden sm:inline-flex items-center px-2 py-0.5 text-[10px] font-mono font-medium rounded border border-border bg-muted/60 text-muted-foreground shadow-2xs">
+          <kbd className="hidden sm:inline-flex items-center px-2 py-0.5 text-xs font-mono font-medium rounded border border-border bg-muted/60 text-muted-foreground shadow-2xs">
             Esc
           </kbd>
         </div>
@@ -267,7 +267,7 @@ export function CommandPalette({
                       {item.title}
                     </div>
                     {item.subtitle && (
-                      <div className="text-[11px] text-muted-foreground/80 truncate mt-0.5">
+                      <div className="text-xs text-muted-foreground/80 truncate mt-0.5">
                         {item.subtitle}
                       </div>
                     )}
@@ -275,7 +275,7 @@ export function CommandPalette({
                   {item.badge && (
                     <Badge
                       variant="outline"
-                      className={`text-[10px] font-mono shrink-0 px-1.5 py-0.5 ${
+                      className={`text-xs font-mono shrink-0 px-1.5 py-0.5 ${
                         isSelected
                           ? "bg-card text-foreground font-semibold border-border shadow-2xs"
                           : "bg-muted/40 text-muted-foreground font-medium border-border/50"
@@ -291,18 +291,18 @@ export function CommandPalette({
         </div>
 
         {/* Footer Shortcuts */}
-        <div className="flex items-center justify-between px-4 py-2.5 border-t border-border bg-card/60 text-[11px] text-muted-foreground font-medium">
+        <div className="flex items-center justify-between px-4 py-2.5 border-t border-border bg-card/60 text-xs text-muted-foreground font-medium">
           <div className="flex items-center gap-1.5">
-            <kbd className="px-1.5 py-0.5 rounded border border-border bg-muted/60 text-[10px] font-mono font-medium text-foreground shadow-2xs">↑</kbd>
-            <kbd className="px-1.5 py-0.5 rounded border border-border bg-muted/60 text-[10px] font-mono font-medium text-foreground shadow-2xs">↓</kbd>
+            <kbd className="px-1.5 py-0.5 rounded border border-border bg-muted/60 text-xs font-mono font-medium text-foreground shadow-2xs">↑</kbd>
+            <kbd className="px-1.5 py-0.5 rounded border border-border bg-muted/60 text-xs font-mono font-medium text-foreground shadow-2xs">↓</kbd>
             <span className="ml-1 text-muted-foreground">Di chuyển</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <kbd className="px-1.5 py-0.5 rounded border border-border bg-muted/60 text-[10px] font-mono font-medium text-foreground shadow-2xs">↵ Enter</kbd>
+            <kbd className="px-1.5 py-0.5 rounded border border-border bg-muted/60 text-xs font-mono font-medium text-foreground shadow-2xs">↵ Enter</kbd>
             <span className="ml-1 text-muted-foreground">Thực hiện</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <kbd className="px-1.5 py-0.5 rounded border border-border bg-muted/60 text-[10px] font-mono font-medium text-foreground shadow-2xs">Esc</kbd>
+            <kbd className="px-1.5 py-0.5 rounded border border-border bg-muted/60 text-xs font-mono font-medium text-foreground shadow-2xs">Esc</kbd>
             <span className="ml-1 text-muted-foreground">Đóng</span>
           </div>
         </div>

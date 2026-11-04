@@ -279,7 +279,7 @@ export default function DailyPlanning() {
                             {isBest && (
                               <Badge
                                 variant="outline"
-                                className="ml-2 text-[10px] px-1.5 py-0 text-emerald-600 border-emerald-500/40"
+                                className="ml-2 text-xs px-1.5 py-0 text-emerald-600 border-emerald-500/40"
                               >
                                 tốt nhất
                               </Badge>
@@ -320,7 +320,7 @@ export default function DailyPlanning() {
                     <XAxis
                       dataKey="overtime_policy"
                       tickFormatter={(k: OvertimePolicy) => POLICY_LABEL[k] ?? k}
-                      tick={{ fontSize: 11 }}
+                      tick={{ fontSize: 12 }}
                     />
                     <YAxis
                       tick={{ fontSize: 12 }}
@@ -370,7 +370,7 @@ export default function DailyPlanning() {
                   <CartesianGrid strokeDasharray="3 3" vertical={false} />
                   <XAxis
                     dataKey="day"
-                    tick={{ fontSize: 11 }}
+                    tick={{ fontSize: 12 }}
                     tickFormatter={(d: number) => `N${d}`}
                   />
                   <YAxis tick={{ fontSize: 12 }} width={48} />

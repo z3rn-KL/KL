@@ -35,12 +35,12 @@ export function MetricCard({
     <Card className={`overflow-hidden border-border/80 shadow-xs bg-card transition-all hover:border-border hover:shadow-sm ${className}`}>
       <CardContent className="p-4 sm:p-5">
         <div className="flex items-center justify-between gap-2">
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground truncate">
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground truncate">
             {label}
           </span>
           <div className="flex items-center gap-1.5 shrink-0">
             {badge && (
-              <Badge variant="outline" className="text-[10px] px-1.5 py-0 font-medium">
+              <Badge variant="outline" className="text-xs px-1.5 py-0 font-medium">
                 {badge}
               </Badge>
             )}
@@ -105,7 +105,7 @@ export function PageHeader({
             {title}
           </h1>
           {badge && (
-            <Badge variant="outline" className="font-mono text-[10px] font-medium px-1.5 py-0">
+            <Badge variant="outline" className="font-mono text-xs font-medium px-1.5 py-0">
               {badge}
             </Badge>
           )}
