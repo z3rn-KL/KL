@@ -4,13 +4,18 @@
 #   $env:APP_PASSWORD = "choose-a-password"
 #   .\scripts\start_public.ps1            # http://localhost:8000 only
 #   .\scripts\start_public.ps1 -Tunnel    # also a public https address
+#
+#   .\scripts\start_public.ps1 -Tunnel -NoPassword   # anyone with the address
 
-param([switch]$Tunnel)
+param([switch]$Tunnel, [switch]$NoPassword)
 
 $ErrorActionPreference = "Stop"
 
-if (-not $env:APP_PASSWORD) {
-    throw "Set a password first: `$env:APP_PASSWORD = '...'"
+if ($NoPassword) {
+    $env:PUBLIC_NO_PASSWORD = "1"
+    Remove-Item Env:APP_PASSWORD -ErrorAction SilentlyContinue
+} elseif (-not $env:APP_PASSWORD) {
+    throw "Set a password first: `$env:APP_PASSWORD = '...' (or use -NoPassword)"
 }
 
 $root = Split-Path -Parent $PSScriptRoot

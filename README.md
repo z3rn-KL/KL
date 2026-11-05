@@ -85,6 +85,7 @@ Dữ liệu là đơn hàng thật từ XeDu Logistics TP.HCM. Endpoint `GET /ap
   .\scripts\start_public.ps1 -Tunnel
   ```
   Địa chỉ `https://...trycloudflare.com` hiện trong terminal và đổi sau mỗi lần chạy lại.
+- Thêm `-NoPassword` để ai có địa chỉ cũng vào được ngay (`.\scripts\start_public.ps1 -Tunnel -NoPassword`); các lớp bảo vệ còn lại của chế độ công khai vẫn giữ nguyên.
 - Các endpoint `/api/routing` và `/api/evaluation` chưa có cơ chế rate limiting và bị giới hạn cứng tối đa 30 đơn hàng mỗi lượt yêu cầu để tránh quá tải tài nguyên đồ thị bộ nhớ.
 
 ---

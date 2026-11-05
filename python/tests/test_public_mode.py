@@ -52,8 +52,46 @@ def client(dist):
 
 def test_not_installed_without_password(monkeypatch):
     monkeypatch.delenv("APP_PASSWORD", raising=False)
+    monkeypatch.delenv("PUBLIC_NO_PASSWORD", raising=False)
 
     assert not install_public_mode(FastAPI())
+
+
+def open_client(dist, **kwargs):
+    app = FastAPI()
+
+    @app.get("/api/point")
+    def point():
+        return {"lat": 10.7744123}
+
+    assert install_public_mode(app, dist=dist, **kwargs)
+
+    return TestClient(app)
+
+
+def test_open_access_needs_no_password_and_still_masks(monkeypatch, dist):
+    monkeypatch.delenv("APP_PASSWORD", raising=False)
+    monkeypatch.setenv("PUBLIC_NO_PASSWORD", "1")
+
+    client = open_client(dist)
+
+    assert "app" in client.get("/").text
+    assert client.get("/api/point").json() == {"lat": 10.774}
+
+
+def test_password_wins_over_open_access(dist):
+    client = open_client(dist, password=PASSWORD, open_access=True)
+
+    assert client.get("/api/point").status_code == 401
+    assert client.get("/api/point", headers=auth()).status_code == 200
+
+
+def test_open_access_refuses_raw_deliveries(monkeypatch):
+    monkeypatch.delenv("APP_PASSWORD", raising=False)
+    monkeypatch.setattr(public_mode, "ANONYMIZE_DELIVERIES", False)
+
+    with pytest.raises(RuntimeError):
+        install_public_mode(FastAPI(), open_access=True)
 
 
 def test_refuses_to_expose_raw_deliveries(monkeypatch):

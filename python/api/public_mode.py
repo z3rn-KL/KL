@@ -1,8 +1,10 @@
 """
 Settings for exposing the demo on the internet. Active only when APP_PASSWORD
-is set; a local run without it behaves exactly as before.
+is set or PUBLIC_NO_PASSWORD=1; a local run without them behaves as before.
 
-- Every request needs the password (HTTP Basic, any user name).
+- With APP_PASSWORD, every request needs it (HTTP Basic, any user name).
+  PUBLIC_NO_PASSWORD=1 lets anyone with the address in; a password wins if
+  both are set.
 - Coordinates in JSON responses are rounded to about 110 m, because the data
   are real delivery locations.
 - The built frontend is served from the same address as the API.
@@ -90,26 +92,33 @@ def install_public_mode(
     app: FastAPI,
     password: str | None = None,
     dist: Path = FRONTEND_DIST,
+    open_access: bool | None = None,
 ) -> bool:
     """
-    Add the public-mode middleware when a password is configured. Returns
-    whether it was installed.
+    Add the public-mode middleware when a password or open access is
+    configured. Returns whether it was installed.
     """
 
     password = password if password is not None else os.getenv("APP_PASSWORD")
 
-    if not password:
+    if open_access is None:
+        open_access = os.getenv("PUBLIC_NO_PASSWORD") == "1"
+
+    if not password and not open_access:
         return False
 
     if not ANONYMIZE_DELIVERIES:
         raise RuntimeError(
-            "APP_PASSWORD is set but XEDU_ANONYMIZE=0: refusing to expose "
+            "Public mode is on but XEDU_ANONYMIZE=0: refusing to expose "
             "non-anonymized deliveries."
         )
 
     @app.middleware("http")
     async def public_mode(request: Request, call_next):
-        if not password_matches(request.headers.get("authorization"), password):
+        if password and not password_matches(
+            request.headers.get("authorization"),
+            password,
+        ):
             return Response(
                 status_code=401,
                 headers={"WWW-Authenticate": 'Basic realm="NEXUS"'},
