@@ -3,7 +3,7 @@
 Mã nguồn khóa luận: **XÂY DỰNG HỆ THỐNG TỐI ƯU TUYẾN GIAO HÀNG KẾT HỢP KỸ THUẬT PHÂN CỤM VÀ REINFORCEMENT LEARNING TRONG LOGISTICS**.  
 Hệ thống kết hợp phân cụm không gian (K-Means, DBSCAN), các thuật toán heuristic kinh điển (Nearest Neighbor, Clarke-Wright), các thuật toán học tăng cường định tuyến (Q-Learning, SARSA, Vanilla DQN, K-Means-guided DQN, Proposed Candidate-Scoring DQN) và học tăng cường cấp ca làm việc (Shift-level RL: DQN, Policy Gradient, Set Attention Network).
 
-Toàn bộ mã nguồn và kết quả thực nghiệm từ cả ba nhánh GitHub (`main`, `proposed-routing-rl`, `feature/frontend-duy`) đã được hợp nhất vào một cây làm việc duy nhất, chuẩn xác và vượt qua 417/417 bài kiểm thử tự động.
+Toàn bộ mã nguồn và kết quả thực nghiệm từ cả ba nhánh GitHub (`main`, `proposed-routing-rl`, `feature/frontend-duy`) đã được hợp nhất vào một cây làm việc duy nhất, chuẩn xác và vượt qua 464/464 bài kiểm thử tự động.
 
 ---
 
@@ -14,14 +14,22 @@ Dữ liệu và đồ thị đường **không nằm trong repo** (đã cấu h�
 - Đặt đồ thị giao thông tại: `maps/xedu_drive.graphml` (166 MB trích xuất từ OpenStreetMap TP.HCM).
 - Toàn bộ kết quả thực nghiệm, ma trận đường và checkpoint mô hình đã tính sẵn trong `results/`.
 
-Yêu cầu môi trường: **Python 3.12+** và **Node.js 18+**. Bộ test: **417 tests**.
+Yêu cầu môi trường: **Python 3.12+** và **Node.js 18+**. Bộ test: **464 tests**.
 
 ```bash
 # Cài đặt thư viện Python
 pip install -r requirements.txt
 
-# Chạy toàn bộ 417 bài kiểm thử hồi quy
+# Chạy toàn bộ 464 bài kiểm thử hồi quy
 pytest python
+```
+
+**Trên Windows PowerShell** (từ thư mục gốc; thư mục `.venv` tạo trên Linux không dùng lại được, cần xóa và tạo mới):
+```powershell
+python -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+$env:PYTHONUTF8 = "1"
+.\.venv\Scripts\python.exe -m pytest python
 ```
 
 ### Khởi động Backend API (Cổng 8000)
@@ -42,7 +50,8 @@ uvicorn api.main:app --port 8000
 ```powershell
 cd python
 $env:PYTHONPATH="."
-uvicorn api.main:app --port 8000
+$env:PYTHONUTF8="1"
+..\.venv\Scripts\python.exe -m uvicorn api.main:app --port 8000
 ```
 
 ### Khởi động Giao diện Web NEXUS (Cổng 5173 / 5174)
@@ -67,7 +76,15 @@ Dữ liệu là đơn hàng thật từ XeDu Logistics TP.HCM. Endpoint `GET /ap
 - Chỉ khi phát triển trên máy cá nhân mới được tắt ẩn danh bằng biến môi trường `XEDU_ANONYMIZE=0`; **tuyệt đối không bao giờ tắt trên máy chủ công khai**. Mã đơn (`id`, `mdh`) và tên gói hàng được bảo lưu để giao diện vận hành.
 
 **Lưu ý triển khai công khai:**
-- Hệ thống hiện tại chưa tích hợp tầng xác thực/đăng nhập (Authentication/Authorization). Trước khi công khai trên môi trường Internet, bắt buộc phải thiết lập tường lửa, Reverse Proxy (Nginx/Caddy) kèm mật khẩu truy cập (Basic Auth hoặc OAuth2).
+- Đặt biến `APP_PASSWORD` sẽ bật **chế độ công khai** (`python/api/public_mode.py`): mọi đường dẫn đều cần mật khẩu, tọa độ trong phản hồi API được làm tròn còn khoảng 110 m (kể cả hình học tuyến đường), giao diện đã build được phục vụ cùng địa chỉ với API, và `/docs` bị ẩn. Không đặt biến này thì chạy như bình thường.
+- Chạy công khai từ máy Windows (máy phải bật trong lúc có người truy cập; server cần khoảng 2,6 GB RAM):
+  ```powershell
+  cd frontend; npm ci; npm run build; cd ..
+  winget install --id Cloudflare.cloudflared
+  $env:APP_PASSWORD = "mat-khau-cua-ban"
+  .\scripts\start_public.ps1 -Tunnel
+  ```
+  Địa chỉ `https://...trycloudflare.com` hiện trong terminal và đổi sau mỗi lần chạy lại.
 - Các endpoint `/api/routing` và `/api/evaluation` chưa có cơ chế rate limiting và bị giới hạn cứng tối đa 30 đơn hàng mỗi lượt yêu cầu để tránh quá tải tài nguyên đồ thị bộ nhớ.
 
 ---

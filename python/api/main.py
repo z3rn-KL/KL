@@ -22,6 +22,10 @@ from api.config import (
     XEDU_DATASET_PATH,
 )
 
+from api.public_mode import (
+    install_public_mode,
+)
+
 from api.routers.adverse_deliveries import (
     router as adverse_deliveries_router,
 )
@@ -131,6 +135,8 @@ app.include_router(
 app.include_router(
     dispatch_router
 )
+
+install_public_mode(app)
 
 
 @app.get(

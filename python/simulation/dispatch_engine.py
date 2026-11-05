@@ -2104,6 +2104,9 @@ class DispatchSession:
             }
 
 
+MAX_DISPATCH_SESSIONS = 50
+
+
 class DispatchManager:
     """Manages active simulation sessions."""
 
@@ -2136,6 +2139,11 @@ class DispatchManager:
                 seed=seed,
             )
             self.sessions[s_id] = session
+
+            # Sessions live in memory; keep a public demo from growing forever.
+            while len(self.sessions) > MAX_DISPATCH_SESSIONS:
+                self.sessions.pop(next(iter(self.sessions)))
+
             return session
 
     def get_session(self, session_id: str) -> DispatchSession | None:
