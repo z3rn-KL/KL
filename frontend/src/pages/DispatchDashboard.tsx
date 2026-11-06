@@ -18,6 +18,7 @@ import {
 import { PlanningDesk } from "@/components/dispatch/PlanningDesk";
 import { LiveOperations } from "@/components/dispatch/LiveOperations";
 import { DayReport } from "@/components/dispatch/DayReport";
+import { NewScenarioModal } from "@/components/dispatch/NewScenarioModal";
 
 export type DispatchWorkspace = "planning" | "live" | "report";
 
@@ -55,6 +56,7 @@ export default function DispatchDashboard() {
   // Simulation State
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [simSpeed, setSimSpeed] = useState<number>(5);
+  const [newScenarioModalOpen, setNewScenarioModalOpen] = useState<boolean>(false);
   const [actionLoading, setActionLoading] = useState<boolean>(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const [actionSuccess, setActionSuccess] = useState<string | null>(null);
@@ -225,6 +227,42 @@ export default function DispatchDashboard() {
         return;
       }
       setIsPlaying(true);
+    }
+  };
+
+  // Create new session with customizable total_days (3, 5, 7, 14 days)
+  const handleCreateNewSession = async (totalDays: number = 3) => {
+    try {
+      setIsPlaying(false);
+      setActionLoading(true);
+      setActionError(null);
+      const sess = await api.createDispatchSession({
+        scenario_id: "simulated_stress_day1_to_3",
+        routing_algorithm: "proposed_rl",
+        priority_policy: "sla_aware",
+        total_days: totalDays,
+        seed: 42,
+      });
+      setSession(sess);
+      setActivePreviewPlan(null);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("nexus_active_session_id", sess.session_id);
+      }
+      setSearchParams((prev) => {
+        const next = new URLSearchParams(prev);
+        next.set("session_id", sess.session_id);
+        next.set("workspace", "planning");
+        return next;
+      }, { replace: true });
+      setActiveWorkspace("planning");
+      if (sess.shippers && sess.shippers.length > 0) {
+        setSelectedShipperId(sess.shippers[0].shipper_id);
+      }
+      setActionSuccess(`Đã khởi tạo kịch bản mới: ${totalDays} ngày (${totalDays * 85} đơn) — ID: ${sess.session_id}`);
+    } catch (err: any) {
+      setActionError(err.message || "Không thể khởi tạo phiên làm việc mới.");
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -554,7 +592,8 @@ export default function DispatchDashboard() {
             {/* Quick Session Reset */}
             <button
               type="button"
-              onClick={() => initSession(true)}
+              id="btnResetDashboardScenario"
+              onClick={() => setNewScenarioModalOpen(true)}
               disabled={actionLoading}
               className="icon-button"
               title="Khởi tạo lại phiên mô phỏng mới"
@@ -644,6 +683,8 @@ export default function DispatchDashboard() {
               actionError={actionError}
               actionSuccess={actionSuccess}
               onReloadSession={() => initSession(false)}
+              onSwitchToReport={() => switchWorkspace("report")}
+              onCreateNewSession={handleCreateNewSession}
             />
           )}
 
@@ -679,6 +720,12 @@ export default function DispatchDashboard() {
           )}
         </div>
       </div>
+      <NewScenarioModal
+        isOpen={newScenarioModalOpen}
+        onClose={() => setNewScenarioModalOpen(false)}
+        onConfirm={handleCreateNewSession}
+        loading={actionLoading}
+      />
     </section>
   );
 }

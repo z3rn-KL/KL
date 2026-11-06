@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import {
   Building2,
   MapPin,
@@ -48,6 +49,15 @@ export function DepotServiceAreaModal({
   const [editHomeCluster, setEditHomeCluster] = useState<number>(0);
   const [saveSuccess, setSaveSuccess] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   // Load staging bases and service areas
   const loadData = async () => {
@@ -130,8 +140,11 @@ export function DepotServiceAreaModal({
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-3 sm:p-4">
+  const modalOverlay = (
+    <div
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-xs p-3 sm:p-4"
+      style={{ isolation: "isolate" }}
+    >
       <div className="flex flex-col max-h-[92vh] w-full max-w-5xl rounded-2xl border border-border/80 bg-background text-foreground shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         {/* Modal Header */}
         <div className="flex items-center justify-between border-b border-border/80 bg-muted/40 px-5 py-3.5">
@@ -142,7 +155,7 @@ export function DepotServiceAreaModal({
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-lg font-extrabold tracking-tight">
-                  Quản Lý Kho Trung Tâm & Điểm Trực Ca Shipper
+                  Quản lý kho và điểm trực
                 </h2>
                 <span className="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400">
                   GIS Logistics Hub
@@ -157,7 +170,7 @@ export function DepotServiceAreaModal({
             type="button"
             onClick={onClose}
             className="rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
-            aria-label="Đóng cửa sổ"
+            id="btnCloseDepotModalTop" aria-label="Đóng cửa sổ"
           >
             <X className="size-5" />
           </button>
@@ -384,7 +397,7 @@ export function DepotServiceAreaModal({
                             className="mt-0.5"
                           />
                           <div>
-                            <div className="font-bold text-sm text-foreground">Mode A: Tại Kho trung tâm</div>
+                            <div className="font-bold text-sm text-foreground">Xuất phát từ kho trung tâm</div>
                             <div className="text-xs text-muted-foreground mt-0.5">Nhận hàng và đi giao trực tiếp từ Tân Bình</div>
                           </div>
                         </label>
@@ -399,7 +412,7 @@ export function DepotServiceAreaModal({
                             className="mt-0.5"
                           />
                           <div>
-                            <div className="font-bold text-sm text-foreground">Mode B: Tại Trạm trực ca</div>
+                            <div className="font-bold text-sm text-foreground">Xuất phát từ trạm trực</div>
                             <div className="text-xs text-muted-foreground mt-0.5">Xuất phát từ Trạm → ghé Kho nhận hàng</div>
                           </div>
                         </label>
@@ -409,7 +422,7 @@ export function DepotServiceAreaModal({
                     {/* Staging Base Selector */}
                     <div className="space-y-1">
                       <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                        Trạm trực ca phân công:
+                        Trạm trực được phân công:
                       </label>
                       <select
                         value={editBaseId}
@@ -427,7 +440,7 @@ export function DepotServiceAreaModal({
                     {/* Home Cluster Selector */}
                     <div className="space-y-1">
                       <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                        Cụm địa lý ưu tiên chính:
+                        Cụm ưu tiên:
                       </label>
                       <select
                         value={editHomeCluster}
@@ -469,19 +482,23 @@ export function DepotServiceAreaModal({
         <div className="border-t border-border/80 bg-muted/30 px-5 py-3 flex items-center justify-between">
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <ShieldCheck className="size-3.5 text-emerald-500" />
-            <span>Mọi thay đổi vị trí chỉ áp dụng trong phiên mô phỏng hiện hành, bảo vệ 100% dữ liệu gốc của Leader.</span>
+            <span>Thiết lập áp dụng cho phiên mô phỏng hiện tại.</span>
           </div>
 
           <button
             type="button"
             onClick={onClose}
             className="rounded-lg border border-border px-4 py-1.5 text-xs font-semibold hover:bg-muted transition-colors cursor-pointer"
-          >
+           id="btnCloseDepotModal">
             Đóng
           </button>
         </div>
       </div>
     </div>
   );
+
+  return typeof document !== "undefined"
+    ? createPortal(modalOverlay, document.body)
+    : modalOverlay;
 }
 

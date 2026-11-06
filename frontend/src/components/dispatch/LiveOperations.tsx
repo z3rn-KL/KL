@@ -158,7 +158,7 @@ export function LiveOperations({
   actionSuccess,
 }: LiveOperationsProps) {
   // Tracking View Mode: "FOCUS" (Selected shipper only) vs "FLEET" (All 16 shippers)
-  const [viewMode, setViewMode] = useState<"FOCUS" | "FLEET">("FOCUS");
+  const [viewMode, setViewMode] = useState<"FOCUS" | "FLEET">("FLEET");
   const [isSlaPanelOpen, setIsSlaPanelOpen] = useState<boolean>(true);
   const [isRlModalOpen, setIsRlModalOpen] = useState<boolean>(false);
 
@@ -323,8 +323,12 @@ export function LiveOperations({
 
   // Operational SLA & Simulated Cost Calculations
   const operationalMetrics = useMemo(() => {
-    const delivered = session.orders.filter((o) => o.delivery_status === "DELIVERED");
-    const onTime = delivered.filter((o) => o.sla_status !== "OVERDUE");
+    // This panel uses the CURRENT day only; fleet distance resets each new day.
+    // Mixing cumulative deliveries with daily distance would misstate Day 2/3 costs.
+    const delivered = session.orders.filter((o) =>
+      o.delivery_status === "DELIVERED" && o.delivered_day === session.current_day
+    );
+    const onTime = delivered.filter((o) => o.sla_status === "ON_TIME");
     const late = delivered.filter((o) => o.sla_status === "OVERDUE");
     const latenessMins = delivered.reduce((acc, o) => acc + (o.sla_status === "OVERDUE" ? Math.max(0, (o.delivered_at_minute || 0) - (o.deadline_minutes || 0)) : 0), 0);
     const totalDistKm = session.fleet_summary?.total_distance_km || 0;
@@ -335,10 +339,10 @@ export function LiveOperations({
     // Simulated operational cost models
     const fuelCostVnd = Math.round(totalDistKm * 3200);
     const slaPenaltyVnd = Math.round(late.length * 45000 + latenessMins * 1200);
-    const overtimePenaltyVnd = Math.round(overtimeMins * 1500 * (session.fleet_summary?.active_shippers || 1));
+    const overtimePenaltyVnd = Math.round(overtimeMins * 1500 * (session.fleet_summary?.active_shippers ?? 0));
     const totalCostVnd = fuelCostVnd + slaPenaltyVnd + overtimePenaltyVnd;
 
-    const slaRate = delivered.length ? Math.round((onTime.length / delivered.length) * 100) : 100;
+    const slaRate = delivered.length > 0 ? Math.round((onTime.length / delivered.length) * 100) : null;
 
     return {
       deliveredCount: delivered.length,
@@ -353,7 +357,7 @@ export function LiveOperations({
       totalCostVnd,
       isOvertime: overtimeMins > 0,
     };
-  }, [session.orders, session.fleet_summary, session.shift_minutes, session.simulation_clock]);
+  }, [session.orders, session.current_day, session.fleet_summary, session.shift_minutes, session.simulation_clock]);
 
   // Activity events from session log
   const activityLogs = useMemo(() => {
@@ -394,21 +398,11 @@ export function LiveOperations({
   return (
     <div id="view-live" className="view">
       {/* Topline Metrics */}
-      <div className="topline">
-        <div className="compact-metrics">
+      <div className="topline flex flex-wrap items-center justify-between gap-3 max-w-full overflow-hidden">
+        <div className="compact-metrics flex flex-wrap items-center gap-3 sm:gap-5">
           <div className="metric">
-            <b id="liveShippers">{session.fleet_summary?.active_shippers || session.shippers.length}</b>
-            <span>Shipper</span>
-          </div>
-          <div className="metric">
-            <strong id="liveDone">{session.order_summary.delivered}</strong>
-            <span>Đã giao</span>
-          </div>
-          <div className="metric">
-            <b id="liveToDo">
-              {session.order_summary.total - session.order_summary.delivered}
-            </b>
-            <span>Chưa hoàn tất</span>
+            <b>{session.current_day}/{session.total_days}</b>
+            <span>Ngày</span>
           </div>
           <div className="metric">
             <span
@@ -421,14 +415,26 @@ export function LiveOperations({
             >
               {displayClock}
             </span>
-            <span>
-              {isOvertime ? `Tăng ca (+${Math.round(clockMins - shiftMins)}p)` : "Đồng hồ thực địa"}
-            </span>
+            <span>{isOvertime ? `Tăng ca (+${Math.round(clockMins - shiftMins)}p)` : "Đồng hồ"}</span>
+          </div>
+          <div className="metric">
+            <strong id="liveDone">{session.order_summary.delivered}</strong>
+            <span>Đã giao</span>
+          </div>
+          <div className="metric">
+            <b id="liveToDo">
+              {session.order_summary.total - session.order_summary.delivered}
+            </b>
+            <span>Chưa hoàn thành</span>
+          </div>
+          <div className="metric">
+            <b id="liveShippers">{session.fleet_summary?.active_shippers ?? 0}</b>
+            <span>Shipper</span>
           </div>
         </div>
 
         {/* View Mode Toggle: Focus vs Fleet */}
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
           <div
             style={{
               display: "inline-flex",
@@ -466,10 +472,10 @@ export function LiveOperations({
                 fontWeight: 600,
               }}
               onClick={() => setViewMode("FLEET")}
-              title="Chế độ toàn đội: Hiển thị toàn bộ 16 xe trên bản đồ GIS"
+              title="Hiển thị đồng thời đội shipper của phiên; chỉ thay đổi phạm vi quan sát, không tác động đồng hồ mô phỏng"
             >
               <Users className="size-3" style={{ marginRight: "4px" }} />
-              Toàn đội (16 xe)
+              Toàn đội ({session.shippers.length} shipper)
             </button>
           </div>
 
@@ -672,10 +678,10 @@ export function LiveOperations({
           {/* Map Overlay Badges */}
           <div className="map-legend">
             <Navigation className="icons smico" style={{ color: "#0d9488" }} />
-            <strong>GIS Tracking</strong>
+            <strong>Theo dõi hành trình</strong>
             <span style={{ color: "#91a0a6" }}>/</span>
             <span id="mapMode">
-              {viewMode === "FOCUS" ? "Theo dõi tập trung" : "Toàn đội (16 xe)"} · Shipper #{selectedShipper?.shipper_id.replace("shipper_", "")}
+              {viewMode === "FOCUS" ? `Theo dõi shipper #${selectedShipper?.shipper_id.replace("shipper_", "")}` : `Toàn đội (${session.shippers.length} shipper)`}
             </span>
           </div>
 
@@ -714,7 +720,7 @@ export function LiveOperations({
               title="Tự động bám theo vị trí xe di chuyển trên bản đồ"
             >
               <Crosshair size={13} />
-              <span>{autoFollow ? "Bám theo xe: BẬT" : "Bám theo xe"}</span>
+              <span>{autoFollow ? "Đang bám theo xe" : "Không bám theo xe"}</span>
             </button>
           </div>
 
@@ -748,7 +754,7 @@ export function LiveOperations({
             >
               <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
                 <DollarSign size={13} style={{ color: "#0d9488" }} />
-                <span>Chi phí & Vi phạm SLA</span>
+                <span>SLA và chi phí giả định trong ngày</span>
               </div>
               {isSlaPanelOpen ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
             </div>
@@ -758,7 +764,7 @@ export function LiveOperations({
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
                   <span style={{ color: "#64748b" }}>Đơn đúng hạn:</span>
                   <strong style={{ color: "#10b981" }}>
-                    {operationalMetrics.onTimeCount} / {operationalMetrics.deliveredCount} ({operationalMetrics.slaRate}%)
+                    {operationalMetrics.deliveredCount > 0 ? `${operationalMetrics.onTimeCount} / ${operationalMetrics.deliveredCount} (${operationalMetrics.slaRate}%)` : "0 / 0 (Chưa có dữ liệu)"}
                   </strong>
                 </div>
 
@@ -793,11 +799,14 @@ export function LiveOperations({
                     fontWeight: 700,
                   }}
                 >
-                  <span>Tổng chi phí vận hành:</span>
+                  <span>Tổng ước tính minh họa:</span>
                   <span style={{ color: "#0d9488", fontFamily: "monospace" }}>
                     {operationalMetrics.totalCostVnd.toLocaleString("vi-VN")} đ
                   </span>
                 </div>
+                <p className="text-xs text-muted-foreground leading-relaxed mt-2">
+                  Ước tính riêng trên giao diện: 3.200 đ/km, 45.000 đ/đơn trễ + 1.200 đ/phút trễ, 1.500 đ/phút tăng ca/shipper. Đây không phải tổng chi phí thực tế hoặc kết quả đối chuẩn; các giả định khác với cấu hình chi phí nghiên cứu.
+                </p>
               </div>
             )}
           </div>
@@ -808,7 +817,7 @@ export function LiveOperations({
           <div className="tracking-top">
             <div className="tracking-row">
               <div>
-                <span className="captioncaps">FLEET TRACKING · THỜI GIAN THỰC</span>
+                <span className="captioncaps">THEO DÕI SHIPPER</span>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "4px", flexWrap: "wrap" }}>
                   <h2 id="trackingShipper" style={{ margin: 0, whiteSpace: "nowrap" }}>
                     Shipper #{selectedShipper?.shipper_id.replace("shipper_", "")}
@@ -840,19 +849,36 @@ export function LiveOperations({
                 </div>
               </div>
 
+            </div>
+
+            <div style={{ width: "100%", marginTop: "10px" }}>
+              <label htmlFor="trackingPick" className="sr-only">
+                Chọn shipper theo dõi
+              </label>
               <select
                 id="trackingPick"
                 className="select"
-                aria-label="Chọn shipper"
+                style={{
+                  width: "100%",
+                  minWidth: "0",
+                  maxWidth: "100%",
+                  display: "block",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                  padding: "0 12px",
+                }}
+                aria-label="Chọn shipper theo dõi"
                 value={selectedShipperId}
                 onChange={(e) => onSelectShipper(e.target.value)}
               >
                 {session.shippers.map((s) => {
                   const sNum = s.shipper_id.replace("shipper_", "");
                   const isB = s.shift_start_mode === "START_AT_BASE";
+                  const startLabel = isB ? `Trạm ${s.base_name || s.base_id || "Cơ sở"}` : "Depot";
+                  const fullText = `Shipper #${pad(sNum)} (${startLabel}) · ${s.assigned_order_ids.length} đơn`;
                   return (
-                    <option key={s.shipper_id} value={s.shipper_id}>
-                      Shipper #{pad(sNum)} {isB ? `(Trạm ${s.base_name || ""})` : "(Depot)"} · {s.assigned_order_ids.length} đơn
+                    <option key={s.shipper_id} value={s.shipper_id} title={fullText}>
+                      {fullText}
                     </option>
                   );
                 })}
@@ -985,10 +1011,13 @@ export function LiveOperations({
                 );
               })
             ) : (
-              <div className="nodata">
-                Chưa có tuyến cho shipper này.
-                <br />
-                Phân công đơn từ Bàn lập kế hoạch.
+              <div className="nodata" style={{ textAlign: "center", padding: "16px 8px" }}>
+                <span>Chưa có tuyến cho shipper này.</span>
+                <div style={{ marginTop: "8px" }}>
+                  <a href="/toi-uu-rl" className="btn sm" style={{ fontSize: "11px", height: "26px", padding: "0 10px", textDecoration: "none" }}>
+                    → Phân công tại Bàn lập tuyến
+                  </a>
+                </div>
               </div>
             )}
           </div>
@@ -1095,7 +1124,8 @@ export function LiveOperations({
             id="stepBtn"
             onClick={() => onStepClock(15)}
             disabled={actionLoading || session.is_day_ended}
-            title="Tiến đồng hồ thêm 15 phút"
+            data-tooltip="Tiến đồng hồ thêm 15 phút"
+            aria-label="Tiến đồng hồ thêm 15 phút"
           >
             <FastForward className="icons" />
             <span>+15 phút</span>
@@ -1121,7 +1151,7 @@ export function LiveOperations({
           <button
             type="button"
             className="btn"
-            style={{ fontSize: "12px", height: "34px", borderColor: "#0d9488", color: "#0f766e" }}
+            style={{ fontSize: "12px", height: "38px", borderColor: "#0d9488", color: "#0f766e" }}
             onClick={() => setIsRlModalOpen(true)}
             title="Mở bảng phân tích vết quyết định RL"
           >
@@ -1137,7 +1167,7 @@ export function LiveOperations({
               borderColor: "#b4615c",
               color: "#f9cbc6",
               background: "#503735",
-              height: "34px",
+              height: "38px",
               fontSize: "12px",
             }}
             onClick={onEndDay}

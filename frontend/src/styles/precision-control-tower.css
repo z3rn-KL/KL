@@ -1,0 +1,168 @@
+/* ========================================================================== */
+/* NEXUS NEXT-GEN DESIGN FOUNDATION: PRECISION CONTROL TOWER                  */
+/* Inspired by Linear (density & speed), Vercel Geist (precision typography), */
+/* and Mapbox (map-first spatial control interfaces)                          */
+/* ========================================================================== */
+
+:root {
+  /* Surface & Base System */
+  --bg-app: #f8faf9;
+  --bg-subtle: #f0f4f3;
+  --surface-card: #ffffff;
+  --surface-elevated: #ffffff;
+  --surface-overlay: rgba(255, 255, 255, 0.88);
+  --surface-overlay-heavy: rgba(255, 255, 255, 0.96);
+
+  /* Typography Inks */
+  --ink-primary: #0f1c21;
+  --ink-secondary: #485c64;
+  --ink-muted: #728790;
+  --ink-faint: #9cb1ba;
+
+  /* Brand & Scientific Teal Palette */
+  --brand-teal-50: #effbf8;
+  --brand-teal-100: #d4f4ec;
+  --brand-teal-500: #0d9488;
+  --brand-teal-600: #0f766e;
+  --brand-teal-700: #115e59;
+  --brand-teal-active: #0b6861;
+
+  /* Interactive States */
+  --primary-accent: #0f766e;
+  --primary-accent-hover: #0d9488;
+  --primary-accent-subtle: rgba(15, 118, 110, 0.08);
+  --primary-accent-border: rgba(15, 118, 110, 0.22);
+
+  /* Borders & Dividers */
+  --border-subtle: rgba(15, 28, 33, 0.08);
+  --border-medium: rgba(15, 28, 33, 0.14);
+  --border-strong: rgba(15, 28, 33, 0.24);
+
+  /* Semantic Status */
+  --kpi-success: #059669;
+  --kpi-success-subtle: rgba(5, 150, 105, 0.1);
+  --kpi-warning: #d97706;
+  --kpi-warning-subtle: rgba(217, 119, 6, 0.1);
+  --kpi-danger: #dc2626;
+  --kpi-danger-subtle: rgba(220, 38, 38, 0.1);
+  --kpi-info: #0284c7;
+  --kpi-info-subtle: rgba(2, 132, 199, 0.1);
+
+  /* Elevation Shadows */
+  --shadow-1: 0 1px 2px 0 rgba(15, 28, 33, 0.04);
+  --shadow-2: 0 4px 6px -1px rgba(15, 28, 33, 0.06), 0 2px 4px -2px rgba(15, 28, 33, 0.04);
+  --shadow-3: 0 10px 15px -3px rgba(15, 28, 33, 0.08), 0 4px 6px -4px rgba(15, 28, 33, 0.04);
+  --shadow-floating: 0 12px 32px -4px rgba(15, 28, 33, 0.12), 0 4px 8px -2px rgba(15, 28, 33, 0.06);
+
+  /* Transition timings */
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-quick: 150ms;
+  --duration-normal: 240ms;
+}
+
+/* Dark Mode Tokens */
+[data-theme="dark"], .dark {
+  --bg-app: #0c1214;
+  --bg-subtle: #121a1d;
+  --surface-card: #152023;
+  --surface-elevated: #1a272b;
+  --surface-overlay: rgba(21, 32, 35, 0.88);
+  --surface-overlay-heavy: rgba(21, 32, 35, 0.96);
+
+  --ink-primary: #f2f7f9;
+  --ink-secondary: #afc1c7;
+  --ink-muted: #7d939c;
+  --ink-faint: #51646c;
+
+  --brand-teal-50: #0e2b27;
+  --brand-teal-100: #133c37;
+  --brand-teal-500: #2dd4bf;
+  --brand-teal-600: #14b8a6;
+  --brand-teal-700: #0d9488;
+
+  --primary-accent: #14b8a6;
+  --primary-accent-hover: #2dd4bf;
+  --primary-accent-subtle: rgba(20, 184, 166, 0.14);
+  --primary-accent-border: rgba(20, 184, 166, 0.3);
+
+  --border-subtle: rgba(242, 247, 249, 0.08);
+  --border-medium: rgba(242, 247, 249, 0.14);
+  --border-strong: rgba(242, 247, 249, 0.25);
+
+  --shadow-1: 0 1px 2px 0 rgba(0, 0, 0, 0.35);
+  --shadow-2: 0 4px 6px -1px rgba(0, 0, 0, 0.45);
+  --shadow-3: 0 10px 20px -3px rgba(0, 0, 0, 0.6);
+  --shadow-floating: 0 14px 36px -4px rgba(0, 0, 0, 0.7);
+}
+
+/* Base resets & typography crispness */
+body {
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Linear-inspired Nav Pill */
+.nav-pill {
+  position: relative;
+  transition: all var(--duration-quick) var(--ease-spring);
+}
+
+.nav-pill:hover {
+  color: var(--ink-primary);
+}
+
+/* Mapbox-inspired Floating HUD Panel */
+.map-hud-panel {
+  background: var(--surface-overlay);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--border-medium);
+  box-shadow: var(--shadow-floating);
+  border-radius: 12px;
+}
+
+/* Ultra-clean custom scrollbar */
+.clean-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.clean-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.clean-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--border-medium);
+  border-radius: 4px;
+}
+
+.clean-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--ink-muted);
+}
+
+/* Button & Pill micro-interactions */
+.btn-control-tower {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  border-radius: 8px;
+  transition: all var(--duration-quick) var(--ease-spring);
+  user-select: none;
+}
+
+.btn-control-tower:active {
+  transform: scale(0.98);
+}
+
+/* Accessibility: prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

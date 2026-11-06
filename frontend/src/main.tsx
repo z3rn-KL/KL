@@ -7,6 +7,7 @@ import App from "./App";
 import "./app.css";
 import "./styles.css";
 import "./styles/nexus-redesign.css";
+import "./styles/precision-control-tower.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

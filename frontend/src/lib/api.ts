@@ -23,7 +23,7 @@ async function request<T>(
     if ((e as Error).name === "AbortError") throw e;
     throw new ApiError(
       0,
-      "Không kết nối được tới backend. Hãy chạy FastAPI (uvicorn api.main:app --port 8000).",
+      "Không kết nối được tới backend. Hãy chạy FastAPI (uvicorn api.main:app --port 8011).",
     );
   }
   if (!res.ok) {
@@ -1097,6 +1097,7 @@ export interface DispatchSessionState {
     total_work_minutes: number;
     total_overtime_minutes: number;
     day_delivered?: number;
+    day_delivered_on_time?: number;
     day_on_time_rate?: number;
     day_delivered_overdue?: number;
     shift_status?: string;
@@ -1429,6 +1430,14 @@ export interface DecisionTraceStep {
   chosen_q_score: number;
   candidates_evaluated: CandidateEvaluation[];
   step_reward: number;
+  reward_breakdown?: {
+    distance_cost: number;
+    travel_time_cost: number;
+    late_delivery_cost: number;
+    lateness_cost: number;
+    cluster_switch_cost: number;
+    total_step_cost: number;
+  };
   cumulative_distance_km: number;
   cumulative_time_minutes: number;
   lateness_minutes: number;

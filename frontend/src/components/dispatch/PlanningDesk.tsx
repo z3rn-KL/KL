@@ -27,12 +27,15 @@ import {
   ShieldCheck,
   Warehouse,
   Zap,
+  RotateCcw,
+  FileText,
 } from "lucide-react";
 import L from "leaflet";
 import { Marker, Polyline, Popup, CircleMarker, useMap } from "react-leaflet";
 import { MapBase, depotIcon } from "@/components/MapBase";
 import { RlDecisionExplorerModal } from "./RlDecisionExplorerModal";
 import { DepotServiceAreaModal } from "./DepotServiceAreaModal";
+import { NewScenarioModal } from "./NewScenarioModal";
 import { BrainCircuit } from "lucide-react";
 import { clusterColor, MAP_CENTER } from "@/lib/format";
 import {
@@ -56,6 +59,9 @@ interface PlanningDeskProps {
   onConfirmPreview?: (previewId: string) => Promise<void>;
   onCancelPreview?: () => Promise<void>;
   onSwitchToLive: () => void;
+  onSwitchToReport?: () => void;
+  onCreateNewSession?: (totalDays: number) => Promise<void>;
+  onNextDay?: () => Promise<void>;
   onSelectAlgorithm: (algo: string) => Promise<void>;
   actionLoading: boolean;
   actionError: string | null;
@@ -161,6 +167,9 @@ export function PlanningDesk({
   onConfirmPreview,
   onCancelPreview,
   onSwitchToLive,
+  onSwitchToReport,
+  onCreateNewSession,
+  onNextDay,
   onSelectAlgorithm,
   actionLoading,
   actionError,
@@ -192,6 +201,7 @@ export function PlanningDesk({
   const [confirmLoading, setConfirmLoading] = useState<boolean>(false);
   const [rlExplorerOpen, setRlExplorerOpen] = useState<boolean>(false);
   const [depotModalOpen, setDepotModalOpen] = useState<boolean>(false);
+  const [newScenarioModalOpen, setNewScenarioModalOpen] = useState<boolean>(false);
 
   // Table search & filters
   const [searchTerm, setSearchTerm] = useState("");
@@ -210,7 +220,7 @@ export function PlanningDesk({
     depot: true,
     bases: true,
   });
-  const [legendOpen, setLegendOpen] = useState<boolean>(true);
+  const [legendOpen, setLegendOpen] = useState<boolean>(false);
   const [fleetFilter, setFleetFilter] = useState<"all" | "assigned" | "idle">("all");
 
   // Selected shipper
@@ -242,31 +252,36 @@ export function PlanningDesk({
     ).length;
   }, [session.orders, session.current_day]);
 
+  // Detailed 3-State Lifecycle: State A, State B, State C
+  const isShiftEnded = session.is_day_ended;
+  const isTotalDaysReached = session.current_day >= session.total_days;
+  const isScenarioCompleted = isTotalDaysReached && isShiftEnded;
+  const isDayEndedHasNextDay = isShiftEnded && !isTotalDaysReached;
+
+  const handleNextDayInDesk = async () => {
+    if (onNextDay) {
+      await onNextDay();
+    } else if (onSwitchToReport) {
+      onSwitchToReport();
+    }
+  };
+
   // Plan summary metrics
   const isPlanCompleted = dispatchableOrdersCount === 0 && session.order_summary.assigned > 0;
-
   const isButtonsDisabled = previewLoading || actionLoading || dispatchableOrdersCount === 0 || session.is_day_ended;
 
-  const previewButtonTooltip = useMemo(() => {
-    if (session.is_day_ended) return `Ca làm việc Ngày ${session.current_day} đã kết thúc. Vui lòng chuyển ngày tiếp theo để tiếp tục phân công.`;
-    if (dispatchableOrdersCount === 0) return `Toàn bộ ${session.orders.length} đơn hàng đã được phân công thành công vào đội xe. Không còn đơn chờ phân công trong ca.`;
-    if (previewPlan) return "Đang xem trước phương án. Bấm để tính toán cập nhật lại.";
-    return "Xem trước kết quả phân công và đối sánh KPI trước khi lưu chính thức";
-  }, [session.is_day_ended, session.current_day, dispatchableOrdersCount, session.orders.length, previewPlan]);
-
-  const directDispatchTooltip = useMemo(() => {
-    if (session.is_day_ended) return `Ca làm việc Ngày ${session.current_day} đã kết thúc. Vui lòng chuyển ngày tiếp theo.`;
-    if (dispatchableOrdersCount === 0) return `Toàn bộ ${session.orders.length} đơn hàng đã được phân công. Không còn đơn chờ phân công.`;
-    return "Tự động phân bổ và áp dụng trực tiếp kế hoạch điều phối vào đội xe";
-  }, [session.is_day_ended, session.current_day, dispatchableOrdersCount, session.orders.length]);
   const totalShippersCount = session.shippers.length;
   const totalFleetCapacityKg = useMemo(() => {
     return session.shippers.reduce((sum, s) => sum + (s.capacity_kg || 100), 0);
   }, [session.shippers]);
+  // "Đơn tồn đầu ngày" means an older, still-undelivered order, not
+  // an order CREATED today that will be carried OUT at shift end.
   const carriedOverOrdersCount = useMemo(() => {
-    return session.orders.filter((o) => o.delivery_status === "CARRIED_OVER" || (o.carryover_count && o.carryover_count > 0)).length;
-  }, [session.orders]);
-  const newOrdersCount = session.orders.length - carriedOverOrdersCount;
+    return session.orders.filter((o) => o.release_day < session.current_day && o.delivery_status !== "DELIVERED").length;
+  }, [session.orders, session.current_day]);
+  const newOrdersCount = useMemo(() =>
+    session.orders.filter((o) => o.release_day === session.current_day).length,
+  [session.orders, session.current_day]);
 
   const activeShippersCount = useMemo(() => {
     return session.shippers.filter((s) => s.assigned_order_ids.length > 0).length;
@@ -282,7 +297,10 @@ export function PlanningDesk({
 
   // Orders eligible for today's planning
   const todayEligibleOrders = useMemo(() => {
-    return session.orders.filter((o) => o.release_day <= session.current_day);
+    return session.orders.filter((o) =>
+      o.release_day === session.current_day ||
+      (o.release_day < session.current_day && o.delivery_status !== "DELIVERED")
+    );
   }, [session.orders, session.current_day]);
 
   // Cluster counts for dynamic GIS legend
@@ -442,113 +460,104 @@ export function PlanningDesk({
   }, [previewShipper]);
 
   return (
-    <div className="flex flex-col gap-3 min-h-[calc(100vh-140px)] w-full">
-      {/* ============================================================== */}
-      {/* 1. TOP LOGISTICS COMMAND BAR & WORKFLOW PIPELINE */}
-      {/* ============================================================== */}
-      <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-3.5 shadow-xs">
-        {/* ROW 1: Context Header & RL Provenance */}
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 pb-3">
+    <div className="flex flex-col gap-2.5 sm:gap-3 flex-1 min-h-0 w-full max-w-full">
+      {/* Scenario Completed Banner */}
+      {isScenarioCompleted && (
+        <div id="scenarioCompletedBanner" className="rounded-xl border border-emerald-500/40 bg-emerald-500/10 p-4 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20 shrink-0 shadow-2xs">
-              <Compass className="size-5" />
+            <div className="flex size-9 items-center justify-center rounded-lg bg-emerald-600 text-white shrink-0">
+              <CheckCheck className="size-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="font-extrabold text-base sm:text-lg tracking-tight text-foreground">
-                  Bàn Lập Kế Hoạch Ca Giao
-                </h2>
-                <span className="rounded-md bg-primary/15 border border-primary/30 px-2 py-0.5 font-mono text-xs font-bold text-primary">
-                  Ngày {session.current_day}/{session.total_days}
+                <h3 className="text-sm font-bold text-foreground">
+                  Kịch bản mô phỏng {session.total_days} ngày đã hoàn thành toàn bộ chu kỳ điều phối
+                </h3>
+                <span className="rounded-full bg-emerald-600/20 text-emerald-700 dark:text-emerald-300 px-2 py-0.2 text-[10px] font-bold">
+                  Hoàn tất chu kỳ
                 </span>
               </div>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Tối ưu phân công {session.orders.length} đơn cho {totalShippersCount} shipper theo vị trí thực địa & DQN candidate scoring.
+                Toàn bộ {session.orders.length} đơn hàng đã hoàn tất qua {session.total_days} ngày mô phỏng. Lịch sử ca, vết quyết định RL và cấu hình kho vẫn được lưu trữ nguyên vẹn để đối sánh và thuyết minh.
               </p>
             </div>
           </div>
-
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 font-mono text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-500/15 px-3 py-1 rounded-full border border-emerald-500/30 shadow-2xs">
-              <Cpu className="size-3.5" />
-              <span>RL: D_moderate_sla_best.pt</span>
-            </span>
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
+            {onSwitchToReport && (
+              <button
+                type="button"
+                id="btnViewFullReportFromCompleted"
+                onClick={onSwitchToReport}
+                className="flex h-8.5 items-center gap-1.5 rounded-lg bg-emerald-600 px-3.5 text-xs font-bold text-white shadow-xs hover:bg-emerald-700 transition-all cursor-pointer"
+              >
+                <FileText className="size-3.5" />
+                <span>Xem Báo cáo Tổng kết ca</span>
+              </button>
+            )}
+            <button
+              type="button"
+              id="btnOpenNewScenarioModalDesk"
+              onClick={() => setNewScenarioModalOpen(true)}
+              className="flex h-8.5 items-center gap-1.5 rounded-lg border border-border bg-card px-3 text-xs font-semibold text-foreground hover:bg-muted transition-all cursor-pointer shadow-2xs"
+            >
+              <RotateCcw className="size-3.5 text-teal-600" />
+              <span>Khởi tạo kịch bản mới</span>
+            </button>
           </div>
         </div>
-
-        {/* ROW 2: Workflow Progression Stepper (High-Contrast 5-Step Pipeline) */}
-        <div className="flex flex-wrap items-center justify-between gap-2 bg-muted/40 p-2 rounded-xl border border-border/60">
-          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground mr-1 flex items-center gap-1">
-              <Zap className="size-3.5 text-primary" />
-              <span>Quy trình:</span>
-            </span>
-            <span className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs transition-colors border ${!previewPlan && !isPlanCompleted ? "bg-primary text-primary-foreground font-bold shadow-xs border-primary" : "bg-card text-foreground/80 border-border font-medium"}`}>
-              <span className="flex size-4 items-center justify-center rounded-full bg-black/15 text-[10px] font-bold">1</span>
-              <span>Cấu hình ca</span>
-            </span>
-            <span className="text-muted-foreground/50 font-bold">→</span>
-            <span className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs transition-colors border ${previewPlan ? "bg-cyan-600 text-white font-bold shadow-xs border-cyan-600" : "bg-card text-foreground/80 border-border font-medium"}`}>
-              <span className="flex size-4 items-center justify-center rounded-full bg-black/15 text-[10px] font-bold">2</span>
-              <span>Xem trước phương án</span>
-            </span>
-            <span className="text-muted-foreground/50 font-bold">→</span>
-            <span className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs transition-colors border ${previewPlan ? "bg-cyan-500/20 text-cyan-800 dark:text-cyan-200 font-bold border-cyan-500/40" : "bg-card text-foreground/80 border-border font-medium"}`}>
-              <span className="flex size-4 items-center justify-center rounded-full bg-black/15 text-[10px] font-bold">3</span>
-              <span>Đối sánh KPI & Delta</span>
-            </span>
-            <span className="text-muted-foreground/50 font-bold">→</span>
-            <span className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs transition-colors border ${isPlanCompleted ? "bg-emerald-600 text-white font-bold shadow-xs border-emerald-600" : "bg-card text-foreground/80 border-border font-medium"}`}>
-              <span className="flex size-4 items-center justify-center rounded-full bg-black/15 text-[10px] font-bold">4</span>
-              <span>Xác nhận kế hoạch</span>
-            </span>
-            <span className="text-muted-foreground/50 font-bold">→</span>
-            <span className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium bg-card text-foreground/80 border border-border">
-              <span className="flex size-4 items-center justify-center rounded-full bg-black/15 text-[10px] font-bold">5</span>
-              <span>Vận hành thực địa</span>
-            </span>
+      )}
+      {/* ============================================================== */}
+      {/* 1. THREE-ZONE LOGICAL CONTROL TOWER & UNIFIED ACTION PANEL     */}
+      {/* ============================================================== */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-12 gap-3 rounded-2xl border border-border/80 bg-card p-3 sm:p-3.5 shadow-2xs max-w-full min-w-0">
+        
+        {/* ============================================================ */}
+        {/* KHU VỰC A: THÔNG TIN & CẤU HÌNH (4/12 COLS)                 */}
+        {/* ============================================================ */}
+        <div className="md:col-span-1 xl:col-span-4 flex flex-col justify-between gap-2.5 p-3 rounded-xl border border-border/60 bg-muted/20">
+          <div>
+            <div className="flex items-center gap-2">
+              <div className="flex size-7 items-center justify-center rounded-lg bg-teal-600/15 text-teal-600 dark:text-teal-400 border border-teal-500/20 shrink-0">
+                <Compass className="size-4" />
+              </div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="font-extrabold text-sm sm:text-base tracking-tight text-foreground m-0">
+                  Bàn lập tuyến
+                </h2>
+                <span className="rounded-md bg-teal-600/15 border border-teal-500/30 px-2 py-0.5 font-mono text-xs font-bold text-teal-700 dark:text-teal-300">
+                  Ngày {session.current_day}/{session.total_days}
+                </span>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1 mb-0 leading-relaxed">
+              Phân bổ <strong className="text-foreground font-mono">{session.orders.length} đơn</strong> cho <strong className="text-foreground font-mono">{totalShippersCount} shipper</strong> • Candidate-Scoring DQN với 8 đặc trưng trạng thái.
+            </p>
           </div>
 
-          <div className="text-xs text-muted-foreground hidden xl:block font-medium">
-            <span>Mô phỏng: <strong>25 km/h</strong> • Khung ca: <strong>10 giờ</strong></span>
-          </div>
-        </div>
-
-        {/* ROW 3: Strategy & Algorithm Selectors + Action Toolbar */}
-        <div className="flex flex-wrap items-end justify-between gap-3 pt-1">
-          {/* Left: Configuration Selectors */}
-          <div className="flex flex-wrap items-center gap-3">
-            {/* Strategy Dropdown */}
-            <div className="flex flex-col">
-              <label htmlFor="assignmentStrategy" className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-0.5 pb-1">
-                Chiến lược phân công
-              </label>
+          <div className="space-y-1.5 pt-1 border-t border-border/50">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <select
                 id="assignmentStrategy"
-                className="h-9.5 w-full sm:min-w-[280px] sm:max-w-[340px] rounded-lg border border-border bg-background px-3 text-sm font-semibold text-foreground focus:outline-hidden focus:ring-2 focus:ring-primary/40 cursor-pointer shadow-xs"
+                className="h-8.5 rounded-lg border border-border/80 bg-background px-2 text-xs font-semibold text-foreground focus:outline-hidden focus:ring-1 focus:ring-teal-500 cursor-pointer shadow-2xs w-full truncate"
                 value={selectedStrategy}
                 onChange={(e) => setSelectedStrategy(e.target.value)}
-                disabled={actionLoading || previewLoading}
+                disabled={actionLoading || previewLoading || isShiftEnded}
+                title="Chiến lược gán đơn hàng vào shipper"
               >
-                <option value="depot_zone_capacity_aware">Kho, khu vực & tải trọng (Depot-Aware)</option>
+                <option value="depot_zone_capacity_aware">Kho, khu vực &amp; tải trọng (Depot-Aware)</option>
                 <option value="cluster_aware_rl">Ưu tiên cụm + chi phí (Cluster-Aware Min Cost)</option>
                 <option value="location_aware_min_cost">Tối ưu cự ly chèn (Min Incremental Detour)</option>
                 <option value="location_aware_nearest">Shipper gần nhất (Nearest Shipper)</option>
                 <option value="cluster_round_robin">Phân cụm Round-Robin (K-Means)</option>
               </select>
-            </div>
 
-            {/* Algorithm Dropdown */}
-            <div className="flex flex-col">
-              <label htmlFor="routingAlgorithm" className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-0.5 pb-1">
-                Thuật toán định tuyến
-              </label>
               <select
                 id="routingAlgorithm"
-                className="h-9.5 w-full sm:min-w-[260px] sm:max-w-[320px] rounded-lg border border-border bg-background px-3 text-sm font-semibold text-foreground focus:outline-hidden focus:ring-2 focus:ring-primary/40 cursor-pointer shadow-xs"
+                className="h-8.5 rounded-lg border border-border/80 bg-background px-2 text-xs font-semibold text-foreground focus:outline-hidden focus:ring-1 focus:ring-teal-500 cursor-pointer shadow-2xs w-full truncate"
                 value={selectedAlgorithm}
                 onChange={(e) => setSelectedAlgorithm(e.target.value)}
-                disabled={actionLoading || previewLoading}
+                disabled={actionLoading || previewLoading || isShiftEnded}
+                title="Thuật toán sắp xếp thứ tự giao hàng"
               >
                 <option value="proposed_rl">Proposed DQN (Candidate-Scoring DQN)</option>
                 <option value="nearest_neighbor">Nearest Neighbor (Tham lam cự ly)</option>
@@ -556,114 +565,266 @@ export function PlanningDesk({
               </select>
             </div>
           </div>
+        </div>
 
-          {/* Right: Action Buttons Toolbar */}
-          <div className="flex flex-wrap items-center gap-2">
+        {/* ============================================================ */}
+        {/* KHU VỰC B: TIẾN TRÌNH & KPI (4/12 COLS - 2 DISTINCT TIERS)    */}
+        {/* ============================================================ */}
+        <div className="md:col-span-1 xl:col-span-4 flex flex-col justify-between gap-2.5 p-3 rounded-xl border border-border/60 bg-muted/20">
+          {/* Tầng 1: Pipeline 5 bước */}
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between text-xs text-muted-foreground font-semibold">
+              <span className="uppercase tracking-wider text-[10px]">Tiến trình điều phối</span>
+              <span className="font-mono text-[10px]">5 Bước</span>
+            </div>
+            <div className="flex items-center gap-1 bg-card/80 p-1 rounded-lg border border-border/60 text-xs overflow-x-auto max-w-full no-scrollbar">
+              <span className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 transition-colors border text-[11px] ${!previewPlan && !isPlanCompleted ? "bg-teal-600 text-white font-bold border-teal-600 shadow-2xs" : "bg-card text-foreground/80 border-border font-medium"}`}>
+                <span className="flex size-3.5 items-center justify-center rounded-full bg-black/15 text-[10px] font-bold">1</span>
+                <span>Cấu hình</span>
+              </span>
+              <span className="text-muted-foreground/40 font-bold text-[10px]">→</span>
+              <span className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 transition-colors border text-[11px] ${previewPlan ? "bg-cyan-600 text-white font-bold border-cyan-600 shadow-2xs" : "bg-card text-foreground/80 border-border font-medium"}`}>
+                <span className="flex size-3.5 items-center justify-center rounded-full bg-black/15 text-[10px] font-bold">2</span>
+                <span>Xem trước</span>
+              </span>
+              <span className="text-muted-foreground/40 font-bold text-[10px]">→</span>
+              <span className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 transition-colors border text-[11px] ${previewPlan ? "bg-cyan-500/20 text-cyan-800 dark:text-cyan-200 font-bold border-cyan-500/40" : "bg-card text-foreground/80 border-border font-medium"}`}>
+                <span className="flex size-3.5 items-center justify-center rounded-full bg-black/15 text-[10px] font-bold">3</span>
+                <span>So sánh</span>
+              </span>
+              <span className="text-muted-foreground/40 font-bold text-[10px]">→</span>
+              <span className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 transition-colors border text-[11px] ${isPlanCompleted ? "bg-emerald-600 text-white font-bold border-emerald-600 shadow-2xs" : "bg-card text-foreground/80 border-border font-medium"}`}>
+                <span className="flex size-3.5 items-center justify-center rounded-full bg-black/15 text-[10px] font-bold">4</span>
+                <span>Xác nhận</span>
+              </span>
+              <span className="text-muted-foreground/40 font-bold text-[10px]">→</span>
+              <span className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 font-medium bg-card text-foreground/80 border border-border text-[11px]">
+                <span className="flex size-3.5 items-center justify-center rounded-full bg-black/15 text-[10px] font-bold">5</span>
+                <span>Thực địa</span>
+              </span>
+            </div>
+          </div>
+
+          {/* Tầng 2: Nhóm KPI chips */}
+          <div className="flex flex-wrap items-center gap-1.5 text-xs pt-1.5 border-t border-border/50">
+            <span className="inline-flex items-center gap-1 rounded-md bg-teal-500/10 px-2 py-0.5 font-medium text-teal-700 dark:text-teal-300 border border-teal-500/20">
+              <span>Đơn mới:</span>
+              <strong className="font-mono">{newOrdersCount}</strong>
+            </span>
+            {carriedOverOrdersCount > 0 && (
+              <span className="inline-flex items-center gap-1 rounded-md bg-rose-500/10 px-2 py-0.5 font-medium text-rose-700 dark:text-rose-400 border border-rose-500/20">
+                <span>Tồn đầu ngày:</span>
+                <strong className="font-mono">{carriedOverOrdersCount}</strong>
+              </span>
+            )}
+            <span className="inline-flex items-center gap-1 rounded-md bg-amber-500/10 px-2 py-0.5 font-medium text-amber-700 dark:text-amber-400 border border-amber-500/20">
+              <span>Chưa gán:</span>
+              <strong className="font-mono">{dispatchableOrdersCount}</strong>
+            </span>
+            <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-0.5 font-medium text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
+              <span>{isShiftEnded ? "Đang gán cuối ca:" : "Đã gán:"}</span>
+              <strong className="font-mono">{session.order_summary.assigned}</strong>
+            </span>
+            <span className="inline-flex items-center gap-1 rounded-md bg-sky-500/10 px-2 py-0.5 font-medium text-sky-700 dark:text-sky-400 border border-sky-500/20">
+              <span>Đội xe:</span>
+              <strong className="font-mono">{activeShippersCount}/{totalShippersCount}</strong>
+            </span>
+            {!isShiftEnded && (
+              <span className="inline-flex items-center gap-1 rounded-md bg-card px-2 py-0.5 font-medium text-foreground border border-border">
+                <span className="text-muted-foreground">Tải hiện tại:</span>
+                <strong className="font-mono">{totalAssignedWeight.toFixed(1)}/{totalFleetCapacityKg} kg</strong>
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* ============================================================ */}
+        {/* KHU VỰC C: THAO TÁC ĐIỀU PHỐI (4/12 COLS - ACTION CONTROL)   */}
+        {/* ============================================================ */}
+        <div className="md:col-span-2 xl:col-span-4 flex flex-col justify-between gap-2 p-3 rounded-xl border border-border/80 bg-background/60 dark:bg-card/90 shadow-2xs">
+          {/* Action Header */}
+          <div className="flex items-center justify-between gap-2 border-b border-border/60 pb-1.5">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-foreground">
+              <Sliders className="size-3.5 text-teal-600 dark:text-teal-400 shrink-0" />
+              <span className="uppercase tracking-wider text-xs font-bold text-muted-foreground">Thao tác điều phối</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                id="btnHeaderNewScenario"
+                onClick={() => setNewScenarioModalOpen(true)}
+                className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-foreground cursor-pointer px-2 py-0.5 rounded border border-border/60 hover:bg-muted"
+                title="Khởi tạo kịch bản mới với quy mô 3, 5, 7 hoặc 14 ngày"
+              >
+                <RotateCcw className="size-3 text-teal-600" />
+                <span>Kịch bản mới</span>
+              </button>
+
+              {isScenarioCompleted ? (
+                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 text-xs font-bold text-emerald-700 dark:text-emerald-300">
+                  <CheckCheck className="size-3.5" />
+                  <span>Hoàn tất {session.total_days}/{session.total_days} ngày</span>
+                </span>
+              ) : isDayEndedHasNextDay ? (
+                <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 text-xs font-bold text-amber-700 dark:text-amber-400">
+                  <Clock className="size-3.5" />
+                  <span>Đã chốt Ngày {session.current_day}</span>
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 rounded-full bg-teal-500/15 border border-teal-500/30 px-2 py-0.5 text-xs font-bold text-teal-700 dark:text-teal-300">
+                  <Sparkles className="size-3.5" />
+                  <span>Đang lập tuyến</span>
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Hàng 1: Nút phụ trợ (Kho và điểm trực | Vết quyết định RL) - Đồng chiều cao h-8.5 */}
+          <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
               id="btnOpenDepotConfig"
               onClick={() => setDepotModalOpen(true)}
-              className="flex h-9.5 items-center gap-2 rounded-lg border border-border bg-card px-3.5 text-xs font-bold text-foreground hover:bg-muted transition-all cursor-pointer shadow-2xs"
+              className="flex h-8.5 items-center justify-center gap-1.5 rounded-lg border border-border bg-card px-2 text-xs font-semibold text-foreground hover:bg-muted hover:border-teal-500/40 transition-colors cursor-pointer shadow-2xs"
               title="Cấu hình vị trí kho trung tâm và khu vực phục vụ của shipper"
             >
-              <Warehouse className="size-4 text-primary" />
-              <span>Kho & Điểm trực ca</span>
+              <Warehouse className="size-3.5 text-teal-600 dark:text-teal-400 shrink-0" />
+              <span className="truncate">Kho và điểm trực</span>
             </button>
 
             <button
               type="button"
               id="btnOpenRlExplorer"
               onClick={() => setRlExplorerOpen(true)}
-              className="flex h-9.5 items-center gap-2 rounded-lg border border-primary/40 bg-primary/10 px-3.5 text-xs font-bold text-primary hover:bg-primary/20 transition-all cursor-pointer shadow-2xs"
+              className="flex h-8.5 items-center justify-center gap-1.5 rounded-lg border border-teal-500/30 bg-teal-500/10 px-2 text-xs font-semibold text-teal-700 dark:text-teal-300 hover:bg-teal-500/20 transition-colors cursor-pointer shadow-2xs"
               title="Mở bộ giải thích vết quyết định mạng nơ-ron Candidate-Scoring DQN"
             >
-              <BrainCircuit className="size-4 text-primary" />
-              <span>RL Decision Explorer</span>
-            </button>
-
-            <button
-              type="button"
-              id="btnPreviewPlan"
-              onClick={handleTriggerPreview}
-              disabled={isButtonsDisabled}
-              className="flex h-9.5 items-center gap-2 rounded-lg border border-cyan-500/50 bg-cyan-500/15 px-4 text-xs font-bold text-cyan-800 dark:text-cyan-200 hover:bg-cyan-500/25 transition-all cursor-pointer disabled:opacity-50 shadow-xs"
-              title={previewButtonTooltip}
-            >
-              <Eye className={`size-4 ${previewLoading ? "animate-spin" : ""}`} />
-              <span>{previewLoading ? "Đang tính toán…" : (previewPlan ? "Cập nhật xem trước" : "Xem trước phương án")}</span>
-            </button>
-
-            <button
-              type="button"
-              id="btnDirectDispatch"
-              onClick={() => onAutoDispatch(selectedStrategy, selectedAlgorithm)}
-              disabled={isButtonsDisabled}
-              className="flex h-9.5 items-center gap-2 rounded-lg bg-primary px-4 text-xs font-bold text-primary-foreground shadow-xs hover:bg-primary/90 transition-all cursor-pointer disabled:opacity-50"
-              title={directDispatchTooltip}
-            >
-              <RefreshCw className={`size-4 ${actionLoading ? "animate-spin" : ""}`} />
-              <span>Áp dụng ngay</span>
+              <BrainCircuit className="size-3.5 text-teal-600 dark:text-teal-400 shrink-0" />
+              <span className="truncate">Vết quyết định RL</span>
             </button>
           </div>
-        </div>
 
-        {/* ROW 4: Operational State Ribbon & KPI Badges (Including Total Load) */}
-        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border/60 pt-2.5 text-xs">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-2.5 py-1 font-medium text-primary border border-primary/20 shadow-2xs">
-              <span>Đơn mới:</span>
-              <strong className="font-mono font-bold">{newOrdersCount}</strong>
-            </span>
-            {carriedOverOrdersCount > 0 && (
-              <span className="inline-flex items-center gap-1.5 rounded-lg bg-rose-500/10 px-2.5 py-1 font-medium text-rose-700 dark:text-rose-400 border border-rose-500/20 shadow-2xs">
-                <span>Tồn đầu ngày:</span>
-                <strong className="font-mono font-bold">{carriedOverOrdersCount}</strong>
-              </span>
-            )}
-            <span className="inline-flex items-center gap-1.5 rounded-lg bg-amber-500/10 px-2.5 py-1 font-medium text-amber-700 dark:text-amber-400 border border-amber-500/20 shadow-2xs">
-              <span>Chưa gán:</span>
-              <strong className="font-mono font-bold">{dispatchableOrdersCount}</strong>
-            </span>
-            <span className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/10 px-2.5 py-1 font-medium text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 shadow-2xs">
-              <span>Đã gán:</span>
-              <strong className="font-mono font-bold">{session.order_summary.assigned}</strong>
-            </span>
-            <span className="inline-flex items-center gap-1.5 rounded-lg bg-sky-500/10 px-2.5 py-1 font-medium text-sky-700 dark:text-sky-400 border border-sky-500/20 shadow-2xs">
-              <span>Đội xe trực:</span>
-              <strong className="font-mono font-bold">{activeShippersCount}/{totalShippersCount}</strong>
-            </span>
-            {/* High-Contrast Clear Total Load Badge */}
-            <span className="inline-flex items-center gap-1.5 rounded-lg bg-card px-2.5 py-1 font-medium text-foreground border border-border shadow-2xs">
-              <span className="text-muted-foreground font-medium">Tổng tải:</span>
-              <strong className="font-mono text-foreground font-bold">{totalAssignedWeight.toFixed(1)} / {totalFleetCapacityKg.toLocaleString()} kg</strong>
-            </span>
-          </div>
+          {/* Hàng 2: Nút thực thi chính (Đồng chiều cao h-8.5, primary rõ hơn secondary) */}
+          {isScenarioCompleted ? (
+            <div className="space-y-1">
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  id="btnViewReportCompletedInDesk"
+                  onClick={onSwitchToReport}
+                  className="flex h-8.5 items-center justify-center gap-1.5 rounded-lg border border-border bg-card px-2 text-xs font-semibold text-foreground hover:bg-muted transition-colors cursor-pointer shadow-2xs"
+                  title="Xem báo cáo kiểm toán tổng kết toàn bộ chu kỳ"
+                >
+                  <FileText className="size-3.5 text-teal-600 dark:text-teal-400 shrink-0" />
+                  <span className="truncate">Báo cáo tổng kết</span>
+                </button>
 
-          <div className="text-xs text-muted-foreground hidden md:block">
-            {previewPlan ? (
-              <span className="text-cyan-700 dark:text-cyan-300 font-bold flex items-center gap-1.5">
-                <span className="size-2 rounded-full bg-cyan-500 animate-pulse" />
-                <span>Đang hiển thị bản xem trước. Hãy kiểm tra tuyến trên bản đồ và đối sánh KPI bên dưới.</span>
-              </span>
-            ) : (
-              <span className="text-muted-foreground">Chọn chiến lược rồi bấm <strong>"Xem trước phương án"</strong> hoặc <strong>"Áp dụng ngay"</strong>.</span>
-            )}
-          </div>
+                <button
+                  type="button"
+                  id="btnNewScenarioDesk"
+                  onClick={() => setNewScenarioModalOpen(true)}
+                  className="flex h-8.5 items-center justify-center gap-1.5 rounded-lg bg-emerald-600 px-2 text-xs font-bold text-white shadow-xs hover:bg-emerald-700 transition-all cursor-pointer"
+                  title="Khởi tạo phiên mô phỏng mới với quy mô 3, 5, 7 hoặc 14 ngày"
+                >
+                  <RotateCcw className="size-3.5 shrink-0" />
+                  <span className="truncate">Tạo phiên mới ↺</span>
+                </button>
+              </div>
+              <p className="text-[10px] text-emerald-700 dark:text-emerald-300 leading-snug m-0">
+                ✓ Phiên đã hoàn tất {session.total_days}/{session.total_days} ngày. Vui lòng bấm &quot;Tạo phiên mới&quot; để tiếp tục.
+              </p>
+            </div>
+          ) : isDayEndedHasNextDay ? (
+            <div className="space-y-1">
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  id="btnViewReportInDesk"
+                  onClick={onSwitchToReport}
+                  className="flex h-8.5 items-center justify-center gap-1.5 rounded-lg border border-border bg-card px-2 text-xs font-semibold text-foreground hover:bg-muted transition-colors cursor-pointer shadow-2xs"
+                  title={`Xem báo cáo ca Ngày ${session.current_day}`}
+                >
+                  <FileText className="size-3.5 text-teal-600 dark:text-teal-400 shrink-0" />
+                  <span className="truncate">Báo cáo Ngày {session.current_day}</span>
+                </button>
+
+                <button
+                  type="button"
+                  id="btnStartNextDayInDesk"
+                  onClick={handleNextDayInDesk}
+                  disabled={actionLoading}
+                  className="flex h-8.5 items-center justify-center gap-1.5 rounded-lg bg-teal-600 px-2 text-xs font-bold text-white shadow-xs hover:bg-teal-700 transition-all cursor-pointer disabled:opacity-50"
+                  title={`Chốt ca và chuyển sang Ngày ${session.current_day + 1}`}
+                >
+                  <span className="truncate">Bắt đầu Ngày {session.current_day + 1}</span>
+                  <ArrowRight className="size-3.5 shrink-0" />
+                </button>
+              </div>
+              <p className="text-[10px] text-amber-700 dark:text-amber-400 leading-snug m-0">
+                ℹ️ Ca Ngày {session.current_day} đã chốt. Bấm &quot;Bắt đầu Ngày {session.current_day + 1}&quot; để nạp đơn mới và đơn tồn.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-1">
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  id="btnPreviewPlan"
+                  onClick={handleTriggerPreview}
+                  disabled={isButtonsDisabled}
+                  className="flex h-8.5 items-center justify-center gap-1.5 rounded-lg border border-cyan-500/40 bg-cyan-500/15 px-2 text-xs font-bold text-cyan-800 dark:text-cyan-200 hover:bg-cyan-500/25 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shadow-2xs"
+                  title={
+                    dispatchableOrdersCount === 0
+                      ? "Toàn bộ đơn hôm nay đã được phân bổ. Sẵn sàng vào Mô phỏng."
+                      : "Xem trước kết quả phân công và đối sánh KPI trước khi áp dụng"
+                  }
+                >
+                  <Eye className={`size-3.5 shrink-0 ${previewLoading ? "animate-spin" : ""}`} />
+                  <span className="truncate">{previewLoading ? "Đang tính…" : (previewPlan ? "Cập nhật xem trước" : "Xem trước phương án")}</span>
+                </button>
+
+                <button
+                  type="button"
+                  id="btnDirectDispatch"
+                  onClick={() => onAutoDispatch(selectedStrategy, selectedAlgorithm)}
+                  disabled={isButtonsDisabled}
+                  className="flex h-8.5 items-center justify-center gap-1.5 rounded-lg bg-teal-600 px-2 text-xs font-bold text-white shadow-xs hover:bg-teal-700 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                  title={
+                    dispatchableOrdersCount === 0
+                      ? "Không còn đơn chưa gán. Bấm 'Bắt đầu mô phỏng' để chạy tuyến."
+                      : "Tự động phân bổ và áp dụng trực tiếp kế hoạch điều phối vào đội xe"
+                  }
+                >
+                  <RefreshCw className={`size-3.5 shrink-0 ${actionLoading ? "animate-spin" : ""}`} />
+                  <span className="truncate">{actionLoading ? "Đang gán…" : "Xác nhận kế hoạch"}</span>
+                </button>
+              </div>
+
+              <p className="text-[10px] text-muted-foreground leading-snug m-0">
+                {dispatchableOrdersCount > 0 ? (
+                  <span>Sẵn sàng phân bổ <b>{dispatchableOrdersCount} đơn</b> cho {totalShippersCount} shipper.</span>
+                ) : (
+                  <span className="text-emerald-600 dark:text-emerald-400 font-medium">✓ 100% đơn đã phân bổ. Sẵn sàng bắt đầu mô phỏng thực địa.</span>
+                )}
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* 2. THREE-COLUMN MAP-FIRST WORKSPACE */}
       {/* ============================================================== */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 flex-1 min-h-[640px]">
+      {/* 2. MAP-FIRST THREE-COLUMN WORKSPACE (~60-65% Map Canvas)       */}
+      {/* ============================================================== */}
+      <div className="flex flex-col lg:flex-row gap-3 w-full max-w-full min-w-0">
         {/* ──────────────────────────────────────────────────────────── */}
-        {/* LEFT COLUMN: ORDERS WORKLIST (~330px, 3/12 cols) */}
+        {/* LEFT COLUMN: ORDERS WORKLIST (Fixed 300px on desktop)        */}
         {/* ──────────────────────────────────────────────────────────── */}
-        <div className="lg:col-span-4 xl:col-span-3 flex flex-col rounded-xl border border-border/80 bg-card overflow-hidden shadow-xs">
+        <div className="w-full lg:w-[300px] xl:w-[320px] shrink-0 order-2 lg:order-1 flex flex-col rounded-xl border border-border/80 bg-card overflow-hidden shadow-xs h-[480px] sm:h-[520px] lg:h-[500px] xl:h-[520px]">
           {/* Worklist Header */}
-          <div className="p-3 border-b border-border/80 bg-muted/20 flex flex-col gap-2">
+          <div className="p-2.5 border-b border-border/70 bg-muted/20 flex flex-col gap-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5">
-                <Package className="size-4 text-primary" />
+                <Package className="size-4 text-teal-600 dark:text-teal-400" />
                 <span className="font-bold text-xs uppercase tracking-wider text-foreground">
                   Danh sách đơn hàng
                 </span>
@@ -685,15 +846,15 @@ export function PlanningDesk({
                   setSearchTerm(e.target.value);
                   setPage(0);
                 }}
-                className="w-full h-7.5 rounded-lg border border-border/80 bg-background pl-8 pr-2 text-xs placeholder:text-muted-foreground focus:outline-hidden focus:ring-1 focus:ring-primary"
+                className="w-full h-7.5 rounded-lg border border-border/80 bg-background pl-8 pr-2 text-xs placeholder:text-muted-foreground focus:outline-hidden focus:ring-1 focus:ring-teal-500"
               />
             </div>
 
-            {/* Quick Filters: Status & Cluster */}
+            {/* Quick Filters */}
             <div className="grid grid-cols-2 gap-1.5">
               <select
                 id="filterStatusDesk"
-                className="h-8 rounded-lg border border-border bg-background px-2 text-xs font-medium text-foreground cursor-pointer"
+                className="h-7.5 rounded-lg border border-border bg-background px-2 text-xs font-medium text-foreground cursor-pointer"
                 value={statusFilter}
                 onChange={(e) => {
                   setStatusFilter(e.target.value);
@@ -709,7 +870,7 @@ export function PlanningDesk({
 
               <select
                 id="filterClusterDesk"
-                className="h-8 rounded-lg border border-border bg-background px-2 text-xs font-medium text-foreground cursor-pointer"
+                className="h-7.5 rounded-lg border border-border bg-background px-2 text-xs font-medium text-foreground cursor-pointer"
                 value={clusterFilter}
                 onChange={(e) => {
                   setClusterFilter(e.target.value);
@@ -727,7 +888,7 @@ export function PlanningDesk({
           </div>
 
           {/* Orders Scrollable List */}
-          <div className="flex-1 overflow-y-auto divide-y divide-border/60 p-1 max-h-[520px]">
+          <div className="flex-1 min-h-0 overflow-y-auto divide-y divide-border/50 p-1">
             {pageOrders.length > 0 ? (
               pageOrders.map((o) => {
                 const isSelected = selectedOrderIds.includes(o.order_id);
@@ -744,7 +905,7 @@ export function PlanningDesk({
                     onClick={() => focusOrderOnMap(o)}
                     className={`group flex items-start gap-2 p-2 rounded-lg transition-colors cursor-pointer text-xs ${
                       isSelected
-                        ? "bg-primary/10 border-l-3 border-primary"
+                        ? "bg-teal-500/10 border-l-3 border-teal-600"
                         : "hover:bg-muted/50"
                     }`}
                   >
@@ -755,7 +916,7 @@ export function PlanningDesk({
                         e.stopPropagation();
                         toggleSelectOrder(o.order_id);
                       }}
-                      className="mt-0.5 size-3.5 rounded border-border text-primary cursor-pointer"
+                      className="mt-0.5 size-3.5 rounded border-border text-teal-600 cursor-pointer"
                     />
 
                     <div className="flex-1 min-w-0">
@@ -764,7 +925,7 @@ export function PlanningDesk({
                           {o.order_code || o.order_id}
                         </span>
                         <span
-                          className="shrink-0 text-xs font-bold px-2 py-0.5 rounded-full text-white"
+                          className="shrink-0 text-xs font-bold px-1.5 py-0.5 rounded-full text-white"
                           style={{ backgroundColor: clusterColor(o.cluster_id) }}
                         >
                           Cụm {o.cluster_id}
@@ -776,28 +937,28 @@ export function PlanningDesk({
                       </div>
 
                       <div className="flex items-center gap-2 mt-1 text-xs">
-                        <span className="font-medium text-foreground">
+                        <span className="font-semibold text-foreground">
                           {o.weight_kg.toFixed(1)} kg
                         </span>
                         <span>•</span>
                         {o.delivery_status === "ASSIGNED" ? (
-                          <span className="text-primary font-semibold">
+                          <span className="text-teal-600 dark:text-teal-400 font-semibold">
                             Shipper #{o.assigned_shipper_id?.replace("shipper_", "")}
                           </span>
                         ) : isCandidate && candidateInfo ? (
-                          <span className="text-cyan-500 font-semibold">
-                            Dự kiến → Shipper #{candidateInfo.candidate_shipper_id?.replace("shipper_", "")}
+                          <span className="text-cyan-600 dark:text-cyan-400 font-semibold">
+                            Dự kiến → #{candidateInfo.candidate_shipper_id?.replace("shipper_", "")}
                           </span>
                         ) : (
-                          <span className="text-amber-500 font-medium">Chưa phân công</span>
+                          <span className="text-amber-500 font-semibold">Chưa gán</span>
                         )}
                       </div>
 
                       {candidateInfo?.dispatch_reason && (
-                        <div className="text-xs text-muted-foreground mt-1 bg-muted/50 px-2 py-1 rounded flex items-center justify-between">
+                        <div className="text-xs text-muted-foreground mt-1 bg-muted/40 px-2 py-0.5 rounded flex items-center justify-between">
                           <span className="truncate">Lý do: {candidateInfo.dispatch_reason}</span>
                           {candidateInfo.dispatch_distance_km !== undefined && candidateInfo.dispatch_distance_km !== null && (
-                            <span className="font-mono text-xs font-bold shrink-0 ml-1">+{candidateInfo.dispatch_distance_km.toFixed(1)}km</span>
+                            <span className="font-mono font-bold shrink-0 ml-1">+{candidateInfo.dispatch_distance_km.toFixed(1)}km</span>
                           )}
                         </div>
                       )}
@@ -813,11 +974,11 @@ export function PlanningDesk({
           </div>
 
           {/* Worklist Footer: Pagination & Select All */}
-          <div className="p-2.5 border-t border-border/80 bg-muted/20 flex items-center justify-between text-xs">
+          <div className="p-2 border-t border-border/70 bg-muted/20 flex items-center justify-between text-xs">
             <button
               type="button"
               onClick={toggleSelectPage}
-              className="text-xs font-semibold text-primary hover:underline cursor-pointer"
+              className="text-xs font-semibold text-teal-600 dark:text-teal-400 hover:underline cursor-pointer"
             >
               {isPageAllSelected ? "Bỏ chọn trang" : "Chọn trang này"}
             </button>
@@ -830,7 +991,7 @@ export function PlanningDesk({
                 type="button"
                 disabled={currentPage <= 0}
                 onClick={() => setPage((p) => Math.max(0, p - 1))}
-                className="h-7.5 px-2.5 rounded-md border border-border bg-background text-xs font-medium disabled:opacity-40 cursor-pointer"
+                className="h-7 px-2 rounded border border-border bg-background text-xs font-medium disabled:opacity-40 cursor-pointer"
               >
                 ←
               </button>
@@ -838,7 +999,7 @@ export function PlanningDesk({
                 type="button"
                 disabled={currentPage + 1 >= totalPages}
                 onClick={() => setPage((p) => p + 1)}
-                className="h-7.5 px-2.5 rounded-md border border-border bg-background text-xs font-medium disabled:opacity-40 cursor-pointer"
+                className="h-7 px-2 rounded border border-border bg-background text-xs font-medium disabled:opacity-40 cursor-pointer"
               >
                 →
               </button>
@@ -847,16 +1008,16 @@ export function PlanningDesk({
         </div>
 
         {/* ──────────────────────────────────────────────────────────── */}
-        {/* CENTER COLUMN: GIS MAP & PREVIEW DELTA BAR (~6/12 cols) */}
+        {/* CENTER COLUMN: GIS MAP & PREVIEW DELTA BAR (~60-65% width)   */}
         {/* ──────────────────────────────────────────────────────────── */}
-        <div className="lg:col-span-5 xl:col-span-6 flex flex-col rounded-xl border border-border/80 bg-card overflow-hidden shadow-xs relative">
+        <div className="flex-1 min-w-0 order-1 lg:order-2 flex flex-col rounded-xl border border-border/80 bg-card overflow-hidden shadow-xs relative h-[480px] sm:h-[520px] lg:h-[500px] xl:h-[520px]">
           {/* Floating Map Layer Toggles */}
-          <div className="absolute top-3 right-3 z-30 flex items-center gap-1 bg-card/90 p-1 rounded-lg border border-border/80 shadow-md backdrop-blur-md text-xs">
+          <div className="absolute top-3 right-3 z-30 flex items-center gap-1 bg-card/90 p-1 rounded-lg border border-border/80 shadow-md backdrop-blur-md text-xs max-w-[calc(100%-24px)] overflow-x-auto no-scrollbar">
             <button
               type="button"
               onClick={() => setActiveLayers((prev) => ({ ...prev, orders: !prev.orders }))}
               className={`px-2 py-0.5 rounded font-medium transition-colors cursor-pointer ${
-                activeLayers.orders ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"
+                activeLayers.orders ? "bg-teal-600 text-white" : "text-muted-foreground hover:bg-muted"
               }`}
             >
               Đơn ({todayEligibleOrders.length})
@@ -865,7 +1026,7 @@ export function PlanningDesk({
               type="button"
               onClick={() => setActiveLayers((prev) => ({ ...prev, routes: !prev.routes }))}
               className={`px-2 py-0.5 rounded font-medium transition-colors cursor-pointer ${
-                activeLayers.routes ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"
+                activeLayers.routes ? "bg-teal-600 text-white" : "text-muted-foreground hover:bg-muted"
               }`}
             >
               Tuyến
@@ -901,7 +1062,7 @@ export function PlanningDesk({
           </div>
 
           {/* Interactive Leaflet Map */}
-          <div className="flex-1 w-full min-h-[460px] relative">
+          <div className="flex-1 w-full relative min-h-0">
             <MapBase height="100%">
               <MapController focusPoint={mapFocusPoint} />
 
@@ -910,7 +1071,7 @@ export function PlanningDesk({
                 <Marker position={[session.depot.lat, session.depot.lng]} icon={depotIcon()}>
                   <Popup>
                     <div className="text-xs space-y-1">
-                      <strong className="text-primary block font-bold">KHO TRUNG TÂM (CENTRAL HUB)</strong>
+                      <strong className="text-teal-600 dark:text-teal-400 block font-bold">KHO TRUNG TÂM (CENTRAL HUB)</strong>
                       <div>Tên: <strong>{session.depot.name}</strong></div>
                       <div>Tọa độ: [{session.depot.lat}, {session.depot.lng}]</div>
                       <div>Loại: <span className="font-mono text-xs">{session.depot.depot_type || "CENTRAL_HUB"}</span></div>
@@ -945,7 +1106,7 @@ export function PlanningDesk({
                 </Marker>
               ))}
 
-              {/* Depot Fleet Hub Marker: resolves visual overlap of 16 shippers at start */}
+              {/* Depot Fleet Hub Marker */}
               {shippersAtDepot.length > 0 && (
                 <Marker
                   position={[session.depot.lat, session.depot.lng]}
@@ -953,7 +1114,7 @@ export function PlanningDesk({
                 >
                   <Popup>
                     <div className="text-xs space-y-1.5 max-w-[200px]">
-                      <strong className="block text-primary">
+                      <strong className="block text-teal-600 dark:text-teal-400 font-bold">
                         {shippersAtDepot.length} Shipper đang tại Depot
                       </strong>
                       <div className="max-h-36 overflow-y-auto divide-y divide-border text-xs">
@@ -961,7 +1122,7 @@ export function PlanningDesk({
                           <div
                             key={s.shipper_id}
                             onClick={() => onSelectShipper(s.shipper_id)}
-                            className="py-1 flex items-center justify-between cursor-pointer hover:text-primary"
+                            className="py-1 flex items-center justify-between cursor-pointer hover:text-teal-600"
                           >
                             <span>Shipper #{s.shipper_id.replace("shipper_", "")}</span>
                             <span className="font-mono text-muted-foreground">{s.assigned_order_ids.length} đơn</span>
@@ -973,7 +1134,7 @@ export function PlanningDesk({
                 </Marker>
               )}
 
-              {/* Shippers currently in transit away from depot */}
+              {/* Shippers currently on field */}
               {activeLayers.shippers &&
                 shippersOnField.map((s) => (
                   <Marker
@@ -1026,7 +1187,7 @@ export function PlanningDesk({
                           <div>Cụm K-Means: #{o.cluster_id}</div>
                           <div>Trạng thái: <strong>{o.delivery_status}</strong></div>
                           {o.assigned_shipper_id && (
-                            <div className="text-primary font-semibold">
+                            <div className="text-teal-600 dark:text-teal-400 font-semibold">
                               Gán cho: {o.assigned_shipper_id}
                             </div>
                           )}
@@ -1036,7 +1197,7 @@ export function PlanningDesk({
                   );
                 })}
 
-              {/* Confirmed Route Polyline for Selected Shipper */}
+              {/* Confirmed Route Polyline */}
               {activeLayers.routes && confirmedRoutePositions.length > 1 && (
                 <Polyline
                   positions={confirmedRoutePositions}
@@ -1048,7 +1209,7 @@ export function PlanningDesk({
                 />
               )}
 
-              {/* Candidate Preview Route Polyline (Dashed Cyan/Emerald) */}
+              {/* Candidate Preview Route Polyline (Dashed Cyan) */}
               {activeLayers.routes && previewRoutePositions.length > 1 && (
                 <Polyline
                   positions={previewRoutePositions}
@@ -1087,11 +1248,11 @@ export function PlanningDesk({
             <div className="absolute bottom-4 left-4 z-30 max-w-[260px] bg-card/95 border border-border/80 rounded-xl shadow-lg backdrop-blur-md overflow-hidden text-xs">
               <div
                 onClick={() => setLegendOpen((prev) => !prev)}
-                className="flex items-center justify-between px-3 py-2 bg-muted/40 hover:bg-muted/60 cursor-pointer border-b border-border/60 select-none"
+                className="flex items-center justify-between px-3 py-1.5 bg-muted/40 hover:bg-muted/60 cursor-pointer border-b border-border/60 select-none"
               >
                 <div className="flex items-center gap-1.5 font-bold text-xs text-foreground">
-                  <Layers className="size-3.5 text-primary" />
-                  <span>Chú giải Cụm & Tuyến GIS</span>
+                  <Layers className="size-3.5 text-teal-600 dark:text-teal-400" />
+                  <span>Chú giải Cụm &amp; Tuyến GIS</span>
                 </div>
                 <button
                   type="button"
@@ -1103,8 +1264,7 @@ export function PlanningDesk({
               </div>
 
               {legendOpen && (
-                <div className="p-2.5 space-y-2.5 max-h-56 overflow-y-auto text-xs">
-                  {/* Cluster distribution */}
+                <div className="p-2.5 space-y-2.5 max-h-52 overflow-y-auto text-xs">
                   <div>
                     <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground block mb-1">
                       Phân bố Đơn theo Cụm K-Means ({clusterLegendItems.length} Cụm)
@@ -1124,32 +1284,14 @@ export function PlanningDesk({
                     </div>
                   </div>
 
-                  {/* Route styles */}
-                  <div className="pt-2 border-t border-border/60">
-                    <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground block mb-1">
-                      Ký hiệu Tuyến đường
-                    </span>
-                    <div className="space-y-1.5">
-                      <div className="flex items-center gap-2">
-                        <span className="w-5 h-1 bg-[#0f766e] rounded-full inline-block shrink-0" />
-                        <span className="text-xs font-medium text-foreground">Tuyến chính thức đã gán</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="w-5 h-0.5 border-b-2 border-dashed border-[#06b6d4] inline-block shrink-0" />
-                        <span className="text-xs font-medium text-foreground">Tuyến dự kiến xem trước (Preview)</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="size-3.5 rounded-full bg-[#1e293b] border border-[#38bdf8] flex items-center justify-center text-xs font-bold text-white shrink-0">
-                          D
-                        </div>
-                        <span className="text-xs font-medium text-foreground">Depot trung tâm (Kho tập kết)</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="size-4 rounded-full bg-[#f97316] text-xs font-bold text-white flex items-center justify-center shrink-0">
-                          1
-                        </div>
-                        <span className="text-xs font-medium text-foreground">Thứ tự điểm dừng trên lộ trình</span>
-                      </div>
+                  <div className="pt-2 border-t border-border/60 space-y-1.5">
+                    <div className="flex items-center gap-2">
+                      <span className="w-5 h-1 bg-[#0f766e] rounded-full inline-block shrink-0" />
+                      <span className="text-xs font-medium text-foreground">Tuyến chính thức đã gán</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="w-5 h-0.5 border-b-2 border-dashed border-[#06b6d4] inline-block shrink-0" />
+                      <span className="text-xs font-medium text-foreground">Tuyến xem trước (Preview)</span>
                     </div>
                   </div>
                 </div>
@@ -1163,8 +1305,7 @@ export function PlanningDesk({
           {previewPlan && (
             <div className="border-t border-border/80 bg-card/98 p-3 shadow-lg z-20 animate-in slide-in-from-bottom-2">
               <div className="flex flex-wrap items-center justify-between gap-3">
-                {/* Preview Metadata & Deltas */}
-                <div className="flex flex-wrap items-center gap-4 text-xs">
+                <div className="flex flex-wrap items-center gap-3 text-xs">
                   <div className="flex items-center gap-2">
                     <span className="size-2.5 rounded-full bg-cyan-500 animate-pulse" />
                     <div>
@@ -1172,14 +1313,12 @@ export function PlanningDesk({
                         Bản xem trước phương án (Preview)
                       </span>
                       <div className="flex flex-wrap items-center gap-1.5 text-xs">
-                        <span className="text-xs text-muted-foreground">
-                          Chiến lược: <strong className="text-foreground font-mono font-semibold">{formatStrategyName(previewPlan.strategy_used)}</strong>
-                          {" · "}
-                          Thuật toán: <strong className="text-foreground font-mono font-semibold">{formatAlgorithmName(previewPlan.algorithm_used)}</strong>
+                        <span className="text-muted-foreground">
+                          {formatStrategyName(previewPlan.strategy_used)} • {formatAlgorithmName(previewPlan.algorithm_used)}
                         </span>
                         {previewPlan.is_fallback && (
                           <span
-                            className="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-[11px] font-semibold"
+                            className="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-xs font-semibold"
                             title={previewPlan.fallback_reason || "Đã kích hoạt dự phòng sang Nearest Neighbor"}
                           >
                             ⚠️ Dự phòng: Nearest Neighbor
@@ -1189,8 +1328,8 @@ export function PlanningDesk({
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-2.5 font-mono text-xs">
-                    <div className="bg-cyan-500/10 px-2 py-1 rounded border border-cyan-500/20">
+                  <div className="flex flex-wrap items-center gap-2 font-mono text-xs">
+                    <div className="bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20">
                       <span className="text-muted-foreground mr-1">Cự ly:</span>
                       <strong className="text-cyan-600 dark:text-cyan-400">{previewPlan.candidate_kpi.total_distance_km} km</strong>
                       {previewPlan.deltas && (
@@ -1200,27 +1339,22 @@ export function PlanningDesk({
                       )}
                     </div>
 
-                    <div className="bg-muted px-2 py-1 rounded border border-border/60">
+                    <div className="bg-muted px-2 py-0.5 rounded border border-border/60">
                       <span className="text-muted-foreground mr-1">Đã gán:</span>
                       <strong>{previewPlan.candidate_kpi.dispatched_orders} đơn</strong>
                       {previewPlan.deltas && (
-                        <span className="text-primary ml-1 text-xs font-bold">
+                        <span className="text-teal-600 ml-1 text-xs font-bold">
                           (+{previewPlan.deltas.delta_orders_dispatched})
                         </span>
                       )}
                     </div>
 
-                    <div className="bg-muted px-2 py-1 rounded border border-border/60">
+                    <div className="bg-muted px-2 py-0.5 rounded border border-border/60">
                       <span className="text-muted-foreground mr-1">Đội xe:</span>
                       <strong>{previewPlan.candidate_kpi.active_shippers}/{totalShippersCount}</strong>
-                      {previewPlan.deltas && (
-                        <span className="text-muted-foreground ml-1 text-xs">
-                          (+{previewPlan.deltas.delta_active_shippers})
-                        </span>
-                      )}
                     </div>
 
-                    <div className="bg-emerald-500/10 px-2 py-1 rounded border border-emerald-500/20">
+                    <div className="bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
                       <span className="text-muted-foreground mr-1">SLA:</span>
                       <strong className="text-emerald-600 dark:text-emerald-400">
                         {(previewPlan.candidate_kpi.sla_on_time_rate * 100).toFixed(1)}%
@@ -1232,31 +1366,20 @@ export function PlanningDesk({
                       )}
                     </div>
 
-                    <div className="bg-muted px-2 py-1 rounded border border-border/60">
+                    <div className="bg-muted px-2 py-0.5 rounded border border-border/60">
                       <span className="text-muted-foreground mr-1">Chi phí:</span>
                       <strong>{previewPlan.candidate_kpi.estimated_cost.toLocaleString()} đ</strong>
-                      {previewPlan.deltas && (
-                        <span className="text-muted-foreground ml-1 text-xs">
-                          ({previewPlan.deltas.delta_cost >= 0 ? "+" : ""}{previewPlan.deltas.delta_cost.toLocaleString()} đ)
-                        </span>
-                      )}
                     </div>
-
-                    {!previewPlan.deltas && (
-                      <span className="bg-amber-500/10 text-amber-700 dark:text-amber-400 px-2 py-1 rounded border border-amber-500/20 text-xs font-medium">
-                        Chưa đủ dữ liệu đối chứng (Baseline trống)
-                      </span>
-                    )}
                   </div>
                 </div>
 
-                {/* Confirm & Cancel Actions */}
+                {/* Actions */}
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
                     id="btnCancelPreview"
                     onClick={handleCancelActivePreview}
-                    className="flex h-9 items-center gap-2 rounded-lg border border-border px-3.5 text-xs font-semibold text-muted-foreground hover:bg-muted cursor-pointer transition-colors"
+                    className="flex h-8.5 items-center gap-1.5 rounded-lg border border-border px-3 text-xs font-semibold text-muted-foreground hover:bg-muted cursor-pointer transition-colors"
                   >
                     <X className="size-3.5" />
                     <span>Hủy</span>
@@ -1267,7 +1390,7 @@ export function PlanningDesk({
                     id="btnConfirmPreview"
                     onClick={handleConfirmActivePreview}
                     disabled={confirmLoading}
-                    className="flex h-9 items-center gap-2 rounded-lg bg-emerald-600 px-4 text-xs font-bold text-white shadow-xs hover:bg-emerald-700 transition-all cursor-pointer"
+                    className="flex h-8.5 items-center gap-1.5 rounded-lg bg-emerald-600 px-3.5 text-xs font-bold text-white shadow-xs hover:bg-emerald-700 transition-all cursor-pointer"
                   >
                     <CheckCheck className={`size-3.5 ${confirmLoading ? "animate-spin" : ""}`} />
                     <span>{confirmLoading ? "Đang áp dụng…" : "Xác nhận áp dụng kế hoạch"}</span>
@@ -1279,32 +1402,32 @@ export function PlanningDesk({
         </div>
 
         {/* ──────────────────────────────────────────────────────────── */}
-        {/* RIGHT COLUMN: FLEET & ASSIGNMENT PANEL (~320px, 3/12 cols) */}
+        {/* RIGHT COLUMN: FLEET & ASSIGNMENT PANEL (Fixed 290px)         */}
         {/* ──────────────────────────────────────────────────────────── */}
-        <div className="lg:col-span-3 xl:col-span-3 flex flex-col rounded-xl border border-border/80 bg-card overflow-hidden shadow-xs">
+        <div className="w-full lg:w-[290px] xl:w-[310px] shrink-0 order-3 lg:order-3 flex flex-col rounded-xl border border-border/80 bg-card overflow-hidden shadow-xs h-[480px] sm:h-[520px] lg:h-[500px] xl:h-[520px]">
           {/* Selected Shipper Hero Card */}
-          <div className="p-3 border-b border-border/80 bg-muted/20 flex flex-col gap-2">
+          <div className="p-2.5 border-b border-border/70 bg-muted/20 flex flex-col gap-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="flex size-7 items-center justify-center rounded-md bg-primary text-primary-foreground font-mono text-xs font-bold">
+                <div className="flex size-7 items-center justify-center rounded-md bg-teal-600 text-white font-mono text-xs font-bold">
                   {selectedShipper ? selectedShipper.shipper_id.replace("shipper_", "") : "01"}
                 </div>
                 <div>
-                  <strong className="text-xs text-foreground block">
+                  <strong className="text-xs text-foreground block font-bold">
                     {selectedShipper ? selectedShipper.name : "Shipper #01"}
                   </strong>
                   <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-[11px] text-muted-foreground">
                       Cụm #{selectedShipper?.home_cluster_id ?? 0}
                     </span>
-                    <span className="text-xs text-muted-foreground">•</span>
+                    <span className="text-[11px] text-muted-foreground">•</span>
                     {selectedShipper?.shift_start_mode === "START_AT_BASE" ? (
-                      <span className="rounded bg-purple-500/10 px-1.5 py-0.2 text-xs font-semibold text-purple-600 dark:text-purple-400 border border-purple-500/20">
-                        Trạm: {selectedShipper.base_name || "Vệ tinh"}
+                      <span className="rounded bg-purple-500/10 px-1.5 py-0.2 text-[10px] font-semibold text-purple-600 dark:text-purple-400 border border-purple-500/20">
+                        {selectedShipper.base_name || "Trạm vệ tinh"}
                       </span>
                     ) : (
-                      <span className="rounded bg-sky-500/10 px-1.5 py-0.2 text-xs font-semibold text-sky-600 dark:text-sky-400 border border-sky-500/20">
-                        Xuất phát: Kho chính
+                      <span className="rounded bg-sky-500/10 px-1.5 py-0.2 text-[10px] font-semibold text-sky-600 dark:text-sky-400 border border-sky-500/20">
+                        Kho chính
                       </span>
                     )}
                   </div>
@@ -1317,10 +1440,10 @@ export function PlanningDesk({
             </div>
 
             {/* Capacity Bar */}
-            <div className="w-full h-2 rounded-full bg-muted overflow-hidden">
+            <div className="w-full h-1.5 rounded-full bg-muted overflow-hidden">
               <div
                 className={`h-full transition-all ${
-                  isOverweight ? "bg-rose-500" : "bg-primary"
+                  isOverweight ? "bg-rose-500" : "bg-teal-600"
                 }`}
                 style={{
                   width: `${Math.min(100, (projectedLoad / shipperMaxCap) * 100)}%`,
@@ -1328,32 +1451,9 @@ export function PlanningDesk({
               />
             </div>
 
-            {/* Mode B Logistics Notice */}
-            {selectedShipper?.shift_start_mode === "START_AT_BASE" && (
-              <div className="rounded-lg bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800/50 p-2.5 text-xs text-purple-700 dark:text-purple-300 space-y-0.5">
-                <div className="font-semibold flex items-center gap-1">
-                  <span>📍 Xuất phát từ trạm trực ca</span>
-                </div>
-                <div>Shipper khởi hành từ <strong>{selectedShipper.base_name}</strong>, di chuyển đến Kho trung tâm nhận kiện trước khi giao hàng.</div>
-              </div>
-            )}
-
-            {/* Empty state guidance when shipper has 0 assigned orders */}
-            {selectedShipper && selectedShipper.assigned_order_ids.length === 0 && selectedOrders.length === 0 && (
-              <div className="rounded-lg bg-background/80 border border-border/60 p-2 text-xs text-muted-foreground space-y-1">
-                <div className="flex items-center gap-1.5 font-semibold text-foreground">
-                  <Info className="size-3 text-primary" />
-                  <span>Sẵn sàng nhận tải tại Depot</span>
-                </div>
-                <p className="text-xs leading-relaxed">
-                  Chưa có đơn gán cho Shipper này. Chọn đơn từ danh sách bên trái hoặc bấm <strong>"Xem trước phương án"</strong> để hệ thống tự động tối ưu hóa.
-                </p>
-              </div>
-            )}
-
             {/* Selected Orders Assignment Action */}
             {selectedOrders.length > 0 && (
-              <div className="space-y-1.5 pt-1">
+              <div className="space-y-1 pt-1">
                 <button
                   id="btnAssignToShipper"
                   type="button"
@@ -1361,7 +1461,7 @@ export function PlanningDesk({
                   disabled={!canAssign || actionLoading}
                   className={`w-full h-8 flex items-center justify-center gap-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                     canAssign
-                      ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-xs"
+                      ? "bg-teal-600 text-white hover:bg-teal-700 shadow-xs"
                       : "bg-muted text-muted-foreground opacity-60 cursor-not-allowed"
                   }`}
                 >
@@ -1372,23 +1472,23 @@ export function PlanningDesk({
                 </button>
 
                 {isOverweight && (
-                  <p className="text-xs text-rose-500 font-medium">
+                  <p className="text-[11px] text-rose-500 font-medium">
                     Vượt tải trọng {shipperMaxCap} kg (+{(projectedLoad - shipperMaxCap).toFixed(1)} kg).
                   </p>
                 )}
               </div>
             )}
 
-            {/* Quick Switch to Live Operations for this Shipper */}
+            {/* Switch to Live simulation */}
             {selectedShipper && selectedShipper.assigned_order_ids.length > 0 && selectedOrders.length === 0 && (
               <button
                 id="btnSwitchShipperToLive"
                 type="button"
                 onClick={onSwitchToLive}
-                className="w-full h-8 flex items-center justify-center gap-1.5 rounded-lg bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700 transition-all cursor-pointer shadow-xs mt-1"
+                className="w-full h-7.5 flex items-center justify-center gap-1.5 rounded-lg bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700 transition-all cursor-pointer shadow-xs mt-0.5"
               >
-                <Play className="size-3.5" />
-                <span>Theo dõi giao hàng shipper này ({selectedShipper.assigned_order_ids.length} đơn) →</span>
+                <Play className="size-3" />
+                <span>Theo dõi ({selectedShipper.assigned_order_ids.length} đơn) →</span>
               </button>
             )}
           </div>
@@ -1402,29 +1502,29 @@ export function PlanningDesk({
               <button
                 type="button"
                 onClick={() => setFleetFilter("all")}
-                className={`px-1.5 py-0.5 rounded text-xs font-semibold transition-colors cursor-pointer ${fleetFilter === "all" ? "bg-primary text-primary-foreground font-semibold" : "text-muted-foreground hover:bg-muted"}`}
+                className={`px-2 py-0.5 rounded text-xs font-semibold transition-colors cursor-pointer ${fleetFilter === "all" ? "bg-teal-600 text-white" : "text-muted-foreground hover:bg-muted"}`}
               >
                 Tất cả ({totalShippersCount})
               </button>
               <button
                 type="button"
                 onClick={() => setFleetFilter("assigned")}
-                className={`px-1.5 py-0.5 rounded text-xs font-semibold transition-colors cursor-pointer ${fleetFilter === "assigned" ? "bg-primary text-primary-foreground font-semibold" : "text-muted-foreground hover:bg-muted"}`}
+                className={`px-2 py-0.5 rounded text-xs font-semibold transition-colors cursor-pointer ${fleetFilter === "assigned" ? "bg-teal-600 text-white" : "text-muted-foreground hover:bg-muted"}`}
               >
                 Đã gán ({activeShippersCount})
               </button>
               <button
                 type="button"
                 onClick={() => setFleetFilter("idle")}
-                className={`px-1.5 py-0.5 rounded text-xs font-semibold transition-colors cursor-pointer ${fleetFilter === "idle" ? "bg-primary text-primary-foreground font-semibold" : "text-muted-foreground hover:bg-muted"}`}
+                className={`px-2 py-0.5 rounded text-xs font-semibold transition-colors cursor-pointer ${fleetFilter === "idle" ? "bg-teal-600 text-white" : "text-muted-foreground hover:bg-muted"}`}
               >
                 Trống ({totalShippersCount - activeShippersCount})
               </button>
             </div>
           </div>
 
-          {/* Full Fleet List of 16 Shippers (Filterable) */}
-          <div className="flex-1 overflow-y-auto divide-y divide-border/60 p-1 max-h-[440px]">
+          {/* Full Fleet List */}
+          <div className="flex-1 min-h-0 overflow-y-auto divide-y divide-border/50 p-1">
             {filteredShippers.map((s) => {
               const isSelected = s.shipper_id === selectedShipperId;
               const sNum = s.shipper_id.replace("shipper_", "");
@@ -1436,11 +1536,11 @@ export function PlanningDesk({
                   key={s.shipper_id}
                   onClick={() => onSelectShipper(s.shipper_id)}
                   className={`group flex items-center justify-between p-2 rounded-lg transition-colors cursor-pointer text-xs ${
-                    isSelected ? "bg-primary/10 border-l-3 border-primary" : "hover:bg-muted/50"
+                    isSelected ? "bg-teal-500/10 border-l-3 border-teal-600" : "hover:bg-muted/50"
                   }`}
                 >
                   <div className="flex items-center gap-2">
-                    <span className="flex size-6 items-center justify-center rounded-full bg-muted font-mono text-xs font-bold text-foreground">
+                    <span className="flex size-5.5 items-center justify-center rounded-full bg-muted font-mono text-xs font-bold text-foreground">
                       {sNum}
                     </span>
                     <div>
@@ -1448,14 +1548,14 @@ export function PlanningDesk({
                         Shipper #{sNum}
                       </strong>
                       <span className="text-xs text-muted-foreground">
-                        {isIdle ? "Sẵn sàng nhận ca" : `${s.assigned_order_ids.length} đơn`} · Cụm #{s.home_cluster_id}
+                        {isIdle ? "Sẵn sàng" : `${s.assigned_order_ids.length} đơn`} · Cụm #{s.home_cluster_id}
                       </span>
                     </div>
                   </div>
 
                   <div className="text-right">
                     {isIdle ? (
-                      <span className="inline-block px-2 py-0.5 rounded bg-muted/80 text-xs font-mono font-medium text-muted-foreground">
+                      <span className="inline-block px-1.5 py-0.5 rounded bg-muted/80 text-xs font-mono text-muted-foreground">
                         0/100 kg
                       </span>
                     ) : (
@@ -1463,9 +1563,9 @@ export function PlanningDesk({
                         <span className="font-mono text-xs font-semibold text-foreground">
                           {s.current_load_kg.toFixed(0)} kg
                         </span>
-                        <div className="w-12 h-1 rounded-full bg-muted mt-1 overflow-hidden ml-auto">
+                        <div className="w-10 h-1 rounded-full bg-muted mt-0.5 overflow-hidden ml-auto">
                           <div
-                            className="h-full bg-primary"
+                            className="h-full bg-teal-600"
                             style={{ width: `${loadPct}%` }}
                           />
                         </div>
@@ -1479,31 +1579,32 @@ export function PlanningDesk({
 
           {/* Plan Completion Ready Trigger */}
           {(isPlanCompleted || activeShippersCount > 0) && (
-            <div className="p-3 border-t border-border/80 bg-emerald-500/10 space-y-2">
+            <div className="p-2.5 border-t border-border/80 bg-emerald-500/10 space-y-1.5">
               <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold text-xs">
-                <CheckCircle2 className="size-4" />
+                <CheckCircle2 className="size-3.5" />
                 <span>
                   {isPlanCompleted
                     ? "100% Đơn hàng đã phân công"
                     : `${session.order_summary.assigned} đơn đã gán (${activeShippersCount}/${totalShippersCount} shipper)`}
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground">
-                Đội xe đã sẵn sàng thực hiện tuyến giao. Bạn có thể chuyển sang phân hệ Theo dõi giao hàng để bắt đầu ca.
+              <p className="text-[11px] text-muted-foreground">
+                Đội xe đã sẵn sàng thực hiện tuyến giao trong ngày.
               </p>
               <button
                 id="btnStartLiveDispatch"
                 type="button"
                 onClick={onSwitchToLive}
-                className="w-full h-8 flex items-center justify-center gap-1.5 rounded-lg bg-emerald-600 text-white text-xs font-semibold shadow-xs hover:bg-emerald-700 transition-all cursor-pointer"
+                className="w-full h-7.5 flex items-center justify-center gap-1.5 rounded-lg bg-emerald-600 text-white text-xs font-semibold shadow-xs hover:bg-emerald-700 transition-all cursor-pointer"
               >
-                <Play className="size-3.5" />
+                <Play className="size-3" />
                 <span>Bắt đầu mô phỏng thực địa →</span>
               </button>
             </div>
           )}
         </div>
       </div>
+
       {/* Explainable RL Decision Explorer Modal */}
       <RlDecisionExplorerModal
         isOpen={rlExplorerOpen}
@@ -1520,6 +1621,16 @@ export function PlanningDesk({
           if (onReloadSession) await onReloadSession();
         }}
         onFocusCoordinates={(coords: [number, number]) => setMapFocusPoint(coords)}
+      />
+      <NewScenarioModal
+        isOpen={newScenarioModalOpen}
+        onClose={() => setNewScenarioModalOpen(false)}
+        onConfirm={async (days) => {
+          if (onCreateNewSession) {
+            await onCreateNewSession(days);
+          }
+        }}
+        loading={actionLoading}
       />
     </div>
   );

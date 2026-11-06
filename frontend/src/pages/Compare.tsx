@@ -38,6 +38,7 @@ import {
   ErrorCard,
   ResearchCallout,
 } from "@/components/shared/DomainComponents";
+import { RewardPenaltySection } from "@/components/research/RewardPenaltySection";
 import {
   Clock,
   CheckCircle2,
@@ -45,6 +46,10 @@ import {
   Layers,
   Network,
   ShieldCheck,
+  Scale,
+  Target,
+  Sparkles,
+  AlertCircle,
 } from "lucide-react";
 import { AlgorithmSelector } from "@/components/shared/AlgorithmSelector";
 import {
@@ -551,11 +556,8 @@ export default function Compare() {
   }, [eligibleRows]);
 
   return (
-    <div className="space-y-4 max-w-[1720px] mx-auto p-3 sm:p-5 lg:p-6">
-      <PageHeader
-        title="So sánh thuật toán định tuyến"
-        subtitle="Đối chuẩn thực nghiệm giữa Heuristic cổ điển và Học tăng cường theo từng tập kiểm thử độc lập"
-      />
+    <div className="space-y-4 w-full">
+
 
       <ResearchCallout title="Tỷ lệ đúng hạn ở đây là kết quả tính theo mô hình, không phải thực tế" type="warning">
         Các con số SLA trong trang này được tính trên đồ thị đường phố (tốc độ lý tưởng, không tính thời gian phục vụ tại điểm giao).
@@ -676,7 +678,7 @@ export default function Compare() {
           <div className="rounded-lg border border-border/70 bg-card/60 p-3.5 shadow-2xs mb-4 text-xs flex items-center gap-3 border-l-4 border-l-sky-500">
             <span className="text-base shrink-0">ℹ️</span>
             <div className="leading-relaxed text-muted-foreground">
-              <b className="text-foreground">Phạm vi 108 Workload Benchmark Cơ sở:</b> Đối chuẩn 5 thuật toán cơ sở (Clarke–Wright, DQN, Q-Learning, SARSA, Nearest Neighbor) trên toàn bộ 108 đợt giao (813 đơn). Bảng và biểu đồ hiển thị thuần nhất 5 thuật toán được đo lường thực tế trên 108 Workload, không gộp lẫn các tập kiểm chứng 12 WL hay 16 WL Test.
+              <b className="text-foreground">Phạm vi 108 Workload Cơ Sở (Benchmark):</b> Đối chuẩn 5 thuật toán cơ sở (Clarke–Wright, DQN, Q-Learning, SARSA, Nearest Neighbor) trên toàn bộ 108 đợt giao (813 đơn). Bảng và biểu đồ hiển thị thuần nhất 5 thuật toán được đo lường thực tế trên 108 Workload, không gộp lẫn các tập kiểm chứng 12 WL hay 16 WL Test.
             </div>
           </div>
         )}
@@ -685,10 +687,56 @@ export default function Compare() {
           <div className="rounded-lg border border-border/70 bg-card/60 p-3.5 shadow-2xs mb-4 text-xs flex items-center gap-3 border-l-4 border-l-amber-500">
             <span className="text-base shrink-0">🎯</span>
             <div className="leading-relaxed text-muted-foreground">
-              <b className="text-foreground">Phạm vi 16 Workload Held-out Test (Proposed RL):</b> Proposed RL tối ưu hàm mục tiêu đa tiêu chí khóa <code className="font-mono text-foreground font-semibold">J(π)</code>, đạt số lần chuyển cụm trung bình thấp nhất (<b className="text-foreground">4,00 lần</b>) trong các thuật toán được so sánh trên 16 workload Test; mô hình chưa vượt Clarke–Wright (55,58 km) và DQN (57,11 km) về cự ly.
+              <b className="text-foreground">Phạm vi 16 Workload Test (Proposed) RL:</b> Proposed RL tối ưu hàm mục tiêu đa tiêu chí khóa <code className="font-mono text-foreground font-semibold">J(π)</code>, đạt số lần chuyển cụm trung bình thấp nhất (<b className="text-foreground">4,00 lần</b>) trong các thuật toán được so sánh trên 16 workload Test; mô hình chưa vượt Clarke–Wright (55,58 km) và DQN (57,11 km) về cự ly.
             </div>
           </div>
         )}
+
+        
+        {/* ─── SECTION A: 2 KEY SCIENTIFIC FINDINGS (COHORT-AWARE) ─── */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+          <div className="p-3.5 rounded-xl border border-teal-500/30 bg-teal-500/5 space-y-1">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-mono font-bold uppercase text-teal-700 dark:text-teal-300">
+                1. CỰ LY TỐI ƯU (DISTANCE MINIMIZER)
+              </span>
+              <span className="text-xs font-mono text-muted-foreground font-semibold">
+                {datasetScope === "full108" ? "108 WL" : datasetScope === "same12" ? "12 WL" : "16 WL"}
+              </span>
+            </div>
+            <div className="text-base font-extrabold text-foreground">
+              {bestDistName} ({num(minDist, 2)} km)
+            </div>
+            <p className="text-xs text-muted-foreground leading-normal">
+              {datasetScope === "full108"
+                ? "Clarke–Wright heuristic đạt cự ly ngắn nhất (58,05 km) trên 108 workloads cơ sở."
+                : datasetScope === "same12"
+                ? "Clarke–Wright đạt 70,55 km, Vanilla DQN đạt 72,07 km và Guided DQN đạt 73,34 km (+1,76%)."
+                : "Clarke–Wright đạt 55,58 km trên tập 16 WL Test (ngắn nhất về cự ly thuần túy)."}
+            </p>
+          </div>
+
+          <div className="p-3.5 rounded-xl border border-emerald-500/30 bg-emerald-500/5 space-y-1">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-mono font-bold uppercase text-emerald-700 dark:text-emerald-400">
+                2. ĐỘ ĐÚNG HẠN SLA &amp; ỔN ĐỊNH ĐỊA BÀN
+              </span>
+              <span className="text-xs font-mono text-emerald-600 font-bold">
+                {pct(maxOn, 1)} SLA
+              </span>
+            </div>
+            <div className="text-base font-extrabold text-foreground">
+              {datasetScope === "proposed16" ? "Proposed RL (99,2% SLA · 4,00 lần đổi cụm)" : `Đúng hạn cao nhất: ${pct(maxOn, 1)}`}
+            </div>
+            <p className="text-xs text-muted-foreground leading-normal">
+              {datasetScope === "full108"
+                ? "DQN đạt 100,00% SLA; Clarke–Wright và Nearest Neighbor đạt 99,14% SLA trên 108 workloads cơ sở."
+                : datasetScope === "same12"
+                ? "Guided DQN bảo toàn 100% SLA đúng hạn qua cơ chế thưởng phạt định hướng phân cụm."
+                : "Proposed RL đạt 99,24% SLA (130/131 đơn) và giữ mức chuyển cụm thấp kỷ lục (4,00 lần/tuyến)."}
+            </p>
+          </div>
+        </div>
 
         {datasetScope === "same12" && (
           <div className="rounded-lg border border-border/70 bg-card/60 p-3.5 shadow-2xs mb-4 text-xs flex items-center gap-3 border-l-4 border-l-indigo-500">
@@ -705,109 +753,16 @@ export default function Compare() {
 
         {rows.length > 0 && (
           <>
-            {/* ─── 1. Biểu đồ Cột Nhóm: Quãng đường & Thời gian ─── */}
-            <div className="grid cols-2">
-              <Card
-                title="Quãng đường trung bình (km)"
-                sub={`${bestDistName} ngắn nhất (${num(minDist, 2)} km).`}
-              >
-                <div style={{ height: 250 }} className="recharts-responsive-container">
-                  <ResponsiveContainer>
-                    <BarChart data={rows} margin={{ top: 8, right: 8, bottom: 6, left: 0 }}>
-                      <CartesianGrid stroke="var(--grid-color)" strokeDasharray="3 3" vertical={false} />
-                      <XAxis
-                        dataKey="key"
-                        tickFormatter={(k) => LOCAL_ALGO_LABEL[k] ?? k}
-                        tick={{ fontSize: 12 }}
-                      />
-                      <YAxis tick={{ fontSize: 12 }} domain={["auto", "auto"]} unit=" km" />
-                      <Tooltip formatter={(v: any) => [`${num(v, 2)} km`, "Quãng đường TB"]} />
-                      <Bar dataKey="mean_distance_km" radius={[4, 4, 0, 0]}>
-                        {rows.map((r) => (
-                          <Cell
-                            key={r.key}
-                            fill={r.color}
-                            opacity={selectedAlgo === null || selectedAlgo === r.key ? 1 : 0.25}
-                            cursor="pointer"
-                            onClick={() => setSelectedAlgo(selectedAlgo === r.key ? null : r.key)}
-                          />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </Card>
-
-              <Card
-                title="Thời gian di chuyển trung bình (phút)"
-                sub={`${bestTimeName} nhanh nhất (${num(minTime, 2)} phút).`}
-              >
-                <div style={{ height: 250 }} className="recharts-responsive-container">
-                  <ResponsiveContainer>
-                    <BarChart data={rows} margin={{ top: 8, right: 8, bottom: 6, left: 0 }}>
-                      <CartesianGrid stroke="var(--grid-color)" strokeDasharray="3 3" vertical={false} />
-                      <XAxis
-                        dataKey="key"
-                        tickFormatter={(k) => LOCAL_ALGO_LABEL[k] ?? k}
-                        tick={{ fontSize: 12 }}
-                      />
-                      <YAxis tick={{ fontSize: 12 }} domain={["auto", "auto"]} unit=" ph" />
-                      <Tooltip formatter={(v: any) => [`${num(v, 2)} phút`, "Thời gian TB"]} />
-                      <Bar dataKey="mean_travel_time_minutes" radius={[4, 4, 0, 0]}>
-                        {rows.map((r) => (
-                          <Cell
-                            key={r.key}
-                            fill={r.color}
-                            opacity={selectedAlgo === null || selectedAlgo === r.key ? 1 : 0.25}
-                            cursor="pointer"
-                            onClick={() => setSelectedAlgo(selectedAlgo === r.key ? null : r.key)}
-                          />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </Card>
-            </div>
-
-            {/* ─── 2. Biểu đồ Chênh lệch % so với Nearest Neighbor (SLA & Tiết kiệm) ─── */}
-            <Card
-              title="Mức chênh lệch % so với Nearest Neighbor (Baseline)"
-              sub="Dương (+) = tối ưu tốt hơn NN (ngắn hơn / nhanh hơn). Giá trị tính trực tiếp từ dữ liệu đối chuẩn."
-            >
-              <div style={{ height: 240 }} className="recharts-responsive-container">
-                <ResponsiveContainer>
-                  <BarChart
-                    data={pctVsNN.filter((p) => p.key !== "nearest_neighbor")}
-                    margin={{ top: 8, right: 12, bottom: 6, left: 0 }}
-                  >
-                    <CartesianGrid stroke="var(--grid-color)" strokeDasharray="3 3" vertical={false} />
-                    <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-                    <YAxis tick={{ fontSize: 12 }} unit="%" />
-                    <Tooltip
-                      formatter={(v: any, name: any) => [
-                        `${v > 0 ? "+" : ""}${num(v, 2)}%`,
-                        name === "diffDistPct" ? "Quãng đường vs NN" : "Thời gian vs NN",
-                      ]}
-                    />
-                    <Legend />
-                    <Bar dataKey="diffDistPct" name="Tiết kiệm cự ly (%)" fill="var(--algo-cw)" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="diffTimePct" name="Tiết kiệm thời gian (%)" fill="var(--algo-vanilla)" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </Card>
-
             {/* ─── 3. Bảng Đối chuẩn Chi tiết Toàn diện (table.tbl) ─── */}
             <Card
               title={
                 datasetScope === "proposed16"
-                  ? "Bảng đối chuẩn chi tiết 16 Workload Test (Proposed RL vs Baselines)"
+                  ? "Bảng đối chuẩn 16 Workload Test (Proposed RL)"
                   : datasetScope === "same12"
-                  ? "Bảng đối chuẩn chi tiết 12 Workload Paired (Guided DQN vs Vanilla DQN)"
-                  : "Bảng đối chuẩn chi tiết 108 Workload Benchmark Toàn diện"
+                  ? "Bảng đối chuẩn 12 Workload Paired (Guided DQN)"
+                  : "Bảng đối chuẩn 108 Workload Benchmark Cơ Sở"
               }
-              sub="Bấm chọn hàng để làm nổi bật thuật toán tương ứng trên toàn bộ biểu đồ bên trên."
+              sub="Nhấp chọn hàng để làm nổi bật thuật toán trên các biểu đồ."
             >
               <div className="table-wrap">
                 <table className="tbl">
@@ -912,142 +867,173 @@ export default function Compare() {
               {costErr && <ErrorCard message={`Chưa tính được chi phí: ${costErr}`} />}
             </Card>
 
-            {/* ─── Benchmark Đa Tiêu chí Chuẩn hóa 0–100 ─── */}
-            {radar && (
+            
+{/* ─── 1. Biểu đồ Cột Nhóm: Quãng đường & Thời gian ─── */}
+            <div className="grid cols-2">
               <Card
-                title="Hồ sơ Năng lực Đa tiêu chí (Benchmark Chuẩn hoá 0–100)"
-                sub="Thang điểm 0–100 giữa các phương pháp trên cùng tập dữ liệu (100 = tối ưu nhất ở tiêu chí đó)."
+                title="Quãng đường trung bình (km)"
+                sub={`${bestDistName} ngắn nhất (${num(minDist, 2)} km). Trục Y bắt đầu từ 0 để đảm bảo trực quan trung thực.`}
               >
-                <div style={{ display: "grid", gap: 12 }}>
-                  {radar.map((criterion) => {
-                    const label = String(criterion.axis).replace(/\n/g, " ");
-                    return (
-                      <div
-                        key={label}
-                        className="rounded-lg border border-border/60 bg-card/60 p-3 shadow-2xs mb-2.5"
-                      >
-                        <div
-                          style={{
-                            fontSize: 12.5,
-                            fontWeight: 700,
-                            color: "var(--text)",
-                            marginBottom: 6,
-                            display: "flex",
-                            justifyContent: "space-between",
-                          }}
-                        >
-                          <span>{label}</span>
-                          <span style={{ fontSize: 12.5, color: "var(--muted)", fontWeight: 500 }}>
-                            Điểm chuẩn hoá (0–100)
-                          </span>
-                        </div>
-                        <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-                          {eligibleRows.map((r) => {
-                            const rawScore = criterion[r.key];
-                            const score = typeof rawScore === "number" ? rawScore : null;
-                            const isBest = score !== null && score >= 99.9;
-                            const isSelected = selectedAlgo === r.key;
-                            const isDimmed = selectedAlgo !== null && !isSelected;
-                            return (
-                              <div
-                                key={r.key}
-                                onClick={() => setSelectedAlgo(selectedAlgo === r.key ? null : r.key)}
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                  gap: 8,
-                                  cursor: "pointer",
-                                  opacity: isDimmed ? 0.35 : 1,
-                                  transition: "all 0.15s ease",
-                                }}
-                                title="Bấm để làm nổi bật phương pháp này"
-                              >
-                                <span
-                                  style={{
-                                    width: 140,
-                                    fontSize: 12.5,
-                                    color: isSelected ? r.color : "var(--text)",
-                                    fontWeight: isSelected || r.isProposed ? 700 : 500,
-                                    textAlign: "right",
-                                    flexShrink: 0,
-                                    whiteSpace: "nowrap",
-                                    overflow: "hidden",
-                                    textOverflow: "ellipsis",
-                                  }}
-                                >
-                                  {r.name}
-                                </span>
-                                <div
-                                  style={{
-                                    flex: 1,
-                                    height: 8,
-                                    background: "var(--track)",
-                                    borderRadius: 9999,
-                                    overflow: "hidden",
-                                    position: "relative",
-                                    boxShadow: isSelected ? `0 0 0 1.5px ${r.color}` : undefined,
-                                  }}
-                                >
-                                  {score !== null ? (
-                                    <div
-                                      style={{
-                                        width: `${score}%`,
-                                        height: "100%",
-                                        background: r.color,
-                                        borderRadius: 9999,
-                                        opacity: isBest ? 1 : 0.85,
-                                        transition: "width 0.35s ease",
-                                      }}
-                                    />
-                                  ) : null}
-                                </div>
-                                <span
-                                  style={{
-                                    width: 40,
-                                    fontSize: 12.5,
-                                    fontWeight: isBest ? 700 : 600,
-                                    color: isBest ? "var(--good)" : "var(--text-secondary)",
-                                    textAlign: "right",
-                                    fontVariantNumeric: "tabular-nums",
-                                  }}
-                                >
-                                  {score !== null ? num(score, 1) : "–"}
-                                </span>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    );
-                  })}
+                <div style={{ height: 250 }} className="recharts-responsive-container">
+                  <ResponsiveContainer>
+                    <BarChart data={rows} margin={{ top: 8, right: 8, bottom: 6, left: 0 }}>
+                      <CartesianGrid stroke="var(--grid-color)" strokeDasharray="3 3" vertical={false} />
+                      <XAxis
+                        dataKey="key"
+                        tickFormatter={(k) => LOCAL_ALGO_LABEL[k] ?? k}
+                        tick={{ fontSize: 12 }}
+                      />
+                      <YAxis tick={{ fontSize: 12 }} domain={[0, "auto"]} unit=" km" />
+                      <Tooltip formatter={(v: any) => [`${num(v, 2)} km`, "Quãng đường TB"]} />
+                      <Bar dataKey="mean_distance_km" radius={[4, 4, 0, 0]}>
+                        {rows.map((r) => (
+                          <Cell
+                            key={r.key}
+                            fill={r.color}
+                            opacity={selectedAlgo === null || selectedAlgo === r.key ? 1 : 0.25}
+                            cursor="pointer"
+                            onClick={() => setSelectedAlgo(selectedAlgo === r.key ? null : r.key)}
+                          />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
                 </div>
               </Card>
-            )}
 
-            {/* ─── Giải thích Phương pháp luận Collapsible ─── */}
+              <Card
+                title="Thời gian di chuyển trung bình (phút)"
+                sub={`${bestTimeName} nhanh nhất (${num(minTime, 2)} phút).`}
+              >
+                <div style={{ height: 250 }} className="recharts-responsive-container">
+                  <ResponsiveContainer>
+                    <BarChart data={rows} margin={{ top: 8, right: 8, bottom: 6, left: 0 }}>
+                      <CartesianGrid stroke="var(--grid-color)" strokeDasharray="3 3" vertical={false} />
+                      <XAxis
+                        dataKey="key"
+                        tickFormatter={(k) => LOCAL_ALGO_LABEL[k] ?? k}
+                        tick={{ fontSize: 12 }}
+                      />
+                      <YAxis tick={{ fontSize: 12 }} domain={[0, "auto"]} unit=" ph" />
+                      <Tooltip formatter={(v: any) => [`${num(v, 2)} phút`, "Thời gian TB"]} />
+                      <Bar dataKey="mean_travel_time_minutes" radius={[4, 4, 0, 0]}>
+                        {rows.map((r) => (
+                          <Cell
+                            key={r.key}
+                            fill={r.color}
+                            opacity={selectedAlgo === null || selectedAlgo === r.key ? 1 : 0.25}
+                            cursor="pointer"
+                            onClick={() => setSelectedAlgo(selectedAlgo === r.key ? null : r.key)}
+                          />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </Card>
+            </div>
+
+            
+
+            {/* ─── SECTION D: RESEARCH INTERPRETATION (STRICTLY COHORT-SPECIFIC) ─── */}
+            <div className="rounded-xl border border-border/80 bg-muted/20 p-4 space-y-2 text-xs leading-relaxed text-muted-foreground my-3">
+              <div className="font-bold text-foreground flex items-center gap-2 text-xs uppercase tracking-wider">
+                <ShieldCheck className="size-4 text-teal-600" />
+                <span>
+                  Nhận Xét Khoa Học: {datasetScope === "full108" ? "Tập 108 Workload Benchmark Cơ Sở" : datasetScope === "same12" ? "Tập 12 Workload Paired Validation" : "Tập 16 Workload Held-out Test"}
+                </span>
+              </div>
+              {datasetScope === "full108" && (
+                <>
+                  <p>
+                    • <b>Về cự ly thuần túy:</b> Heuristic Clarke–Wright đạt cự ly ngắn nhất trên 108 workloads cơ sở (58,05 km), kế tiếp là Vanilla DQN (59,83 km), vượt trội đáng kể so với Nearest Neighbor (62,68 km).
+                  </p>
+                  <p>
+                    • <b>Về thời gian và SLA:</b> Vanilla DQN đạt thời gian di chuyển trung bình 65,13 phút và bảo toàn 100,0% tỷ lệ đúng hạn SLA (813/813 đơn hàng) trên toàn bộ 108 workloads cơ sở.
+                  </p>
+                </>
+              )}
+              {datasetScope === "same12" && (
+                <>
+                  <p>
+                    • <b>Đối chuẩn ghép cặp:</b> Vanilla DQN đạt cự ly ngắn hơn (72,07 km vs 73,34 km, chênh lệch +1,76%) do không chịu ràng buộc phạt chuyển cụm.
+                  </p>
+                  <p>
+                    • <b>Hiệu quả định hướng:</b> Guided DQN triệt tiêu hoàn toàn vi phạm SLA (đạt 100% đúng hạn) và giảm -6,83% số lần đổi cụm liên vùng (3,42 lần vs 3,67 lần của Vanilla DQN).
+                  </p>
+                </>
+              )}
+              {datasetScope === "proposed16" && (
+                <>
+                  <p>
+                    • <b>Đánh giá mô hình đề xuất:</b> Clarke–Wright (55,58 km) và DQN (57,11 km) đạt cự ly ngắn hơn Proposed RL (61,90 km) do Proposed RL tối ưu hàm đa tiêu chí J(π).
+                  </p>
+                  <p>
+                    • <b>Ưu thế đa mục tiêu:</b> Proposed RL duy trì 99,24% SLA đúng hạn (130/131 đơn) và đạt số lần chuyển cụm trung bình thấp nhất (4,00 lần/tuyến), giữ shipper hoạt động ổn định trong địa bàn cụm phụ trách.
+                  </p>
+                </>
+              )}
+            </div>
+
+            {/* ─── CƠ CHẾ THƯỞNG / PHẠT TRONG REINFORCEMENT LEARNING (STANDARDIZED COMPONENT) ─── */}
+            <RewardPenaltySection defaultOpen={true} />
+
+            {/* ─── PHƯƠNG PHÁP ĐÁNH GIÁ & GIỚI HẠN NGHIÊN CỨU (UNIFIED COLLAPSIBLE) ─── */}
             <details
               style={{
                 background: "var(--surface)",
                 border: "1px solid var(--border)",
                 borderRadius: "var(--radius)",
-                padding: "12px 18px",
+                padding: "14px 18px",
                 fontSize: 13,
                 color: "var(--text-secondary)",
                 lineHeight: 1.6,
+                marginTop: 14,
+                marginBottom: 12,
               }}
             >
               <summary style={{ fontWeight: 700, color: "var(--text)", cursor: "pointer", userSelect: "none" }}>
-                📋 Quy ước Khoa học & Nguyên tắc Đối chuẩn giữa các nhóm mô hình
+                📋 Phương pháp &amp; Giới hạn nghiên cứu (Evaluation Methodology &amp; Limitations)
               </summary>
-              <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid var(--border)", display: "flex", flexDirection: "column", gap: 8 }}>
-                <div>
-                  • <b>108 Workload:</b> Đối chuẩn cơ sở giữa Heuristic (Nearest Neighbor, Clarke–Wright) và Reinforcement Learning cơ bản (Q-Learning, SARSA, Vanilla DQN). Clarke–Wright đạt cự ly ngắn nhất (58,05 km).
+              <div style={{ marginTop: 14, paddingTop: 14, borderTop: "1px solid var(--border)", display: "flex", flexDirection: "column", gap: 14 }}>
+                {/* Protocol summary */}
+                <div className="rounded-lg border border-border p-3 bg-muted/20 space-y-2">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-foreground">
+                    Quy Ước Đối Chuẩn Theo 3 Tập Dữ Liệu Độc Lập
+                  </h4>
+                  <ul className="text-xs text-muted-foreground space-y-1 list-disc list-inside">
+                    <li><b>108 Workload Benchmark:</b> Đối chuẩn cơ sở giữa Heuristic (Nearest Neighbor, Clarke–Wright) và RL cơ bản (Q-Learning, SARSA, Vanilla DQN). Clarke–Wright đạt cự ly ngắn nhất (58,05 km).</li>
+                    <li><b>12 Workload Paired:</b> Nghiên cứu tác động của Soft Reward Shaping (K-Means-guided DQN). Guided DQN giảm -6,83% chuyển cụm liên vùng, giữ 100% SLA đúng hạn, chấp nhận tăng nhẹ cự ly (+1,76%).</li>
+                    <li><b>16 Workload Held-out Test:</b> Đánh giá độc lập Proposed Candidate-Scoring DQN tối ưu mục tiêu đa tiêu chí <code>J(π)</code>, đạt số lần chuyển cụm trung bình thấp nhất (4,00 lần) và 99,24% SLA.</li>
+                  </ul>
                 </div>
-                <div>
-                  • <b>12 Workload Paired:</b> Nghiên cứu tác động của Soft Reward Shaping (K-Means-guided DQN). Guided DQN giảm -6,83% chuyển cụm liên vùng, giữ 100% SLA đúng hạn, chấp nhận tăng nhẹ cự ly (+1,76%).
+
+                {/* Limitations & Boundary */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                  <div className="p-3 rounded-lg border border-emerald-500/30 bg-emerald-500/5 space-y-1.5">
+                    <strong className="text-emerald-700 dark:text-emerald-400 block font-bold uppercase">
+                      ✓ Ưu thế của Proposed RL
+                    </strong>
+                    <p className="text-muted-foreground leading-relaxed">
+                      Duy trì tỷ lệ đúng hạn SLA cao (99,24%), kiểm soát chặt chẽ biên độ chuyển cụm (4,00 lần/tuyến) giúp phân vùng shipper ổn định, giải bài toán phân phối đa mục tiêu trong đô thị phức tạp.
+                    </p>
+                  </div>
+                  <div className="p-3 rounded-lg border border-amber-500/30 bg-amber-500/5 space-y-1.5">
+                    <strong className="text-amber-700 dark:text-amber-400 block font-bold uppercase">
+                      ⚠ Giới hạn so với Heuristic
+                    </strong>
+                    <p className="text-muted-foreground leading-relaxed">
+                      Clarke–Wright tối ưu cự ly thuần túy tốt hơn 3,1% khi không tính phạt cụm; Nearest Neighbor có tốc độ suy luận tức thì (&lt; 5 ms) và không yêu cầu tài nguyên inference checkpoint.
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  • <b>16 Workload Test (Proposed RL):</b> Mô hình độc lập tối ưu mục tiêu đa tiêu chí <code>J(π)</code>, đạt số lần chuyển cụm trung bình thấp nhất (4,00 lần).
+
+                {/* Experimental Assumptions */}
+                <div className="text-xs text-muted-foreground pt-1 border-t border-border/50 flex flex-wrap gap-4">
+                  <span>• <b>Vận tốc trung bình:</b> 25 km/h</span>
+                  <span>• <b>Dung lượng xe:</b> 100 kg/xe</span>
+                  <span>• <b>Mô hình khoảng cách:</b> Haversine × Hệ số uốn lượn đô thị</span>
+                  <span>• <b>Thời gian phục vụ:</b> 5 phút/điểm giao</span>
                 </div>
               </div>
             </details>

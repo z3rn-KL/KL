@@ -101,6 +101,14 @@ def solve_proposed_rl_route_with_trace(
                 "feature_dict": {},
             }],
             "step_reward": 0.0,
+            "reward_breakdown": {
+                "distance_cost": 0.0,
+                "travel_time_cost": 0.0,
+                "late_delivery_cost": 0.0,
+                "lateness_cost": 0.0,
+                "cluster_switch_cost": 0.0,
+                "total_step_cost": 0.0,
+            },
             "cumulative_distance_km": float(distance_matrix_km[0, 1]),
             "cumulative_time_minutes": float(travel_time_matrix_minutes[0, 1]),
             "lateness_minutes": 0.0,
@@ -170,6 +178,17 @@ def solve_proposed_rl_route_with_trace(
 
         step_res = env.step(action)
 
+        reward_breakdown = None
+        if step_res.delivery_step_cost:
+            reward_breakdown = {
+                "distance_cost": round(float(step_res.delivery_step_cost.distance_cost), 4),
+                "travel_time_cost": round(float(step_res.delivery_step_cost.travel_time_cost), 4),
+                "late_delivery_cost": round(float(step_res.delivery_step_cost.late_delivery_cost), 4),
+                "lateness_cost": round(float(step_res.delivery_step_cost.lateness_cost), 4),
+                "cluster_switch_cost": round(float(step_res.delivery_step_cost.cluster_switch_cost), 4),
+                "total_step_cost": round(float(step_res.delivery_step_cost.total_cost), 4),
+            }
+
         decision_trace.append({
             "step_index": len(decision_trace) + 1,
             "current_node": current_node,
@@ -178,6 +197,7 @@ def solve_proposed_rl_route_with_trace(
             "chosen_q_score": round(chosen_q, 4),
             "candidates_evaluated": candidates_eval,
             "step_reward": round(float(step_res.reward), 4),
+            "reward_breakdown": reward_breakdown,
             "cumulative_distance_km": round(float(env.totals.total_distance_km), 2),
             "cumulative_time_minutes": round(float(env.totals.total_travel_time_minutes), 1),
             "lateness_minutes": round(float(env.totals.total_lateness_minutes), 1),

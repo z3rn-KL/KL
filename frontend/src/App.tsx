@@ -3,159 +3,145 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { AtlasShell } from "@/components/atlas/AtlasShell";
 import { PageErrorBoundary } from "@/components/ErrorBoundary";
 import { LoadingCard } from "@/components/shared/DomainComponents";
+import { DispatchProvider } from "@/context/DispatchContext";
 
+// The 6 Official Thesis-Aligned Screens
 const Overview = lazy(() => import("./pages/Overview"));
-const Orders = lazy(() => import("./pages/Orders"));
-const Clusters = lazy(() => import("./pages/Clusters"));
-const RoutesPage = lazy(() => import("./pages/RoutesPage"));
-const RunLab = lazy(() => import("./pages/RunLab"));
-const Compare = lazy(() => import("./pages/Compare"));
-const GuidedDQN = lazy(() => import("./pages/GuidedDQN"));
-const Sensitivity = lazy(() => import("./pages/Sensitivity"));
-const Stability = lazy(() => import("./pages/Stability"));
-const DailyPlanning = lazy(() => import("./pages/DailyPlanning"));
-const ProposedRL = lazy(() => import("./pages/ProposedRL"));
-const RealData = lazy(() => import("./pages/RealData"));
-const DispatchDashboard = lazy(() => import("./pages/DispatchDashboard"));
-const ResearchAnalytics = lazy(() => import("./pages/ResearchAnalytics"));
+const DataClustering = lazy(() => import("./pages/DataClustering"));
+const RLOptimization = lazy(() => import("./pages/RLOptimization"));
+const SimulationOps = lazy(() => import("./pages/SimulationOps"));
+const ShiftReport = lazy(() => import("./pages/ShiftReport"));
+const ExperimentsPage = lazy(() => import("./pages/ExperimentsPage"));
 
 export default function App() {
   return (
-    <AtlasShell>
-      <Suspense fallback={<LoadingCard message="Đang tải trang…" />}>
-        <Routes>
-          <Route path="/" element={<Navigate to="/dieu-phoi" replace />} />
-          <Route
-            path="/dieu-phoi"
-            element={
-              <PageErrorBoundary>
-                <DispatchDashboard />
-              </PageErrorBoundary>
-            }
-          />
-          <Route
-            path="/nghien-cuu"
-            element={
-              <PageErrorBoundary>
-                <ResearchAnalytics />
-              </PageErrorBoundary>
-            }
-          />
-          <Route
-            path="/tong-quan"
-            element={
-              <PageErrorBoundary>
-                <Overview />
-              </PageErrorBoundary>
-            }
-          />
-          <Route
-            path="/don-hang"
-            element={
-              <PageErrorBoundary>
-                <Orders />
-              </PageErrorBoundary>
-            }
-          />
-          <Route
-            path="/phan-cum"
-            element={
-              <PageErrorBoundary>
-                <Clusters />
-              </PageErrorBoundary>
-            }
-          />
-          <Route
-            path="/tuyen-giao"
-            element={
-              <PageErrorBoundary>
-                <RoutesPage />
-              </PageErrorBoundary>
-            }
-          />
-          <Route
-            path="/chay-thu"
-            element={
-              <PageErrorBoundary>
-                <RunLab />
-              </PageErrorBoundary>
-            }
-          />
-          <Route
-            path="/so-sanh"
-            element={
-              <PageErrorBoundary>
-                <Compare />
-              </PageErrorBoundary>
-            }
-          />
-          <Route
-            path="/guided-dqn"
-            element={
-              <PageErrorBoundary>
-                <GuidedDQN />
-              </PageErrorBoundary>
-            }
-          />
-          <Route
-            path="/do-nhay"
-            element={
-              <PageErrorBoundary>
-                <Sensitivity />
-              </PageErrorBoundary>
-            }
-          />
-          <Route
-            path="/on-dinh"
-            element={
-              <PageErrorBoundary>
-                <Stability />
-              </PageErrorBoundary>
-            }
-          />
+    <DispatchProvider>
+      <AtlasShell>
+        <Suspense fallback={<LoadingCard message="Đang nạp màn hình…" />}>
+          <Routes>
+            {/* Root entrypoint — Renders Screen 01: Overview directly to eliminate race conditions */}
+            <Route
+              path="/"
+              element={
+                <PageErrorBoundary>
+                  <Overview />
+                </PageErrorBoundary>
+              }
+            />
 
-          <Route
-            path="/ke-hoach-ngay"
-            element={
-              <PageErrorBoundary>
-                <DailyPlanning />
-              </PageErrorBoundary>
-            }
-          />
-          <Route
-            path="/du-lieu-that"
-            element={
-              <PageErrorBoundary>
-                <RealData />
-              </PageErrorBoundary>
-            }
-          />
-          <Route
-            path="/proposed-rl"
-            element={
-              <PageErrorBoundary>
-                <ProposedRL />
-              </PageErrorBoundary>
-            }
-          />
+            {/* SCREEN 01 — TỔNG QUAN */}
+            <Route
+              path="/tong-quan"
+              element={
+                <PageErrorBoundary>
+                  <Overview />
+                </PageErrorBoundary>
+              }
+            />
 
-          {/* English URL aliases */}
-          <Route path="/dispatch" element={<Navigate to="/dieu-phoi" replace />} />
-          <Route path="/research" element={<Navigate to="/nghien-cuu" replace />} />
-          <Route path="/research-analytics" element={<Navigate to="/nghien-cuu" replace />} />
-          <Route path="/overview" element={<Navigate to="/tong-quan" replace />} />
-          <Route path="/orders" element={<Navigate to="/don-hang" replace />} />
-          <Route path="/clusters" element={<Navigate to="/phan-cum" replace />} />
-          <Route path="/routes" element={<Navigate to="/tuyen-giao" replace />} />
-          <Route path="/playground" element={<Navigate to="/chay-thu" replace />} />
-          <Route path="/compare" element={<Navigate to="/so-sanh" replace />} />
-          <Route path="/sensitivity" element={<Navigate to="/do-nhay" replace />} />
-          <Route path="/stability" element={<Navigate to="/on-dinh" replace />} />
-          <Route path="/daily-planning" element={<Navigate to="/ke-hoach-ngay" replace />} />
-          <Route path="/real-data" element={<Navigate to="/du-lieu-that" replace />} />
-          <Route path="*" element={<Navigate to="/tong-quan" replace />} />
-        </Routes>
-      </Suspense>
-    </AtlasShell>
+            {/* SCREEN 02 — DỮ LIỆU & PHÂN CỤM */}
+            <Route
+              path="/phan-cum"
+              element={
+                <PageErrorBoundary>
+                  <DataClustering />
+                </PageErrorBoundary>
+              }
+            />
+
+            {/* SCREEN 03 — TỐI ƯU TUYẾN BẰNG RL */}
+            <Route
+              path="/toi-uu-rl"
+              element={
+                <PageErrorBoundary>
+                  <RLOptimization />
+                </PageErrorBoundary>
+              }
+            />
+
+            {/* SCREEN 04 — MÔ PHỎNG GIAO HÀNG */}
+            <Route
+              path="/mo-phong"
+              element={
+                <PageErrorBoundary>
+                  <SimulationOps />
+                </PageErrorBoundary>
+              }
+            />
+
+            {/* SCREEN 05 — BÁO CÁO KẾT CA */}
+            <Route
+              path="/bao-cao"
+              element={
+                <PageErrorBoundary>
+                  <ShiftReport />
+                </PageErrorBoundary>
+              }
+            />
+
+            {/* SCREEN 06 — THỰC NGHIỆM & SO SÁNH */}
+            <Route
+              path="/thuc-nghiem"
+              element={
+                <PageErrorBoundary>
+                  <ExperimentsPage />
+                </PageErrorBoundary>
+              }
+            />
+
+            {/* ============================================================== */}
+            {/* LEGACY ROUTE ALIASES (100% COVERAGE — NO DEAD ROUTES)          */}
+            {/* ============================================================== */}
+            {/* Screen 01 aliases */}
+            <Route path="/overview" element={<PageErrorBoundary><Overview /></PageErrorBoundary>} />
+
+            {/* Screen 02 aliases */}
+            <Route path="/don-hang" element={<PageErrorBoundary><DataClustering /></PageErrorBoundary>} />
+            <Route path="/orders" element={<PageErrorBoundary><DataClustering /></PageErrorBoundary>} />
+            <Route path="/clusters" element={<PageErrorBoundary><DataClustering /></PageErrorBoundary>} />
+            <Route path="/du-lieu-that" element={<PageErrorBoundary><DataClustering /></PageErrorBoundary>} />
+            <Route path="/real-data" element={<PageErrorBoundary><DataClustering /></PageErrorBoundary>} />
+
+            {/* Screen 03 aliases */}
+            <Route path="/planning" element={<PageErrorBoundary><RLOptimization /></PageErrorBoundary>} />
+            <Route path="/rl-optimization" element={<PageErrorBoundary><RLOptimization /></PageErrorBoundary>} />
+            <Route path="/ke-hoach-ngay" element={<PageErrorBoundary><RLOptimization /></PageErrorBoundary>} />
+            <Route path="/daily-planning" element={<PageErrorBoundary><RLOptimization /></PageErrorBoundary>} />
+            <Route path="/proposed-rl" element={<PageErrorBoundary><RLOptimization /></PageErrorBoundary>} />
+            <Route path="/tuyen-giao" element={<PageErrorBoundary><RLOptimization /></PageErrorBoundary>} />
+            <Route path="/routes" element={<PageErrorBoundary><RLOptimization /></PageErrorBoundary>} />
+
+            {/* Screen 04 aliases */}
+            <Route path="/simulation" element={<PageErrorBoundary><SimulationOps /></PageErrorBoundary>} />
+            <Route path="/live-ops" element={<PageErrorBoundary><SimulationOps /></PageErrorBoundary>} />
+            <Route path="/dieu-phoi" element={<PageErrorBoundary><SimulationOps /></PageErrorBoundary>} />
+            <Route path="/dispatch" element={<PageErrorBoundary><SimulationOps /></PageErrorBoundary>} />
+
+            {/* Screen 05 aliases */}
+            <Route path="/day-report" element={<PageErrorBoundary><ShiftReport /></PageErrorBoundary>} />
+            <Route path="/report" element={<PageErrorBoundary><ShiftReport /></PageErrorBoundary>} />
+
+            {/* Screen 06 aliases */}
+            <Route path="/experiments" element={<PageErrorBoundary><ExperimentsPage /></PageErrorBoundary>} />
+            <Route path="/so-sanh" element={<PageErrorBoundary><ExperimentsPage /></PageErrorBoundary>} />
+            <Route path="/compare" element={<PageErrorBoundary><ExperimentsPage /></PageErrorBoundary>} />
+            <Route path="/nghien-cuu" element={<PageErrorBoundary><ExperimentsPage /></PageErrorBoundary>} />
+            <Route path="/research" element={<PageErrorBoundary><ExperimentsPage /></PageErrorBoundary>} />
+            <Route path="/research-analytics" element={<PageErrorBoundary><ExperimentsPage /></PageErrorBoundary>} />
+            <Route path="/guided-dqn" element={<PageErrorBoundary><ExperimentsPage /></PageErrorBoundary>} />
+            <Route path="/do-nhay" element={<PageErrorBoundary><ExperimentsPage /></PageErrorBoundary>} />
+            <Route path="/sensitivity" element={<PageErrorBoundary><ExperimentsPage /></PageErrorBoundary>} />
+            <Route path="/on-dinh" element={<PageErrorBoundary><ExperimentsPage /></PageErrorBoundary>} />
+            <Route path="/stability" element={<PageErrorBoundary><ExperimentsPage /></PageErrorBoundary>} />
+            <Route path="/chay-thu" element={<PageErrorBoundary><ExperimentsPage /></PageErrorBoundary>} />
+            <Route path="/playground" element={<PageErrorBoundary><ExperimentsPage /></PageErrorBoundary>} />
+            <Route path="/run-lab" element={<PageErrorBoundary><ExperimentsPage /></PageErrorBoundary>} />
+
+            {/* Fallback to Overview */}
+            <Route path="*" element={<PageErrorBoundary><Overview /></PageErrorBoundary>} />
+          </Routes>
+        </Suspense>
+      </AtlasShell>
+    </DispatchProvider>
   );
 }

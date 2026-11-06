@@ -17,6 +17,54 @@ if (typeof setWorkerUrl === "function" && workerUrl) {
   } catch {}
 }
 
+// Safeguard MapLibre Leaflet integration against unmount / container teardown race condition
+if ((L as any).MaplibreGL) {
+  const proto = (L as any).MaplibreGL.prototype;
+  if (proto && !proto._safeTeardownPatched) {
+    proto._safeTeardownPatched = true;
+    const origUpdate = proto._update;
+    proto._update = function (...args: any[]) {
+      if (!this._map) return;
+      return origUpdate?.apply(this, args);
+    };
+    const origPinchZoom = proto._pinchZoom;
+    proto._pinchZoom = function (...args: any[]) {
+      if (!this._map) return;
+      return origPinchZoom?.apply(this, args);
+    };
+    const origAnimateZoom = proto._animateZoom;
+    proto._animateZoom = function (...args: any[]) {
+      if (!this._map) return;
+      return origAnimateZoom?.apply(this, args);
+    };
+    const origZoomEnd = proto._zoomEnd;
+    proto._zoomEnd = function (...args: any[]) {
+      if (!this._map) return;
+      return origZoomEnd?.apply(this, args);
+    };
+    proto._transitionEnd = function (e: any) {
+      if (!this._map) return;
+      (L as any).Util.requestAnimFrame(() => {
+        if (!this._map || !this._glMap) return;
+        try {
+          var zoom = this._map.getZoom();
+          var center = this._map.getCenter();
+          var offset = this._map.latLngToContainerPoint(this._map.getBounds().getNorthWest());
+          this._resizeContainer();
+          (L as any).DomUtil.setTransform(this._glMap._actualCanvas, offset, 1);
+          this._glMap.once("moveend", (L as any).Util.bind(function (this: any) {
+            this._zoomEnd();
+          }, this));
+          this._glMap.jumpTo({
+            center,
+            zoom: zoom - 1,
+          });
+        } catch {}
+      }, this);
+    };
+  }
+}
+
 const OSM_URL = "https://tile.openstreetmap.de/{z}/{x}/{y}.png";
 const OSM_ATTRIBUTION =
   '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a> contributors';
@@ -588,7 +636,7 @@ export function MapBase({
   };
 
   return (
-    <div className={`map-box ${theme === "dark" ? "dark-tiles" : ""} ${vectorFailed ? "raster-fallback" : ""}`} style={{ height, position: "relative", isolation: "isolate" }}>
+    <div className={`map-box ${theme === "dark" ? "dark-tiles" : ""} ${vectorFailed ? "raster-fallback" : ""}`} style={{ height: height || "100%", minHeight: "420px", width: "100%", overflow: "hidden", position: "relative", isolation: "isolate" }}>
       {/* Dynamic Keyframes for Depot Pulse and Pins */}
       <style>{`
         .map-box .leaflet-tile-pane {

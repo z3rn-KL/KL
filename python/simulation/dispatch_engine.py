@@ -1850,6 +1850,9 @@ class DispatchSession:
         ]
 
         delivered = [o for o in today_orders if o.delivery_status == "DELIVERED"]
+        for o in delivered:
+            if o.delivered_day is None:
+                o.delivered_day = self.current_day
         on_time = [o for o in delivered if o.sla_status == "ON_TIME"]
         overdue = [o for o in delivered if o.sla_status == "OVERDUE"]
 
