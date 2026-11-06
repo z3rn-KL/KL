@@ -73,13 +73,17 @@ def demonstrate(task):
     return states
 
 
-def main() -> None:
+def init_worker() -> None:
+    # Each worker loads its own copy: "spawn" (Windows) does not inherit the
+    # parent's globals the way "fork" does.
     global _SAMPLER, _DAYS
-
-    started = perf_counter()
 
     _SAMPLER, splits = load_sampler()
     _DAYS = splits["train"]
+
+
+def main() -> None:
+    started = perf_counter()
 
     tasks = [
         (10_000 + 1_000 * index + k, n)
@@ -87,7 +91,7 @@ def main() -> None:
         for k in range(SHIFTS_PER_SIZE)
     ]
 
-    with multiprocessing.get_context("fork").Pool(WORKERS) as pool:
+    with multiprocessing.Pool(WORKERS, initializer=init_worker) as pool:
         results = pool.map(demonstrate, tasks, chunksize=8)
 
     states = [state for shift in results for state in shift]

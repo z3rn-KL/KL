@@ -4,9 +4,7 @@ from analysis import XeDuAnalyzer
 from data import DataLoader
 
 
-PROJECT_ROOT = Path(
-    "/home/deez/Khóa Luận"
-)
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 XEDU_PATH = (
     PROJECT_ROOT
