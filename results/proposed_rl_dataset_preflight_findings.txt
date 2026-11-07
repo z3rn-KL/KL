@@ -1,0 +1,25 @@
+PROPOSED RL DATASET PREFLIGHT
+
+total_workloads = 108
+total_deliveries = 813
+structural_failures = 0
+missing_road_nodes = 0
+missing_cluster_ids = 0
+duplicate_delivery_ids = 0
+missing_deadlines = 0
+negative_relative_deadlines = 0
+workloads_with_negative_deadlines = 0
+environment_compatible_workloads = 108
+preflight_status = PASS
+
+Route start-time convention:
+  start_time = wave_end
+
+Relative deadline definition:
+  relative_deadline_minutes = expected_delivery_time - wave_end
+
+Missing expected_delivery_time values remain missing and are excluded from deadline/SLA denominators.
+
+Negative relative deadlines are not silently clamped to zero because doing so would alter the original delivery constraint.
+
+The frozen Train/Validation/Test split is checked against the canonical 108-workload manifest before inspection.

@@ -1,0 +1,102 @@
+PAIRED WILCOXON TESTS BETWEEN ALGORITHMS (lower distance, time or J is better)
+
+a_better / ties / b_better count workloads. p_holm corrects for the number of
+pairs compared in the same source and metric.
+
+[108 workloads] distance_km
+  A                    B                     A<B  tie  A>B  mean diff         p    p Holm
+  Nearest Neighbor     Clarke-Wright           9    4   95      4.626  1.58e-15  1.58e-14
+  Nearest Neighbor     Q-Learning             20   48   40      0.418  1.83e-01  3.65e-01
+  Nearest Neighbor     SARSA                  32   44   32     -0.179  9.79e-01  9.79e-01
+  Nearest Neighbor     DQN                     5   55   48      2.852  1.50e-08  7.51e-08
+  Clarke-Wright        Q-Learning             84    7   17     -4.209  7.14e-13  5.71e-12
+  Clarke-Wright        SARSA                  90    6   12     -4.805  4.28e-15  3.85e-14
+  Clarke-Wright        DQN                    80    6   22     -1.775  7.47e-09  4.48e-08
+  Q-Learning           SARSA                  33   53   22     -0.596  1.10e-01  3.29e-01
+  Q-Learning           DQN                     6   70   32      2.434  5.52e-08  2.21e-07
+  SARSA                DQN                     6   51   51      3.030  1.85e-09  1.29e-08
+
+[108 workloads] travel_minutes
+  A                    B                     A<B  tie  A>B  mean diff         p    p Holm
+  Nearest Neighbor     Clarke-Wright          12    4   92      4.860  2.46e-15  2.46e-14
+  Nearest Neighbor     Q-Learning             20   48   40      0.448  1.76e-01  3.51e-01
+  Nearest Neighbor     SARSA                  30   44   34     -0.172  9.57e-01  9.57e-01
+  Nearest Neighbor     DQN                     6   55   47      3.007  1.22e-08  7.33e-08
+  Clarke-Wright        Q-Learning             82    7   19     -4.411  5.90e-12  4.72e-11
+  Clarke-Wright        SARSA                  89    6   13     -5.032  3.21e-14  2.89e-13
+  Clarke-Wright        DQN                    77    6   25     -1.853  2.06e-08  1.03e-07
+  Q-Learning           SARSA                  32   53   23     -0.620  7.71e-02  2.31e-01
+  Q-Learning           DQN                     7   70   31      2.559  4.80e-08  1.92e-07
+  SARSA                DQN                     8   51   49      3.179  1.76e-09  1.23e-08
+
+[12 validation workloads] distance_km
+  A                    B                     A<B  tie  A>B  mean diff         p    p Holm
+  Nearest Neighbor     Clarke-Wright           0    1   11      7.049  9.77e-04  5.86e-03
+  Nearest Neighbor     DQN                     0    4    8      5.526  7.81e-03  3.12e-02
+  Nearest Neighbor     K-Means-guided DQN      2    3    7      4.257  3.91e-02  1.17e-01
+  Clarke-Wright        DQN                     9    1    2     -1.524  6.74e-02  1.35e-01
+  Clarke-Wright        K-Means-guided DQN     10    1    1     -2.792  2.93e-03  1.46e-02
+  DQN                  K-Means-guided DQN      4    7    1     -1.268  1.25e-01  1.35e-01
+
+[12 validation workloads] travel_minutes
+  A                    B                     A<B  tie  A>B  mean diff         p    p Holm
+  Nearest Neighbor     Clarke-Wright           0    1   11      8.072  9.77e-04  5.86e-03
+  Nearest Neighbor     DQN                     1    4    7      6.004  1.56e-02  6.25e-02
+  Nearest Neighbor     K-Means-guided DQN      2    3    7      4.534  3.91e-02  1.17e-01
+  Clarke-Wright        DQN                     9    1    2     -2.068  4.20e-02  1.17e-01
+  Clarke-Wright        K-Means-guided DQN     10    1    1     -3.538  4.88e-03  2.44e-02
+  DQN                  K-Means-guided DQN      4    7    1     -1.471  1.25e-01  1.25e-01
+
+[16 test workloads] distance_km
+  A                    B                     A<B  tie  A>B  mean diff         p    p Holm
+  NN                   CW                      2    1   13      3.993  3.36e-03  4.36e-02
+  NN                   Q-Learning              6    5    5     -0.462  7.00e-01  1.00e+00
+  NN                   SARSA                   8    7    1     -1.228  5.47e-02  3.83e-01
+  NN                   DQN                     1    8    7      2.463  1.56e-02  1.41e-01
+  NN                   Proposed RL             5   10    1     -2.321  1.56e-01  7.81e-01
+  CW                   Q-Learning             12    2    2     -4.455  6.71e-03  6.71e-02
+  CW                   SARSA                  14    1    1     -5.222  4.27e-04  6.41e-03
+  CW                   DQN                    12    1    3     -1.530  3.53e-02  2.83e-01
+  CW                   Proposed RL            14    1    1     -6.314  6.10e-04  8.54e-03
+  Q-Learning           SARSA                   5    7    4     -0.766  3.59e-01  1.00e+00
+  Q-Learning           DQN                     2    9    5      2.926  7.81e-02  4.69e-01
+  Q-Learning           Proposed RL             8    4    4     -1.859  3.39e-01  1.00e+00
+  SARSA                DQN                     0    7    9      3.692  3.91e-03  4.69e-02
+  SARSA                Proposed RL             4    6    6     -1.092  1.00e+00  1.00e+00
+  DQN                  Proposed RL             9    7    0     -4.784  3.91e-03  4.69e-02
+
+[16 test workloads] travel_minutes
+  A                    B                     A<B  tie  A>B  mean diff         p    p Holm
+  NN                   CW                      2    1   13      4.206  2.01e-03  2.62e-02
+  NN                   Q-Learning              6    5    5     -0.487  8.98e-01  1.00e+00
+  NN                   SARSA                   7    7    2     -1.268  1.29e-01  7.73e-01
+  NN                   DQN                     1    8    7      2.619  1.56e-02  1.41e-01
+  NN                   Proposed RL             5   10    1     -2.575  1.56e-01  7.81e-01
+  CW                   Q-Learning             12    2    2     -4.692  6.71e-03  6.71e-02
+  CW                   SARSA                  14    1    1     -5.473  6.10e-04  8.54e-03
+  CW                   DQN                    12    1    3     -1.587  4.13e-02  3.30e-01
+  CW                   Proposed RL            14    1    1     -6.781  4.27e-04  6.41e-03
+  Q-Learning           SARSA                   5    7    4     -0.781  4.26e-01  1.00e+00
+  Q-Learning           DQN                     2    9    5      3.106  7.81e-02  5.47e-01
+  Q-Learning           Proposed RL             8    4    4     -2.089  3.39e-01  1.00e+00
+  SARSA                DQN                     0    7    9      3.886  3.91e-03  4.69e-02
+  SARSA                Proposed RL             4    6    6     -1.308  1.00e+00  1.00e+00
+  DQN                  Proposed RL             9    7    0     -5.194  3.91e-03  4.69e-02
+
+[16 test workloads] objective_J
+  A                    B                     A<B  tie  A>B  mean diff         p    p Holm
+  NN                   CW                      2    1   13      0.026  2.01e-03  2.62e-02
+  NN                   Q-Learning              6    5    5      0.002  8.31e-01  1.00e+00
+  NN                   SARSA                   8    7    1     -0.006  9.77e-02  5.86e-01
+  NN                   DQN                     1    8    7      0.016  1.56e-02  1.41e-01
+  NN                   Proposed RL             5   10    1     -0.013  1.56e-01  7.81e-01
+  CW                   Q-Learning             12    2    2     -0.024  6.71e-03  6.71e-02
+  CW                   SARSA                  14    1    1     -0.032  6.10e-04  8.54e-03
+  CW                   DQN                    12    1    3     -0.010  4.13e-02  3.30e-01
+  CW                   Proposed RL            14    1    1     -0.039  1.83e-04  2.75e-03
+  Q-Learning           SARSA                   5    7    4     -0.008  4.26e-01  1.00e+00
+  Q-Learning           DQN                     2    9    5      0.014  7.81e-02  5.47e-01
+  Q-Learning           Proposed RL             8    4    4     -0.015  1.76e-01  7.81e-01
+  SARSA                DQN                     0    7    9      0.022  3.91e-03  4.69e-02
+  SARSA                Proposed RL             4    6    6     -0.007  1.00e+00  1.00e+00
+  DQN                  Proposed RL             9    7    0     -0.030  3.91e-03  4.69e-02

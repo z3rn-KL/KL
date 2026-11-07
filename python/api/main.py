@@ -1,3 +1,6 @@
+import threading
+from contextlib import asynccontextmanager
+
 from fastapi import (
     FastAPI,
 )
@@ -19,6 +22,10 @@ from api.config import (
     XEDU_DATASET_PATH,
 )
 
+from api.public_mode import (
+    install_public_mode,
+)
+
 from api.routers.adverse_deliveries import (
     router as adverse_deliveries_router,
 )
@@ -29,6 +36,10 @@ from api.routers.clustering import (
 
 from api.routers.deliveries import (
     router as deliveries_router,
+)
+
+from api.routers.diagnostics import (
+    router as diagnostics_router,
 )
 
 from api.routers.evaluation import (
@@ -43,8 +54,34 @@ from api.routers.routing import (
     router as routing_router,
 )
 
+from api.routers.dispatch import (
+    router as dispatch_router,
+)
+
+
+def _warm_up_road_network() -> None:
+    """Load the 166 MB road graph + depot once, off the request path."""
+    try:
+        from api import dependencies as deps
+
+        deps.get_road_network()
+        deps.get_depot_context()
+        deps.get_delivery_context()
+    except Exception as exc:  # never block startup
+        print(f"[warm-up] skipped: {exc}")
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    threading.Thread(
+        target=_warm_up_road_network,
+        daemon=True,
+    ).start()
+    yield
+
 
 app = FastAPI(
+    lifespan=lifespan,
     title=API_TITLE,
     description=API_DESCRIPTION,
     version=API_VERSION,
@@ -90,6 +127,16 @@ app.include_router(
 app.include_router(
     results_router
 )
+
+app.include_router(
+    diagnostics_router
+)
+
+app.include_router(
+    dispatch_router
+)
+
+install_public_mode(app)
 
 
 @app.get(

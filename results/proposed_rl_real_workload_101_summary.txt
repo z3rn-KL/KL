@@ -1,0 +1,33 @@
+PROPOSED RL - REAL WORKLOAD SMOKE TEST
+
+This is an integration validation on one real workload. It is not the final thesis benchmark.
+
+workload_id = 101
+number_of_deliveries = 5
+depot_node = 1769277472
+route_start_time = 2024-08-16 04:00:00+00:00
+training_episodes = 3000
+training_runtime_seconds = 74.606692
+
+Untrained agent:
+  route = Depot -> D4 -> D1 -> D5 -> D2 -> D3 -> Depot
+  objective = 0.641972983
+  distance_km = 50.604666035
+  travel_time_minutes = 57.286922150
+  lateness_minutes = 0.000000000
+  cluster_switches = 4
+  on_time_rate = 1.000000000
+
+Trained agent:
+  route = Depot -> D4 -> D1 -> D3 -> D5 -> D2 -> Depot
+  delivery_ids = ('66bece979973faa9d133011a', '66bebbf19973faa9d132fda9', '66bebf9a0f42ac1ad11cb88f', '66beceaa9973faa9d1330129', '66bebc4c9973faa9d132fdb9')
+  objective = 0.514363361
+  distance_km = 40.599363998
+  travel_time_minutes = 46.395210227
+  lateness_minutes = 0.000000000
+  late_deliveries = 0
+  on_time_rate = 1.000000000
+  cluster_switches = 3
+  objective_improvement_pct = 19.877725
+
+status = PASS

@@ -1,0 +1,18 @@
+PROPOSED RL FINAL HELD-OUT TEST
+
+Model selection was completed using Train and Validation only.
+No additional training or objective tuning was performed on Test.
+
+Locked objective:
+J = 0.375*D_bar + 0.375*T_bar + 0.10*M_bar + 0.10*L_bar + 0.05*S_bar
+
+checkpoint_epoch = 30
+test_workloads = 16
+test_deliveries = 131
+mean_distance_km = 61.897692868
+mean_travel_time_minutes = 67.520761465
+late_deliveries = 1
+weighted_sla = 0.992366412
+total_lateness_minutes = 12.720152098
+mean_cluster_switches = 4.000000000
+inference_runtime_seconds = 0.093839994

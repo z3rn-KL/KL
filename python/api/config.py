@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 
@@ -137,6 +138,16 @@ DQN_ROUTE_PATH = (
     / "dqn_single_workload_route.csv"
 )
 
+PROPOSED_RL_BASELINE_ROUTE_RECOVERY_PATH = (
+    RESULTS_DIR
+    / "proposed_rl_baseline_route_recovery.csv"
+)
+
+REPRODUCIBILITY_VALIDATION_RESULTS_PATH = (
+    RESULTS_DIR
+    / "reproducibility_validation_results.csv"
+)
+
 
 # ============================================================
 # API SETTINGS
@@ -164,6 +175,93 @@ CORS_ORIGINS = [
 ]
 
 
+# /api/deliveries masks personal fields unless XEDU_ANONYMIZE=0
+# (local development only; never turn it off on a public server).
+ANONYMIZE_DELIVERIES = os.getenv("XEDU_ANONYMIZE", "1") != "0"
+
+
 # Keep live road-network requests small enough
 # for an interactive web demo.
 MAX_LIVE_ROUTE_DELIVERIES = 30
+
+
+# ============================================================
+# DAILY PLANNING (OVERTIME / DEFERRAL / CLUSTER MERGING)
+# ============================================================
+
+DAILY_PLANNING_SUMMARY_PATH = (
+    RESULTS_DIR
+    / "daily_planning_summary.csv"
+)
+
+DAILY_PLANNING_DAILY_PATH = (
+    RESULTS_DIR
+    / "daily_planning_daily.csv"
+)
+
+DAILY_PLANNING_SENSITIVITY_PATH = (
+    RESULTS_DIR
+    / "daily_planning_sensitivity.csv"
+)
+
+
+# ============================================================
+# PROPOSED RL (HELD-OUT TEST, LOCKED OBJECTIVE)
+# ============================================================
+
+PROPOSED_RL_TEST_SUMMARY_PATH = (
+    RESULTS_DIR
+    / "proposed_rl_final_locked_objective_summary.csv"
+)
+
+PROPOSED_RL_TEST_PAIRWISE_PATH = (
+    RESULTS_DIR
+    / "proposed_rl_final_locked_objective_pairwise.csv"
+)
+
+
+# ============================================================
+# REAL-DATA REPLAY (observed outcomes, no simulated orders)
+# ============================================================
+
+REAL_REPLAY_SUMMARY_PATH = (
+    RESULTS_DIR
+    / "real_replay_summary.json"
+)
+
+
+# ============================================================
+# SHIFT-LEVEL RL (new reward, assumption-based money terms)
+# ============================================================
+
+# Second test set: untouched while the models were developed, and every
+# variant (including the first round) is compared on it.
+SHIFT_RL_SUMMARY_PATH = (
+    RESULTS_DIR
+    / "shift_rl_summary_test2.json"
+)
+
+
+# ============================================================
+# RL TRAINING HISTORY ARTIFACTS
+# ============================================================
+
+PROPOSED_RL_MULTIWORKLOAD_HISTORY_PATH = (
+    RESULTS_DIR
+    / "proposed_rl_multiworkload_D_moderate_sla_history.csv"
+)
+
+DQN_SINGLE_WORKLOAD_TRAINING_PATH = (
+    RESULTS_DIR
+    / "dqn_single_workload_training.csv"
+)
+
+SARSA_SINGLE_WORKLOAD_TRAINING_PATH = (
+    RESULTS_DIR
+    / "sarsa_single_workload_training.csv"
+)
+
+Q_LEARNING_SINGLE_WORKLOAD_TRAINING_PATH = (
+    RESULTS_DIR
+    / "q_learning_single_workload_training.csv"
+)

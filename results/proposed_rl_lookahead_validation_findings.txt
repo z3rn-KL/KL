@@ -1,0 +1,18 @@
+PROPOSED RL WITH LOOKAHEAD FEATURES - VALIDATION ONLY
+
+objective config = D_moderate_sla
+train workloads = 76, validation workloads = 16
+test workloads used = 0
+seeds = [42, 43, 44]
+Objective values are comparable: same objective, same validation workloads.
+
+LOOKAHEAD MODEL (13 features), best checkpoint per seed
+  seed 42: epoch 25, objective = 0.5298, distance = 75.31 km, late = 6, SLA = 0.9565
+  seed 43: epoch 10, objective = 0.5160, distance = 72.88 km, late = 6, SLA = 0.9565
+  seed 44: epoch 5, objective = 0.5005, distance = 70.68 km, late = 6, SLA = 0.9565
+  mean objective = 0.5154, std = 0.0119, best seed = 44
+
+REFERENCES ON THE SAME VALIDATION WORKLOADS
+  greedy nearest (travel time): objective = 0.4640, distance = 64.56 km, late = 4, SLA = 0.9710
+  greedy nearest (distance): objective = 0.4713, distance = 65.33 km, late = 5, SLA = 0.9638
+  previous Proposed RL (8 features): objective = 0.4688, distance = 65.78 km, late = 2, SLA = 0.9855

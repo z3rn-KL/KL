@@ -1,0 +1,2 @@
+config_name,checkpoint_epoch,test_workloads,test_deliveries,mean_distance_km,mean_travel_time_minutes,late_deliveries,valid_deadlines,weighted_sla,total_lateness_minutes,mean_lateness_minutes,mean_cluster_switches,inference_runtime_seconds
+D_moderate_sla,30,16,131,61.897692867713594,67.52076146481814,1,131,0.9923664122137404,12.720152098064531,0.7950095061290332,4,0.0938399940000636

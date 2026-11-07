@@ -1,0 +1,100 @@
+SHIFT RL: KIỂM TRA CUỐI TRÊN TẬP TEST (chạm một lần)
+
+Hàm điểm theo ca làm (hoa hồng, phạt trễ, làm thêm giờ, biên lợi nhuận,
+dời đơn); mọi hệ số tiền là giả định, dữ liệu XeDu không có giá đơn.
+Ca dựng từ đơn thật trong các ngày test, 46 ca. Tham chiếu: nghiệm
+tối ưu chính xác khi n <= 14, còn lại là tốt nhất tìm được bằng local
+search nhiều điểm xuất phát (cận dưới của tối ưu, có thể bị vượt).
+Khoảng cách = (tham chiếu - điểm) / |tham chiếu|, càng thấp càng tốt.
+Các phiên bản và seed được chọn bằng validation; test không dùng để chọn.
+
+KIỂM ĐỊNH (validation) của từng lần chạy
+  DQN, Q thường                              seed 42: khoảng cách validation  49.70% (checkpoint ở bước 9000)
+  DQN, Q thường                              seed 43: khoảng cách validation  48.92% (checkpoint ở bước 1000)
+  DQN, Q thường                              seed 44: khoảng cách validation  49.05% (checkpoint ở bước 10000)
+  DQN, Q = thưởng tức thời + tương lai       seed 42: khoảng cách validation  49.19% (checkpoint ở bước 39000)
+  DQN, Q = thưởng tức thời + tương lai       seed 43: khoảng cách validation  47.27% (checkpoint ở bước 24000)
+  DQN, Q = thưởng tức thời + tương lai       seed 44: khoảng cách validation  49.62% (checkpoint ở bước 25000)
+  Gradient chính sách từ đầu                 seed 42: khoảng cách validation  12.10% (checkpoint ở bước 3900)
+  Gradient chính sách từ đầu                 seed 43: khoảng cách validation  12.71% (checkpoint ở bước 3500)
+  Bắt chước, rồi gradient chính sách         seed 42: khoảng cách validation   6.69% (checkpoint ở bước 3000)
+  Bắt chước, rồi gradient chính sách         seed 43: khoảng cách validation   6.84% (checkpoint ở bước 3000)
+  Bắt chước, rồi gradient chính sách         seed 44: khoảng cách validation   7.69% (checkpoint ở bước 3200)
+
+Mô hình chính (validation tốt nhất): Bắt chước, rồi gradient chính sách, seed 42
+
+[tất cả] 46 ca
+  phương pháp                                 khoảng cách TB (%)  đạt tham chiếu
+  NN giao hết                                              67.89           2/46
+  NN dừng khi không đáng                                   67.78           1/46
+  NN + local search                                         2.27          25/46
+  NN dừng + local search                                   42.91          22/46
+  DQN, Q thường                                     62.36 ± 3.73   (seed chọn: 66.23%)
+  DQN, Q = thưởng tức thời + tương lai              56.15 ± 1.95   (seed chọn: 54.42%)
+  Gradient chính sách từ đầu                        12.87 ± 1.29   (seed chọn: 11.59%)
+  Bắt chước, rồi gradient chính sách                 9.54 ± 0.21   (seed chọn: 9.79%)
+
+[n = 10] 15 ca
+  phương pháp                                 khoảng cách TB (%)  đạt tham chiếu
+  NN giao hết                                              14.51           2/15
+  NN dừng khi không đáng                                   57.50           1/15
+  NN + local search                                         1.08          13/15
+  NN dừng + local search                                   42.89           9/15
+  DQN, Q thường                                     39.79 ± 3.79   (seed chọn: 34.46%)
+  DQN, Q = thưởng tức thời + tương lai              41.08 ± 3.30   (seed chọn: 38.76%)
+  Gradient chính sách từ đầu                         8.52 ± 0.19   (seed chọn: 8.71%)
+  Bắt chước, rồi gradient chính sách                 5.13 ± 0.76   (seed chọn: 5.98%)
+
+[n = 14] 15 ca
+  phương pháp                                 khoảng cách TB (%)  đạt tham chiếu
+  NN giao hết                                              25.78           0/15
+  NN dừng khi không đáng                                   46.18           0/15
+  NN + local search                                         1.94           7/15
+  NN dừng + local search                                   20.27           8/15
+  DQN, Q thường                                     58.58 ± 7.47   (seed chọn: 48.27%)
+  DQN, Q = thưởng tức thời + tương lai              63.26 ± 2.99   (seed chọn: 62.69%)
+  Gradient chính sách từ đầu                        18.52 ± 3.09   (seed chọn: 15.43%)
+  Bắt chước, rồi gradient chính sách                 9.85 ± 0.44   (seed chọn: 9.70%)
+
+[n = 20] 6 ca
+  phương pháp                                 khoảng cách TB (%)  đạt tham chiếu
+  NN giao hết                                              61.61           0/6
+  NN dừng khi không đáng                                   56.03           0/6
+  NN + local search                                         0.73           5/6
+  NN dừng + local search                                   24.43           2/6
+  DQN, Q thường                                     80.19 ± 7.38   (seed chọn: 80.53%)
+  DQN, Q = thưởng tức thời + tương lai              78.09 ± 0.71   (seed chọn: 77.84%)
+  Gradient chính sách từ đầu                        19.05 ± 0.53   (seed chọn: 18.52%)
+  Bắt chước, rồi gradient chính sách                29.37 ± 1.00   (seed chọn: 29.39%)
+
+[n = 30] 6 ca
+  phương pháp                                 khoảng cách TB (%)  đạt tham chiếu
+  NN giao hết                                             167.69           0/6
+  NN dừng khi không đáng                                  171.16           0/6
+  NN + local search                                         7.06           0/6
+  NN dừng + local search                                  146.32           1/6
+  DQN, Q thường                                     82.15 ± 16.31   (seed chọn: 102.72%)
+  DQN, Q = thưởng tức thời + tương lai              65.07 ± 1.98   (seed chọn: 67.54%)
+  Gradient chính sách từ đầu                        10.32 ± 1.91   (seed chọn: 8.41%)
+  Bắt chước, rồi gradient chính sách                 5.56 ± 0.77   (seed chọn: 4.47%)
+
+[n = 50] 4 ca
+  phương pháp                                 khoảng cách TB (%)  đạt tham chiếu
+  NN giao hết                                             285.69           0/4
+  NN dừng khi không đáng                                   49.93           0/4
+  NN + local search                                         3.11           0/4
+  NN dừng + local search                                    0.47           2/4
+  DQN, Q thường                                    104.74 ± 52.76   (seed chọn: 176.47%)
+  DQN, Q = thưởng tức thời + tương lai              39.70 ± 8.99   (seed chọn: 27.30%)
+  Gradient chính sách từ đầu                         2.60 ± 0.27   (seed chọn: 2.33%)
+  Bắt chước, rồi gradient chính sách                 1.15 ± 1.40   (seed chọn: 2.96%)
+
+SO SÁNH CẶP MÔ HÌNH CHÍNH VỚI NN + LOCAL SEARCH (điểm số, tất cả ca)
+  so với NN + local search       : thắng 7, hòa 0, thua 39, chênh trung bình -19957 điểm/ca
+  so với NN dừng + local search  : thắng 11, hòa 0, thua 35, chênh trung bình +120434 điểm/ca
+
+MÔ HÌNH CHÍNH, TRUNG BÌNH MỖI CA
+  đơn trễ 0.52, đơn dời 1.89, làm thêm giờ 0.0 phút
+
+THỜI GIAN CHẠY MỖI CA
+  mô hình chính suy luận: 1.9 ms | NN dừng + local search: 0.124 s

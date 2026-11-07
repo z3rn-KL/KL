@@ -25,12 +25,17 @@ from pydantic import (
 
 import api.dependencies as deps
 
+import ast
+from pathlib import Path
+
 from api.config import (
     DATASET_BENCHMARK_PATH,
     DQN_ROUTE_PATH,
     FINAL_VALIDATION_RESULTS_PATH,
     MAX_LIVE_ROUTE_DELIVERIES,
+    PROPOSED_RL_BASELINE_ROUTE_RECOVERY_PATH,
     Q_LEARNING_ROUTE_PATH,
+    REPRODUCIBILITY_VALIDATION_RESULTS_PATH,
     SARSA_ROUTE_PATH,
 )
 
@@ -510,6 +515,136 @@ def optimize_route(
 # PRECOMPUTED RL ROUTES
 # ============================================================
 
+RL_VERIFIED_WORKLOAD_IDS = [1, 29, 42, 62, 71, 90]
+
+
+def resolve_rl_empirical_route(
+    algorithm: str,
+    workload_id: int,
+) -> dict:
+    """
+    Resolve empirical route sequence and provenance for Q-Learning and SARSA.
+    Supports Workload #1 (single route CSV), #29, #42, #62 (Route Recovery),
+    and #71, #90 (Reproducibility Validation).
+    """
+    if workload_id == 1:
+        route_path = {
+            "q_learning": Q_LEARNING_ROUTE_PATH,
+            "sarsa": SARSA_ROUTE_PATH,
+            "dqn": DQN_ROUTE_PATH,
+        }.get(algorithm)
+
+        if not route_path or not Path(route_path).exists():
+            raise HTTPException(
+                status_code=404,
+                detail=f"Single-workload route file for {algorithm} not found.",
+            )
+
+        route_df = pd.read_csv(route_path).sort_values("sequence")
+        delivery_order = route_df["delivery_id"].astype(str).tolist()
+
+        return {
+            "delivery_order": delivery_order,
+            "source": "precomputed_thesis_route",
+            "route_type": "original_precomputed",
+            "provenance": "Tuyến đơn Workload #1 gốc (lưu trực tiếp)",
+            "data_status": "exact_verified",
+        }
+
+    if algorithm not in {"q_learning", "sarsa"}:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Only single-workload route (workload_id=1) is available for {algorithm}.",
+        )
+
+    # Source A: proposed_rl_baseline_route_recovery.csv (WL #29, #42, #62)
+    if workload_id in {29, 42, 62}:
+        if not Path(PROPOSED_RL_BASELINE_ROUTE_RECOVERY_PATH).exists():
+            raise HTTPException(
+                status_code=500,
+                detail="Route recovery baseline results file is missing.",
+            )
+
+        recovery_df = pd.read_csv(PROPOSED_RL_BASELINE_ROUTE_RECOVERY_PATH)
+        matched = recovery_df[
+            (recovery_df["algorithm"] == algorithm)
+            & (recovery_df["workload_id"] == workload_id)
+        ]
+
+        if matched.empty:
+            raise HTTPException(
+                status_code=404,
+                detail=f"No route recovery record for {algorithm} on WL #{workload_id}.",
+            )
+
+        row = matched.iloc[0]
+        raw_order = row["rerun_delivery_order"]
+        try:
+            delivery_order = [str(x) for x in ast.literal_eval(str(raw_order))]
+        except Exception:
+            delivery_order = [
+                x.strip()
+                for x in str(raw_order)
+                .replace("[", "")
+                .replace("]", "")
+                .replace("'", "")
+                .split(",")
+                if x.strip()
+            ]
+
+        provenance = "Tuyến khôi phục đã kiểm chứng từ Route Recovery"
+        if workload_id == 29:
+            provenance += " (đối chiếu trùng khớp 100% với Reproducibility Validation)"
+
+        return {
+            "delivery_order": delivery_order,
+            "source": "proposed_rl_baseline_route_recovery",
+            "route_type": "validated_recovered",
+            "provenance": provenance,
+            "data_status": "verified_exact",
+        }
+
+    # Source B: reproducibility_validation_results.csv (WL #71, #90)
+    if workload_id in {71, 90}:
+        if not Path(REPRODUCIBILITY_VALIDATION_RESULTS_PATH).exists():
+            raise HTTPException(
+                status_code=500,
+                detail="Reproducibility validation results file is missing.",
+            )
+
+        repro_df = pd.read_csv(REPRODUCIBILITY_VALIDATION_RESULTS_PATH)
+        matched = repro_df[
+            (repro_df["algorithm"] == algorithm)
+            & (repro_df["workload_id"] == workload_id)
+        ]
+
+        if matched.empty:
+            raise HTTPException(
+                status_code=404,
+                detail=f"No reproducibility record for {algorithm} on WL #{workload_id}.",
+            )
+
+        row = matched.iloc[0]
+        raw_order = str(row["rerun_delivery_order"])
+        delivery_order = [x.strip() for x in raw_order.split("->") if x.strip()]
+
+        return {
+            "delivery_order": delivery_order,
+            "source": "reproducibility_validation_results",
+            "route_type": "validated_recovered",
+            "provenance": "Tuyến khôi phục đã kiểm chứng từ Reproducibility Validation",
+            "data_status": "exact_core_match",
+        }
+
+    raise HTTPException(
+        status_code=404,
+        detail=(
+            f"No verified route data available for {algorithm} on workload_id={workload_id}. "
+            f"Supported workloads: [1, 29, 42, 62, 71, 90]."
+        ),
+    )
+
+
 @router.get(
     "/precomputed"
 )
@@ -535,15 +670,27 @@ def precomputed_route_catalog(
 
     return {
         "q_learning": {
-            "available_workload_ids": [
-                1
-            ]
+            "available_workload_ids": RL_VERIFIED_WORKLOAD_IDS,
+            "workload_provenance": {
+                "1": "original_precomputed (q_learning_single_workload_route)",
+                "29": "validated_recovered (proposed_rl_baseline_route_recovery & reproducibility_validation)",
+                "42": "validated_recovered (proposed_rl_baseline_route_recovery)",
+                "62": "validated_recovered (proposed_rl_baseline_route_recovery)",
+                "71": "validated_recovered (reproducibility_validation_results)",
+                "90": "validated_recovered (reproducibility_validation_results)",
+            },
         },
 
         "sarsa": {
-            "available_workload_ids": [
-                1
-            ]
+            "available_workload_ids": RL_VERIFIED_WORKLOAD_IDS,
+            "workload_provenance": {
+                "1": "original_precomputed (sarsa_single_workload_route)",
+                "29": "validated_recovered (proposed_rl_baseline_route_recovery & reproducibility_validation)",
+                "42": "validated_recovered (proposed_rl_baseline_route_recovery)",
+                "62": "validated_recovered (proposed_rl_baseline_route_recovery)",
+                "71": "validated_recovered (reproducibility_validation_results)",
+                "90": "validated_recovered (reproducibility_validation_results)",
+            },
         },
 
         "dqn": {
@@ -559,7 +706,7 @@ def precomputed_route_catalog(
 
         "note":
             (
-                "RL routes are precomputed thesis "
+                "RL routes are precomputed and verified thesis "
                 "artifacts. The API does not train "
                 "5000 episodes inside an HTTP request."
             ),
@@ -603,48 +750,22 @@ def get_precomputed_route(
             )
         )
 
-        if resolved_workload_id != 1:
+        if algorithm == "dqn" and resolved_workload_id != 1:
             raise HTTPException(
                 status_code=404,
                 detail=(
                     "Only the saved "
                     "single-workload route "
                     "(workload_id=1) is "
-                    f"available for {algorithm}."
+                    "available for dqn."
                 ),
             )
 
-        route_path = {
-            "q_learning":
-                Q_LEARNING_ROUTE_PATH,
-
-            "sarsa":
-                SARSA_ROUTE_PATH,
-
-            "dqn":
-                DQN_ROUTE_PATH,
-        }[
-            algorithm
-        ]
-
-        route_df = (
-            pd.read_csv(
-                route_path
-            )
-            .sort_values(
-                "sequence"
-            )
+        rl_meta = resolve_rl_empirical_route(
+            algorithm,
+            resolved_workload_id,
         )
-
-        delivery_order = (
-            route_df[
-                "delivery_id"
-            ]
-            .astype(
-                str
-            )
-            .tolist()
-        )
+        delivery_order = rl_meta["delivery_order"]
 
         benchmark = pd.read_csv(
             DATASET_BENCHMARK_PATH
@@ -700,6 +821,11 @@ def get_precomputed_route(
             )
             .to_pydatetime()
         )
+
+        source_name = rl_meta["source"]
+        route_type = rl_meta["route_type"]
+        provenance = rl_meta["provenance"]
+        data_status = rl_meta["data_status"]
 
     else:
         if workload_id is None:
@@ -773,6 +899,11 @@ def get_precomputed_route(
             workload_id
         )
 
+        source_name = "final_kmeans_guided_dqn_validation"
+        route_type = "original_precomputed"
+        provenance = "Tuyến kiểm chứng K-Means-guided DQN chính thức"
+        data_status = "verified_exact"
+
     reference = (
         row_to_dict(
             reference_row
@@ -797,7 +928,16 @@ def get_precomputed_route(
 
     response = {
         "source":
-            "precomputed_thesis_route",
+            source_name,
+
+        "route_type":
+            route_type,
+
+        "provenance":
+            provenance,
+
+        "data_status":
+            data_status,
 
         "online_training":
             False,

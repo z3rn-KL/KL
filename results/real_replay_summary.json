@@ -1,0 +1,107 @@
+{
+  "observed": {
+    "orders_delivered": 2386,
+    "orders_with_deadline": 2281,
+    "late_rate": 0.20254274441034634
+  },
+  "time_model": {
+    "pairs": 1241,
+    "max_gap_minutes": 120.0,
+    "real_median_minutes": 28.883883333333333,
+    "real_mean_minutes": 36.12776779478915,
+    "model_median_minutes": 6.9416044513584,
+    "model_mean_minutes": 7.836604567301962,
+    "spearman": 0.6309493620817427,
+    "real_shorter_than_model_share": 0.0040290088638195,
+    "median_overhead_minutes": 20.301434455687833
+  },
+  "clean_shifts": {
+    "count": 64,
+    "min_orders": 3,
+    "median_orders": 3.0,
+    "max_orders": 7,
+    "size_counts": {
+      "3": 34,
+      "4": 19,
+      "5": 7,
+      "6": 3,
+      "7": 1
+    },
+    "skipped_unreachable": 0
+  },
+  "deadline_order": {
+    "earliest_deadline_first_shifts": 16,
+    "shifts": 64,
+    "mean_spearman_position_vs_deadline": 0.24441964285714285
+  },
+  "replay": {
+    "time": [
+      {
+        "method": "real",
+        "mean": 27.94118250021533,
+        "mean_excess_pct": 10.810763944544645,
+        "ci_low_pct": 7.45225702891723,
+        "ci_high_pct": 14.541163041905287,
+        "at_optimum": 24
+      },
+      {
+        "method": "nearest",
+        "mean": 26.012893535086132,
+        "mean_excess_pct": 3.7249155220259302,
+        "ci_low_pct": 2.0790472170993524,
+        "ci_high_pct": 5.65025428493898,
+        "at_optimum": 41
+      },
+      {
+        "method": "nearest_search",
+        "mean": 25.051056946823437,
+        "mean_excess_pct": 0.1561140707352741,
+        "ci_low_pct": 0.0,
+        "ci_high_pct": 0.3947984808206042,
+        "at_optimum": 62
+      },
+      {
+        "method": "optimal",
+        "mean": 25.0045135647948,
+        "mean_excess_pct": 0.0,
+        "ci_low_pct": 0.0,
+        "ci_high_pct": 0.0,
+        "at_optimum": 64
+      }
+    ],
+    "km": [
+      {
+        "method": "real",
+        "mean": 25.529364847891006,
+        "mean_excess_pct": 11.578961756917188,
+        "ci_low_pct": 8.269299104599197,
+        "ci_high_pct": 15.214511379509718,
+        "at_optimum": 22
+      },
+      {
+        "method": "nearest",
+        "mean": 23.773273651380244,
+        "mean_excess_pct": 4.611468261791044,
+        "ci_low_pct": 2.712400912003339,
+        "ci_high_pct": 6.855477561423247,
+        "at_optimum": 38
+      },
+      {
+        "method": "nearest_search",
+        "mean": 22.65359415210518,
+        "mean_excess_pct": 0.09993690693396347,
+        "ci_low_pct": 0.0,
+        "ci_high_pct": 0.24243496950033078,
+        "at_optimum": 61
+      },
+      {
+        "method": "optimal",
+        "mean": 22.623932031495833,
+        "mean_excess_pct": 0.0,
+        "ci_low_pct": 0.0,
+        "ci_high_pct": 0.0,
+        "at_optimum": 64
+      }
+    ]
+  }
+}

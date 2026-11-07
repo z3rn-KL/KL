@@ -1,0 +1,87 @@
+BENCHMARK 108 ĐỢT SO VỚI NGHIỆM TỐI ƯU CHÍNH XÁC
+
+Tuyến đóng (quay về kho) trên đồ thị đường OSM. Nghiệm tối ưu tính
+riêng cho quãng đường và cho thời gian bằng quy hoạch động (đã kiểm
+chứng với vét cạn). Các thuật toán lấy từ kết quả benchmark đã lưu.
+Thời gian là tính theo mô hình (tốc độ lý tưởng), không đo thực tế.
+
+KIỂM TRA TÍNH NHẤT QUÁN
+Nearest Neighbor     min: 0 workloads below the exact optimum (must be 0)
+Clarke-Wright        min: 0 workloads below the exact optimum (must be 0)
+Q-Learning           min: 0 workloads below the exact optimum (must be 0)
+SARSA                min: 0 workloads below the exact optimum (must be 0)
+DQN                  min: 0 workloads below the exact optimum (must be 0)
+K-Means-guided DQN   min: 0 workloads below the exact optimum (must be 0)
+NN + local search    min: 0 workloads below the exact optimum (must be 0)
+Nearest Neighbor     km : 0 workloads below the exact optimum (must be 0)
+Clarke-Wright        km : 0 workloads below the exact optimum (must be 0)
+Q-Learning           km : 0 workloads below the exact optimum (must be 0)
+SARSA                km : 0 workloads below the exact optimum (must be 0)
+DQN                  km : 0 workloads below the exact optimum (must be 0)
+K-Means-guided DQN   km : 0 workloads below the exact optimum (must be 0)
+NN + local search    km : 0 workloads below the exact optimum (must be 0)
+NN tự tính khớp NN benchmark: theo quãng đường 108/108, theo thời gian 81/108
+
+TẤT CẢ 108 ĐỢT
+  QUÃNG ĐƯỜNG: dài hơn tối ưu, trung bình mỗi đợt
+  thuật toán             TB (%)           CI 95%  đúng tối ưu  tệ nhất (%)
+  Nearest Neighbor         9.89    8.54 đến 11.32        4/108        33.18
+  Clarke-Wright            2.31    1.84 đến  2.82       28/108        13.36
+  Q-Learning               8.88    7.41 đến 10.42        6/108        43.86
+  SARSA                    9.92    8.47 đến 11.50        3/108        44.97
+  DQN                      5.56    4.76 đến  6.38        5/108        18.09
+  NN + local search        0.49    0.27 đến  0.77       80/108         8.15
+
+  THỜI GIAN: dài hơn tối ưu, trung bình mỗi đợt
+  thuật toán             TB (%)           CI 95%  đúng tối ưu  tệ nhất (%)
+  Nearest Neighbor         9.62    8.29 đến 10.96        3/108        33.20
+  Clarke-Wright            2.35    1.89 đến  2.84       28/108        11.70
+  Q-Learning               8.61    7.13 đến 10.16        9/108        37.93
+  SARSA                    9.60    8.17 đến 11.10        6/108        39.51
+  DQN                      5.38    4.61 đến  6.23        8/108        18.20
+  NN + local search        0.35    0.19 đến  0.53       82/108         5.20
+
+12 ĐỢT KIỂM CHỨNG (có Guided DQN)
+  QUÃNG ĐƯỜNG: dài hơn tối ưu, trung bình mỗi đợt
+  thuật toán             TB (%)           CI 95%  đúng tối ưu  tệ nhất (%)
+  Nearest Neighbor        12.92    8.61 đến 18.04        0/12         33.18
+  Clarke-Wright            2.59    1.11 đến  4.23        1/12          8.10
+  Q-Learning              11.55    7.63 đến 15.87        0/12         28.47
+  SARSA                   15.16   10.27 đến 20.41        0/12         33.25
+  DQN                      5.47    3.06 đến  8.27        1/12         16.98
+  K-Means-guided DQN       7.20    4.26 đến 10.99        0/12         24.18
+  NN + local search        0.84    0.07 đến  1.93        7/12          5.85
+
+  THỜI GIAN: dài hơn tối ưu, trung bình mỗi đợt
+  thuật toán             TB (%)           CI 95%  đúng tối ưu  tệ nhất (%)
+  Nearest Neighbor        13.11    8.77 đến 17.79        0/12         33.20
+  Clarke-Wright            2.20    0.83 đến  3.70        3/12          6.66
+  Q-Learning              11.75    7.82 đến 16.14        0/12         30.28
+  SARSA                   15.20   10.48 đến 20.18        0/12         31.84
+  DQN                      5.76    3.18 đến  8.79        1/12         18.20
+  K-Means-guided DQN       7.50    4.58 đến 11.34        0/12         24.27
+  NN + local search        1.00    0.19 đến  2.01        7/12          5.20
+
+ĐÚNG HẠN (108 đợt, 813 đơn có hạn giao, tính theo mô hình)
+  kiểm tra cách tính: NN tự tính trễ 7 đơn, NN benchmark trễ 7 đơn (phải bằng nhau)
+  phương pháp                         đơn trễ  phút trễ    km TB
+  Nearest Neighbor                          7     196.1    62.68
+  Clarke-Wright                             7     165.6    58.05
+  Q-Learning                                0       0.0    62.26
+  SARSA                                     2     113.0    62.86
+  DQN                                       0       0.0    59.83
+  NN + local search (chỉ quãng đường)        4      77.2    57.03
+  Tối ưu quãng đường (chính xác)            9      87.7    56.69
+  NN + local search có tính hạn giao        0       0.0    57.05
+
+SO SÁNH CẶP VỚI NN + LOCAL SEARCH (quãng đường, 108 đợt)
+  DQN                  thắng   3, hòa   8, thua  97 | chênh TB +2.799 km | Wilcoxon p = 4.1e-17
+  Clarke-Wright        thắng  15, hòa  24, thua  69 | chênh TB +1.024 km | Wilcoxon p = 1.9e-10
+  Q-Learning           thắng   0, hòa   7, thua 101 | chênh TB +5.233 km | Wilcoxon p = 2.7e-18
+  SARSA                thắng   0, hòa   5, thua 103 | chênh TB +5.829 km | Wilcoxon p = 1.2e-18
+
+THEO CỠ ĐỢT (quãng đường, dài hơn tối ưu, trung bình %)
+  cỡ          số đợt  Nearest Neig  Clarke-Wrigh           DQN  NN + local s
+  5-7             64          8.07          1.68          5.27          0.10
+  8-10            28         12.31          3.17          5.79          0.98
+  11-16           16         12.94          3.33          6.36          1.23

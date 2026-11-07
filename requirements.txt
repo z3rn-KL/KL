@@ -1,6 +1,8 @@
 numpy
 pandas
 scikit-learn
+# 3.7 cannot load DLLs on Windows when the path has characters such as "ậ".
+threadpoolctl<3.7
 matplotlib
 pytest
 

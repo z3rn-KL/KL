@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <title>NEXUS V10 - Thử nghiệm Bản đồ Vector OpenFreeMap (Duplicate Labels Audit)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <!-- Leaflet CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- MapLibre GL CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+
+  <!-- MapLibre GL Leaflet Plugin -->
+  <script src="https://unpkg.com/@maplibre/maplibre-gl-leaflet@0.0.21/leaflet-maplibre-gl.js"></script>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    header {
+      background: #1e293b;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #334155;
+    }
+    .title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #38bdf8;
+    }
+    .badge {
+      font-size: 12px;
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid #38bdf8;
+      color: #38bdf8;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+    .controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .btn {
+      background: #334155;
+      color: #f8fafc;
+      border: 1px solid #475569;
+      padding: 6px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .btn:hover, .btn.active {
+      background: #0284c7;
+      border-color: #38bdf8;
+    }
+    .container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      flex: 1;
+      gap: 2px;
+      background: #334155;
+    }
+    .map-pane {
+      display: flex;
+      flex-direction: column;
+      background: #0f172a;
+      position: relative;
+    }
+    .pane-header {
+      background: rgba(30, 41, 59, 0.9);
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid #334155;
+      z-index: 1000;
+    }
+    .map {
+      flex: 1;
+      width: 100%;
+    }
+    .coord-selector {
+      background: #0f172a;
+      padding: 6px 12px;
+      border-bottom: 1px solid #334155;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div>
+      <div class="title">NEXUS V10 | Thử nghiệm Bản đồ Vector OpenFreeMap (Đối chứng Nhãn Địa Danh)</div>
+      <div style="font-size: 12px; color: #94a3b8; margin-top: 3px;">
+        So sánh đồng bộ giữa Bản đồ Raster OSM hiện tại (trái) và Bản đồ Vector OpenFreeMap Positron đã lọc nhãn trùng (phải)
+      </div>
+    </div>
+    <div class="badge">CHẾ ĐỘ THỬ NGHIỆM ĐỘC LẬP (SANDBOX)</div>
+  </header>
+
+  <div class="coord-selector">
+    <span style="color: #94a3b8; font-weight: 600;">Di chuyển nhanh tới toạ độ kiểm thử:</span>
+    <button class="btn active" onclick="gotoLocation(10.972, 106.493, 11, 'Củ Chi')">Củ Chi (z11)</button>
+    <button class="btn" onclick="gotoLocation(10.902, 106.467, 11, 'Hậu Nghĩa')">Hậu Nghĩa (z11)</button>
+    <button class="btn" onclick="gotoLocation(10.638, 106.488, 11, 'Bến Lức')">Bến Lức (z11)</button>
+    <button class="btn" onclick="gotoLocation(10.957, 106.842, 11, 'Đồng Nai')">Đồng Nai / Biên Hoà (z11)</button>
+    <button class="btn" onclick="gotoLocation(10.810, 106.709, 13, 'Bình Thạnh')">Bình Thạnh (z13)</button>
+    <button class="btn" onclick="gotoLocation(10.7769, 106.7009, 12, 'Trung tâm TP.HCM')">Trung tâm TP.HCM (Depot Q1)</button>
+  </div>
+
+  <div class="container">
+    <!-- Map 1: Hiện tại (OSM German Raster) -->
+    <div class="map-pane">
+      <div class="pane-header">
+        <span style="color: #f87171;">BẢN ĐỒ HIỆN TẠI: OSM RASTER TILE (tile.openstreetmap.de)</span>
+        <span style="color: #94a3b8; font-weight: normal;">Hiện tượng: Nhãn in sẵn 2 dòng (Local + Latin)</span>
+      </div>
+      <div id="map-raster" class="map"></div>
+    </div>
+
+    <!-- Map 2: Thử nghiệm (OpenFreeMap Vector) -->
+    <div class="map-pane">
+      <div class="pane-header">
+        <span style="color: #4ade80;">BẢN ĐỒ THỬ NGHIỆM: OPENFREEMAP POSITRON VECTOR (Đã lọc trùng)</span>
+        <span style="color: #94a3b8; font-weight: normal;">Kết quả: 1 nhãn duy nhất, sắc nét, không API Key</span>
+      </div>
+      <div id="map-vector" class="map"></div>
+    </div>
+  </div>
+
+  <script>
+    const INITIAL_CENTER = [10.972, 106.493];
+    const INITIAL_ZOOM = 11;
+
+    // 1. Khởi tạo Bản đồ Raster (Hiện tại)
+    const mapRaster = L.map("map-raster", {
+      center: INITIAL_CENTER,
+      zoom: INITIAL_ZOOM,
+      zoomControl: true,
+    });
+    L.tileLayer("https://tile.openstreetmap.de/{z}/{x}/{y}.png", {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19
+    }).addTo(mapRaster);
+
+    // 2. Khởi tạo Bản đồ Vector OpenFreeMap (Thử nghiệm)
+    const mapVector = L.map("map-vector", {
+      center: INITIAL_CENTER,
+      zoom: INITIAL_ZOOM,
+      zoomControl: true,
+    });
+
+    // Tải style Positron và tinh chỉnh để loại bỏ nhãn kép
+    async function initVectorMap() {
+      try {
+        const res = await fetch("https://tiles.openfreemap.org/styles/positron");
+        const style = await res.json();
+
+        // Tinh chỉnh quy tắc nhãn: Chỉ dùng 1 tên tiếng Việt chuẩn thay vì concat [latin + "\n" + nonlatin]
+        style.layers.forEach((layer) => {
+          if (layer.type === "symbol" && layer.layout && layer.layout["text-field"]) {
+            const tf = layer.layout["text-field"];
+            // Nếu có biểu thức case concat name:latin và name:nonlatin
+            if (Array.isArray(tf) && tf[0] === "case") {
+              layer.layout["text-field"] = [
+                "coalesce",
+                ["get", "name:vi"],
+                ["get", "name"],
+                ["get", "name:latin"]
+              ];
+            }
+          }
+        });
+
+        // Thêm layer MapLibre GL Leaflet
+        L.maplibreGL({
+          style: style,
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://openfreemap.org">OpenFreeMap</a>'
+        }).addTo(mapVector);
+
+        console.log("Vector layer initialized successfully with deduplicated labels.");
+      } catch (err) {
+        console.error("Failed to load vector style, falling back to direct URL:", err);
+        L.maplibreGL({
+          style: "https://tiles.openfreemap.org/styles/positron",
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://openfreemap.org">OpenFreeMap</a>'
+        }).addTo(mapVector);
+      }
+    }
+
+    initVectorMap();
+
+    // 3. Đồng bộ tương tác Zoom / Pan giữa 2 bản đồ
+    let syncing = false;
+    mapRaster.on("move", () => {
+      if (!syncing) {
+        syncing = true;
+        mapVector.setView(mapRaster.getCenter(), mapRaster.getZoom(), { animate: false });
+        syncing = false;
+      }
+    });
+    mapVector.on("move", () => {
+      if (!syncing) {
+        syncing = true;
+        mapRaster.setView(mapVector.getCenter(), mapVector.getZoom(), { animate: false });
+        syncing = false;
+      }
+    });
+
+    // 4. Thêm tuyến đường mẫu để kiểm tra tính năng GIS
+    const routeCoords = [
+      [10.7769, 106.7009],
+      [10.7950, 106.6900],
+      [10.8200, 106.6800],
+      [10.8500, 106.6500],
+      [10.9720, 106.4930]
+    ];
+
+    [mapRaster, mapVector].forEach(m => {
+      L.polyline(routeCoords, {
+        color: "#2563eb",
+        weight: 5,
+        opacity: 0.9
+      }).addTo(m);
+
+      L.marker([10.7769, 106.7009]).addTo(m).bindPopup("Depot Q1");
+      L.marker([10.9720, 106.4930]).addTo(m).bindPopup("Điểm giao Củ Chi");
+    });
+
+    function gotoLocation(lat, lng, zoom, label) {
+      document.querySelectorAll(".coord-selector .btn").forEach(b => {
+        b.classList.toggle("active", b.textContent.includes(label.split(" ")[0]));
+      });
+      mapRaster.setView([lat, lng], zoom);
+      mapVector.setView([lat, lng], zoom);
+    }
+  </script>
+</body>
+</html>
+

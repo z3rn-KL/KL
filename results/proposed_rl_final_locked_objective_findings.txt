@@ -1,0 +1,107 @@
+PROPOSED RL FINAL LOCKED OBJECTIVE COMPARISON
+
+Held-out Test:
+workloads = 16
+deliveries = 131
+
+Locked objective:
+J = 0.375*D_bar + 0.375*T_bar + 0.10*M_bar + 0.10*L_bar + 0.05*S_bar
+
+Baseline delivery orders were recovered using the original benchmark implementations with seed 42.
+Recovered routes were accepted only when distance, travel time, SLA/late deliveries and lateness exactly matched the canonical benchmark within numerical floating-point tolerance.
+
+No objective tuning, model selection or Test-set training was performed.
+
+SUMMARY
+
+[NN]
+mean_distance_km = 59.576855319
+mean_travel_time_minutes = 64.945264387
+late_deliveries = 1
+weighted_sla = 0.992366412
+total_lateness_minutes = 10.464877424
+mean_cluster_switches = 4.062500000
+mean_cluster_switch_rate = 0.586708604
+mean_locked_objective = 0.451513218
+
+[CW]
+mean_distance_km = 55.583550256
+mean_travel_time_minutes = 60.739702992
+late_deliveries = 0
+weighted_sla = 1.000000000
+total_lateness_minutes = 0.000000000
+mean_cluster_switches = 4.250000000
+mean_cluster_switch_rate = 0.609131494
+mean_locked_objective = 0.425708723
+
+[Q-Learning]
+mean_distance_km = 60.039044188
+mean_travel_time_minutes = 65.432095304
+late_deliveries = 0
+weighted_sla = 1.000000000
+total_lateness_minutes = 0.000000000
+mean_cluster_switches = 4.187500000
+mean_cluster_switch_rate = 0.596651786
+mean_locked_objective = 0.449461032
+
+[SARSA]
+mean_distance_km = 60.805232460
+mean_travel_time_minutes = 66.212969924
+late_deliveries = 0
+weighted_sla = 1.000000000
+total_lateness_minutes = 0.000000000
+mean_cluster_switches = 4.187500000
+mean_cluster_switch_rate = 0.598072240
+mean_locked_objective = 0.457502742
+
+[DQN]
+mean_distance_km = 57.113480796
+mean_travel_time_minutes = 62.326586554
+late_deliveries = 0
+weighted_sla = 1.000000000
+total_lateness_minutes = 0.000000000
+mean_cluster_switches = 4.125000000
+mean_cluster_switch_rate = 0.591916937
+mean_locked_objective = 0.435210813
+
+[Proposed RL]
+mean_distance_km = 61.897692868
+mean_travel_time_minutes = 67.520761465
+late_deliveries = 1
+weighted_sla = 0.992366412
+total_lateness_minutes = 12.720152098
+mean_cluster_switches = 4.000000000
+mean_cluster_switch_rate = 0.581026786
+mean_locked_objective = 0.464878233
+
+PROPOSED RL VS BASELINES
+
+[vs NN]
+locked_objective_improvement_pct = -2.960050
+cluster_switch_reduction_pct = 1.538462
+sla_change_percentage_points = 0.000000
+late_delivery_change = 0
+
+[vs CW]
+locked_objective_improvement_pct = -9.201012
+cluster_switch_reduction_pct = 5.882353
+sla_change_percentage_points = -0.763359
+late_delivery_change = 1
+
+[vs Q-Learning]
+locked_objective_improvement_pct = -3.430153
+cluster_switch_reduction_pct = 4.477612
+sla_change_percentage_points = -0.763359
+late_delivery_change = 1
+
+[vs SARSA]
+locked_objective_improvement_pct = -1.612120
+cluster_switch_reduction_pct = 4.477612
+sla_change_percentage_points = -0.763359
+late_delivery_change = 1
+
+[vs DQN]
+locked_objective_improvement_pct = -6.816793
+cluster_switch_reduction_pct = 3.030303
+sla_change_percentage_points = -0.763359
+late_delivery_change = 1
