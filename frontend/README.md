@@ -22,17 +22,17 @@ trong `python/api`, không tự tính toán thuật toán.
 
 ## Chạy thử
 
-Cần Node.js 18+ và backend đang chạy ở cổng 8000.
+Cần Node.js 18+ và backend đang chạy ở cổng 8011.
 
 ```bash
 # Terminal 1 – backend (từ thư mục gốc repo)
 cd python
-PYTHONPATH=. uvicorn api.main:app --port 8000
+PYTHONPATH=. uvicorn api.main:app --port 8011
 
 # Terminal 2 – frontend
 cd frontend
 npm install
-npm run dev          # http://localhost:5173
+npm run dev          # http://localhost:5176
 ```
 
 Vite proxy mọi yêu cầu `/api/*` tới backend. Nếu backend chạy ở địa chỉ khác:

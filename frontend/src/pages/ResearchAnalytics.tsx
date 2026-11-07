@@ -65,7 +65,7 @@ const TOPIC_DETAILS: Record<
   benchmark: {
     eyebrow: "Đối sánh thuật toán",
     title: "So sánh theo từng tập thực nghiệm (108 Workloads)",
-    desc: "Các nhóm 108, 12 và 16 workload được đối sánh khoa học: Proposed RL vượt trội về tỷ lệ giao đúng hạn và giảm cự ly.",
+    desc: "Các nhóm 108, 12 và 16 workload được đối sánh theo cùng tiêu chí: Clarke–Wright có cự ly ngắn nhất, còn Proposed RL không thắng các thuật toán đối chứng trên tập kiểm tra độc lập.",
     link: "/so-sanh",
   },
   ablation: {

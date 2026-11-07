@@ -818,7 +818,7 @@ export default function Clusters() {
                 • <b>Phương pháp A (Sàng lọc Hình học Haversine - hiển thị ở bảng trên):</b> Tính khoảng cách đại viên (great-circle distance) từ vị trí mỗi đơn đến trọng tâm cụm tương ứng. Phân vị 97,5% (Top 2,5% xa tâm) xác định các đơn ở rìa cụm địa lý phục vụ việc giám sát phân bố.
               </p>
               <p>
-                • <b>Phương pháp B (Sàng lọc Đường bộ Thực địa OSRM - endpoint Backend <code>/api/adverse-deliveries/screen</code>):</b> Sử dụng ma trận thời gian và cự ly đường bộ thực tế qua mạng lưới OpenStreetMap kết hợp bộ lọc khoảng cách và thời hạn SLA để cô lập các đơn bất lợi trước khi đưa vào bộ lập tuyến.
+                • <b>Phương pháp B (Sàng lọc trên đồ thị đường OpenStreetMap - endpoint Backend <code>/api/adverse-deliveries/screen</code>):</b> Sử dụng thời gian và cự ly tính trên đồ thị đường OpenStreetMap kết hợp bộ lọc khoảng cách và thời hạn SLA để cô lập các đơn bất lợi trước khi đưa vào bộ lập tuyến.
               </p>
             </AccordionContent>
           </AccordionItem>

@@ -2,7 +2,7 @@
 ## NEXUS Delivery Intelligence — Leader Handover & Defense Operations Manual
 **Khóa luận Tốt nghiệp:** *Xây dựng hệ thống tối ưu tuyến giao hàng kết hợp kỹ thuật phân cụm và Reinforcement Learning trong logistics.*  
 **Người nhận bàn giao:** Leader / Nhóm nghiên cứu Khóa luận  
-**Trạng thái hệ thống:** Sẵn sàng 100% cho buổi Bảo vệ Khóa luận Tốt nghiệp (Defense-Ready)  
+**Trạng thái hệ thống:** Đã qua kiểm thử tự động; cần chạy thử trên máy trình bày trước buổi Bảo vệ Khóa luận Tốt nghiệp  
 **Ngày bàn giao:** 06/11/2026
 
 ---
@@ -38,7 +38,7 @@ Toàn bộ hệ thống đã được kiểm toán khắt khe, đồng bộ hóa
 
 Nhằm bảo đảm an toàn tuyệt đối cho mã nguồn của Leader, mọi thao tác tinh chỉnh đều tuân thủ nguyên tắc **Zero-Destructive Git Policy**:
 - **Nhánh làm việc (Branch)**: `feature/frontend-duy`
-- **Commit HEAD gốc**: `996a17a` (*"refactor(frontend): improve performance, accessibility, and UI components"*)
+- **Commit HEAD gốc**: `996a17a` (*"fix: stabilize NEXUS website, dispatch and research integration"*)
 - **Chính sách nhánh**: Tuyệt đối **KHÔNG** tự ý thực hiện `git commit`, `git push`, `git rebase` hay `git reset --hard`.
 - **Mã nguồn được chỉnh sửa cục bộ**:
   - `frontend/vite.config.ts`: Mở rộng binding host `0.0.0.0` cho môi trường dev và preview.
@@ -47,7 +47,7 @@ Nhằm bảo đảm an toàn tuyệt đối cho mã nguồn của Leader, mọi 
   - `frontend/src/pages/Overview.tsx`: Nâng cấp trực quan quy trình điều phối 5 bước.
   - `frontend/src/components/research/RLTrainingExplorer.tsx`: Chuẩn hóa phân loại artifact và callout khoa học.
   - `frontend/src/pages/SimulationOps.tsx`: Đồng bộ hóa nhãn KPI `"Shipper đang hoạt động"`.
-- **Backend & Models**: Toàn bộ thư mục `python/` lõi, `weights/` và `data/` được giữ nguyên vẹn 100%.
+- **Backend & Models**: Toàn bộ thư mục `python/` lõi và các checkpoint trong `results/` được giữ nguyên.
 
 ---
 
@@ -58,16 +58,16 @@ Hệ thống kết hợp mô hình phân tán giữa FastAPI Backend và React V
 ```mermaid
 flowchart LR
     Browser["Trình duyệt Web (Chrome / Edge)<br>1440x900 | 1920x1080"] -->|HTTP / WebSocket| ViteServer["Vite Dev Server<br>http://127.0.0.1:5176<br>(host: 0.0.0.0)"]
-    ViteServer -->|Reverse Proxy /api/*| FastAPIServer["FastAPI Backend<br>http://127.0.0.1:8011<br>(Python 3.14 / Uvicorn)"]
+    ViteServer -->|Reverse Proxy /api/*| FastAPIServer["FastAPI Backend<br>http://127.0.0.1:8011<br>(Python / Uvicorn)"]
     FastAPIServer -->|Inference Engine| PyTorchArtifact["Checkpoint PyTorch (.pt)<br>Candidate-Scoring DQN<br>(8 State Invariants)"]
-    FastAPIServer -->|GIS & Geo Data| GeoDatabase["2.394 Đơn hàng thực tế<br>K-Means K=10 Cụm<br>Ma trận cự ly OSRM"]
+    FastAPIServer -->|GIS & Geo Data| GeoDatabase["2.394 Đơn hàng thực tế<br>K-Means K=10 Cụm<br>Đồ thị đường OpenStreetMap"]
     FastAPIServer -->|Session State| DispatchEngine["Engine Điều phối & Mô phỏng<br>Vòng đời ca 3 ngày<br>16 Shipper & Kết chuyển đơn"]
 ```
 
 #### Yêu cầu môi trường thực thi:
 - **Hệ điều hành**: Windows 10/11 x64
 - **Node.js**: v20.x hoặc v22.x LTS
-- **Python**: 3.11 – 3.14 với PyTorch, FastAPI, Uvicorn, Scikit-learn
+- **Python**: 3.12 trở lên (đã chạy trên Windows với 3.13) với PyTorch, FastAPI, Uvicorn, Scikit-learn
 - **Cổng dịch vụ (Ports)**:
   - Backend API: `8011`
   - Frontend UI: `5176`
@@ -81,7 +81,6 @@ flowchart LR
 2. **Mã nguồn dịch vụ (Backend Source)**: Toàn bộ thư mục `python/` bao gồm API routes (`python/api/`), thuật toán lập tuyến (`python/routing/`), mô hình học tăng cường (`python/rl/`) và bộ mô phỏng điều phối (`python/simulation/`).
 3. **Mô hình học máy thực tế (Active Models)**:
    - `results/proposed_rl_multiworkload_D_moderate_sla_best.pt`: Checkpoint PyTorch mô hình đề xuất đang trực tiếp tính toán điều phối tuyến.
-   - `weights/best_candidate_dqn.pt`: Trọng số sao lưu chuẩn.
 4. **Nhật ký huấn luyện đối chuẩn (Benchmark Training Logs)**:
    - `results/dqn_single_workload_training.csv` (5.000 episodes)
    - `results/sarsa_single_workload_training.csv` (5.000 episodes)
@@ -90,7 +89,7 @@ flowchart LR
    - `frontend/tests/final_stabilization_regression_suite.mjs` (25 kịch bản UI)
    - `frontend/tests/e2e_three_day_lifecycle_integrity.mjs` (29 kịch bản vòng đời 3 ngày)
    - `frontend/tests/deep_scientific_integrity_suite.mjs` (8 kiểm toán số học khoa học)
-   - `python/tests/` (39 unit tests backend)
+   - `python/tests/` (467 test backend; nhóm 39 test cốt lõi ở Mục 8)
 
 #### B. Các tệp tạm loại trừ khỏi bàn giao (Excluded Artifacts):
 - Thư mục build tạm `frontend/dist/` (tự động tạo khi chạy `npm run build`).
@@ -202,7 +201,7 @@ Toàn bộ ứng dụng được tối ưu hóa tải trang nhanh, các trang ng
 *(Kịch bản chi tiết 7 bước giúp Leader và sinh viên trình diễn mượt mà trong 10-15 phút trước Hội đồng Chấm Khóa Luận)*
 
 #### Bước 1: Khởi động hệ thống (2 phút trước khi lên thuyết trình)
-- Mở Terminal 1: `python -m uvicorn python.api.main:app --host 127.0.0.1 --port 8011`
+- Mở Terminal 1 (PowerShell, từ thư mục gốc): `cd python; $env:PYTHONPATH="."; $env:PYTHONUTF8="1"; ..\.venv\Scripts\python.exe -m uvicorn api.main:app --host 127.0.0.1 --port 8011`
 - Mở Terminal 2: `npm --prefix frontend run dev`
 - Mở trình duyệt Chrome ở chế độ toàn màn hình (F11): truy cập `http://127.0.0.1:5176`
 
@@ -218,7 +217,7 @@ Toàn bộ ứng dụng được tối ưu hóa tải trang nhanh, các trang ng
 
 #### Bước 4: Trình diễn Màn hình 03 — Tối ưu tuyến bằng RL (3 phút)
 - **Hành động**: Nhấn **"Tính toán tuyến tối ưu"** $\to$ Hiển thị lộ trình 16 shipper.
-- **Thuyết minh**: "Tầng 2 sử dụng mạng Candidate-Scoring DQN nạp trực tiếp checkpoint PyTorch đã được huấn luyện qua 50 epochs. Mạng tiếp nhận 8 đặc trưng bất biến của từng ứng viên để dự đoán giá trị Q-value."
+- **Thuyết minh**: "Tầng 2 sử dụng mạng Candidate-Scoring DQN nạp trực tiếp checkpoint PyTorch được chọn tại Epoch 30 trong 40 epochs huấn luyện. Mạng tiếp nhận 8 đặc trưng bất biến của từng ứng viên để dự đoán giá trị Q-value."
 - **Thao tác**: Mở modal **"Vết quyết định RL"** $\to$ Chỉ ra bảng tính 8 đặc trưng và Q-value cao nhất (ít âm nhất) được chọn $\to$ Đóng modal và nhấn **"Xác nhận kế hoạch"**.
 
 #### Bước 5: Trình diễn Màn hình 04 — Mô phỏng vận hành (2 phút)
@@ -233,7 +232,7 @@ Toàn bộ ứng dụng được tối ưu hóa tải trang nhanh, các trang ng
 
 #### Bước 7: Trình diễn Màn hình 06 — Thực nghiệm và Đối chuẩn (2 phút)
 - **Hành động**: Mở tab 1 `108 WL (Cơ sở Benchmark)`, sau đó mở tab 2 `Kết quả huấn luyện RL`.
-- **Thuyết minh**: "Tại màn hình thực nghiệm, chúng em đối chuẩn 5 thuật toán trên 108 workloads cơ sở. Mô hình DQN đạt SLA tối ưu 100%, bảo toàn đúng hạn hoàn hảo so với các heuristic truyền thống. Tại tab huấn luyện, mô hình Proposed RL đạt điểm cân bằng tại Epoch 30 trên 76 workloads huấn luyện và tổng quát hóa tốt trên tập validation và test độc lập."
+- **Thuyết minh**: "Tại màn hình thực nghiệm, chúng em đối chuẩn 5 thuật toán trên 108 workloads cơ sở. Clarke–Wright có cự ly ngắn nhất (58,05 km). Vanilla DQN và Q-Learning đạt SLA 100% (813/813 đơn), so với 99,1% của Nearest Neighbor và Clarke–Wright; đây là số tính theo mô hình thời gian lý tưởng, không phải tỷ lệ đúng hạn ngoài đời. Tại tab huấn luyện, checkpoint Proposed RL được chọn tại Epoch 30 trên 76 workloads huấn luyện. Trên 16 workloads kiểm tra độc lập, Proposed RL không thắng các thuật toán đối chứng (J = 0,4649, xếp cuối trong 6 phương pháp; Clarke–Wright dẫn đầu với J = 0,4257), vì mỗi workload chỉ có 5 đến 16 điểm nên heuristic đã gần tối ưu."
 - **Kết thúc**: Cảm ơn Hội đồng và chuyển sang phần trả lời câu hỏi.
 
 ---

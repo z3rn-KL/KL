@@ -180,7 +180,7 @@ export function RouteTransitionInspector({
 
             {totalDistanceKm !== null && totalDistanceKm !== undefined && (
               <span className="text-muted-foreground font-mono">
-                {num(totalDistanceKm, 1)} km (OSRM)
+                {num(totalDistanceKm, 1)} km (OSM)
               </span>
             )}
 

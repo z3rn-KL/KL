@@ -90,14 +90,14 @@ Nhánh `release/kltn-11-final` được tạo lập độc lập, kết hợp đ
 Do kích thước tập tin lớn vượt quá giới hạn khuyến nghị của Git, 2 tệp dữ liệu sau được loại trừ qua `.gitignore` và cần được bố trí sẵn tại máy chủ vận hành:
 
 1. **Dataset Đơn hàng XeDu thô:**
-   - Đường dẫn: `dataset/xedu/xedu_cleaned.csv` (dung lượng ~24.5 MB).
+   - Đường dẫn: `dataset/xedu/xedu_cleaned.csv` (dung lượng ~1,5 MB).
    - *Cách bổ sung:* Sao chép tệp `xedu_cleaned.csv` vào thư mục `dataset/xedu/`.
-   - *Lưu ý:* Hệ thống đã đóng gói sẵn các tập mẫu con và snapped orders trong `results/`, do đó giao diện web và các kịch bản chuẩn vẫn chạy hoàn toàn bình thường ngay cả khi chưa nạp file thô này.
+   - *Lưu ý:* Các API đọc đơn hàng (ví dụ `/api/deliveries`) cần tệp này; nếu thiếu, `/api/health` báo trạng thái `degraded`.
 
 2. **Đồ thị Đường sá OpenStreetMap (OSM Road Graph):**
-   - Đường dẫn: `maps/xedu_drive.graphml` (dung lượng ~182 MB).
+   - Đường dẫn: `maps/xedu_drive.graphml` (dung lượng ~166 MB).
    - *Cách bổ sung:* Đặt tệp `xedu_drive.graphml` vào thư mục `maps/`.
-   - *Cơ chế dự phòng tích hợp:* Nếu tệp đồ thị chưa được tải, backend sẽ tự động sử dụng ma trận khoảng cách OSRM nội suy hoặc Euclidean đường bộ đã lưu trong `results/daily_planning_road_matrix.npz` (đã có trong Git), đảm bảo tính liên tục không gián đoạn.
+   - *Lưu ý:* Backend không có cơ chế dự phòng cho tệp này: các API dùng đồ thị đường tải trực tiếp từ đây. Tệp `results/daily_planning_road_matrix.npz` cũng nằm ngoài Git và chỉ dùng cho các script thí nghiệm, không thay thế được đồ thị.
 
 ---
 
@@ -105,10 +105,12 @@ Do kích thước tập tin lớn vượt quá giới hạn khuyến nghị củ
 
 ### Bước 1: Khởi động Backend (FastAPI)
 ```powershell
-# Kích hoạt virtual environment (nếu có)
-python -m uvicorn python.api.main:app --host 127.0.0.1 --port 8011 --reload
+cd python
+$env:PYTHONPATH = "."
+$env:PYTHONUTF8 = "1"
+..\.venv\Scripts\python.exe -m uvicorn api.main:app --host 127.0.0.1 --port 8011 --reload
 ```
-*Kiểm tra sức khỏe backend:* Truy cập `http://127.0.0.1:8011/api/health` trả về `{"status": "healthy"}`.
+*Kiểm tra sức khỏe backend:* Truy cập `http://127.0.0.1:8011/api/health` trả về `"status": "ready"`.
 
 ### Bước 2: Khởi động Frontend (Vite)
 ```powershell

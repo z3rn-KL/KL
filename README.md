@@ -32,18 +32,18 @@ $env:PYTHONUTF8 = "1"
 .\.venv\Scripts\python.exe -m pytest python
 ```
 
-### Khởi động Backend API (Cổng 8000)
+### Khởi động Backend API (Cổng 8011)
 
 **Trên Linux / macOS / Bash:**
 ```bash
-cd python && PYTHONPATH=. uvicorn api.main:app --port 8000
+cd python && PYTHONPATH=. uvicorn api.main:app --port 8011
 ```
 
 **Trên Windows Command Prompt (CMD):**
 ```cmd
 cd python
 set PYTHONPATH=.
-uvicorn api.main:app --port 8000
+uvicorn api.main:app --port 8011
 ```
 
 **Trên Windows PowerShell:**
@@ -51,16 +51,18 @@ uvicorn api.main:app --port 8000
 cd python
 $env:PYTHONPATH="."
 $env:PYTHONUTF8="1"
-..\.venv\Scripts\python.exe -m uvicorn api.main:app --port 8000
+..\.venv\Scripts\python.exe -m uvicorn api.main:app --port 8011
 ```
 
-### Khởi động Giao diện Web NEXUS (Cổng 5173 / 5174)
+### Khởi động Giao diện Web NEXUS (Cổng 5176)
 
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
+
+Dev server mở tại `http://localhost:5176`, chuyển `/api` sang cổng 8011 và cho phép các máy cùng mạng truy cập. Chế độ công khai ở Mục 2 dùng riêng cổng 8000.
 
 Build giao diện phục vụ sản xuất: `cd frontend && npm run build`. Chi tiết các trang và API endpoints: [frontend/README.md](frontend/README.md).
 
